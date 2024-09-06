@@ -1,3 +1,5 @@
+// import { Vector2 } from "three";
+
 export const colors = [
   "#5dc0a4",
   "#b5e2dd",
@@ -14,6 +16,43 @@ export const colors = [
   "#ffffff",
   "#e4e5e6",
   "#3a3a3a",
+];
+
+export const patternSettings = {
+  patternDotSize: 0.25,
+  patternContrast: 0.5,
+  patternFrequency: 0.5,
+  patternDensityX: 0.5,
+  patternDensityY: 0.5,
+};
+
+export const gridSettings = {
+  gridType: 0,
+  gridConnectors: [true, false],
+  gridQuantity: 9,
+};
+
+export const inputModes = [
+  {
+    label: "Image",
+    file: true,
+    accepts: ["image/jpeg", "image/jpg", "image/png"],
+    value: 0,
+  },
+  {
+    label: "Video",
+    file: true,
+    accepts: ["video/mp4", "video/webm"],
+    value: 1,
+  },
+  {
+    label: "Camera",
+    value: 2,
+  },
+  {
+    label: "Text",
+    value: 3,
+  },
 ];
 
 // export const layouts = [

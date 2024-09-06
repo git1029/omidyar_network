@@ -21,8 +21,19 @@
     @apply text-2xl uppercase;
   }
 
-  label {
-    @apply uppercase;
+  input[type="range"] {
+    @apply appearance-none h-3 border-black-100 border bg-transparent z-10
+    [&::-webkit-slider-thumb]:appearance-none 
+    [&::-webkit-slider-thumb]:bg-black-100 
+    [&::-webkit-slider-thumb]:w-3 
+    [&::-webkit-slider-thumb]:h-3 
+    [&::moz-range-thumb]:w-3 
+    [&::moz-range-thumb]:h-3 
+    [&::moz-range-thumb]:bg-black-100;
+  }
+
+  select {
+    @apply border border-black-100 p-1 w-[300px];
   }
 }
 
@@ -36,10 +47,6 @@
   font-family: F37LinecaMedium, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  /* color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424; */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
