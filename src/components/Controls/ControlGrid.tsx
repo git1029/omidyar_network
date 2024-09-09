@@ -74,7 +74,8 @@ const ControlGrid = () => {
   return (
     <ControlGroup>
       <h2>Grid</h2>
-      <div className="flex flex-col">
+      <div className="flex items-center">
+        <label>Layout</label>
         <select
           value={grid}
           onChange={(e) => handleGridTypeChange(Number(e.target.value))}
@@ -87,7 +88,7 @@ const ControlGrid = () => {
         </select>
       </div>
       <div className="flex items-center">
-        <label className="w-[200px]">Connectors</label>
+        <label>Connectors</label>
         <div className="flex gap-x-1">
           {gridOptions[grid].connectors.map((c, i) => (
             <img

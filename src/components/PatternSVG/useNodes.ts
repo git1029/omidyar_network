@@ -28,16 +28,16 @@ interface Node {
   neighbours: Neighbour[];
 }
 
-const useNodes = () => {
+const useNodes = (grid = 20) => {
   const { viewport, scene } = useThree();
 
-  const [grid, uniforms] = useMemo(() => {
-    const grid = 20;
-    const uniforms = {
-      uGrid: new Uniform(grid),
-    };
-    return [grid, uniforms];
-  }, []);
+  // const [uniforms] = useMemo(() => {
+  //   // const grid = 20;
+  //   const uniforms = {
+  //     uGrid: new Uniform(grid),
+  //   };
+  //   return [uniforms];
+  // }, []);
 
   const nodes: Node[] = useMemo(() => {
     const nodes: Node[] = [];
@@ -74,95 +74,95 @@ const useNodes = () => {
       nodes.push({ i, p, r, neighbours });
     }
 
-    nodes.forEach((node) => {
-      const l = node.neighbours.find((n) => n.dir === "l");
-      if (l) {
-        const left = nodes.find((n) => n.i === l.node);
+    // nodes.forEach((node) => {
+    //   const l = node.neighbours.find((n) => n.dir === "l");
+    //   if (l) {
+    //     const left = nodes.find((n) => n.i === l.node);
 
-        if (left) {
-          const m = metaball(node.r / 2, left.r / 2, node.p, left.p);
-          console.log(m);
+    //     if (left) {
+    //       const m = metaball(node.r / 2, left.r / 2, node.p, left.p);
+    //       // console.log(m);
 
-          if (m) {
-            const shape = new Shape();
-            for (let i = 0; i < m.length; i++) {
-              const c = m[i];
-              if (c.type === "M") shape.moveTo(c.a.x, c.a.y);
-              // if (c.type === "L") shape.lineTo(c.a.x, c.a.y);
-              // else if (c.type === "L") shape.lineTo(c.a.x, c.a.y);
-              else if (c.type === "C")
-                shape.bezierCurveTo(
-                  c.c1.x,
-                  c.c1.y,
-                  c.c2.x,
-                  c.c2.y,
-                  c.a.x,
-                  c.a.y
-                );
-            }
+    //       if (m) {
+    //         const shape = new Shape();
+    //         for (let i = 0; i < m.length; i++) {
+    //           const c = m[i];
+    //           if (c.type === "M") shape.moveTo(c.a.x, c.a.y);
+    //           // if (c.type === "L") shape.lineTo(c.a.x, c.a.y);
+    //           // else if (c.type === "L") shape.lineTo(c.a.x, c.a.y);
+    //           else if (c.type === "C")
+    //             shape.bezierCurveTo(
+    //               c.c1.x,
+    //               c.c1.y,
+    //               c.c2.x,
+    //               c.c2.y,
+    //               c.a.x,
+    //               c.a.y
+    //             );
+    //         }
 
-            const geometry = new ShapeGeometry(shape, 32);
-            // const geometry = new PlaneGeometry(1, 1);
-            // console.log(geometry.attributes.position);
+    //         const geometry = new ShapeGeometry(shape, 32);
+    //         // const geometry = new PlaneGeometry(1, 1);
+    //         // console.log(geometry.attributes.position);
 
-            // const position = geometry.attributes.position;
-            // for (let i = 0; i < m.length; i++) {
-            //   const c = m[i];
-            //   position.setXYZ(i, c.a.x, c.a.y, 0);
-            //   // if (c.type === "L") shape.lineTo(c.a.x, c.a.y);
-            //   // else if (c.type === "L") shape.lineTo(c.a.x, c.a.y);
-            //   // else if (c.type === "C")
-            //   //   shape.bezierCurveTo(
-            //   //     c.c1.x,
-            //   //     c.c1.y,
-            //   //     c.c2.x,
-            //   //     c.c2.y,
-            //   //     c.a.x,
-            //   //     c.a.y
-            //   //   );
-            //   // position.needsUpdate = true;
-            // }
-            // position.needsUpdate = true;
-            // console.log(geometry);
+    //         // const position = geometry.attributes.position;
+    //         // for (let i = 0; i < m.length; i++) {
+    //         //   const c = m[i];
+    //         //   position.setXYZ(i, c.a.x, c.a.y, 0);
+    //         //   // if (c.type === "L") shape.lineTo(c.a.x, c.a.y);
+    //         //   // else if (c.type === "L") shape.lineTo(c.a.x, c.a.y);
+    //         //   // else if (c.type === "C")
+    //         //   //   shape.bezierCurveTo(
+    //         //   //     c.c1.x,
+    //         //   //     c.c1.y,
+    //         //   //     c.c2.x,
+    //         //   //     c.c2.y,
+    //         //   //     c.a.x,
+    //         //   //     c.a.y
+    //         //   //   );
+    //         //   // position.needsUpdate = true;
+    //         // }
+    //         // position.needsUpdate = true;
+    //         // console.log(geometry);
 
-            // const material = new MeshBasicMaterial({ color: 0xffffff });
-            const material = new ShaderMaterial({
-              vertexShader: /* glsl */ `
-                    varying vec2 vUv;
-    
-                    void main() {
-                      vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-                      vec4 viewPosition = viewMatrix * modelPosition;
-                      vec4 projectedPosition = projectionMatrix * viewPosition;
-                      gl_Position = projectedPosition;
-                  
-                      vUv = uv;
-                    }
-                  `,
-              fragmentShader: /* glsl */ `
-                uniform float uGrid;
-                    varying vec2 vUv;
-    
-                    void main() {
-                      vec2 uv = vUv;
-                      // uv.x = 1.-vUv.y;
-                      // uv.y = vUv.x;
-                      // float d = smoothstep(.0 - mix(.001, .075, clamp(uGrid, 0., 60.)/60.), .5, length(vUv - .5));
-                      float d = smoothstep(0., .01, 1.-(1.-sin(uv.y *3.14159)) * mix(1., 10., sin(uv.x * 3.14159)));
-                      // float d = 1.;
-                      gl_FragColor = vec4(vec3(1.), 1.);
-                    }
-                  `,
-              // wireframe: true,
-              // side: DoubleSide,
-              transparent: true,
-            });
-            const mesh = new Mesh(geometry, material);
-            scene.add(mesh);
-          }
-        }
-      }
-    });
+    //         // const material = new MeshBasicMaterial({ color: 0xffffff });
+    //         const material = new ShaderMaterial({
+    //           vertexShader: /* glsl */ `
+    //                 varying vec2 vUv;
+
+    //                 void main() {
+    //                   vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+    //                   vec4 viewPosition = viewMatrix * modelPosition;
+    //                   vec4 projectedPosition = projectionMatrix * viewPosition;
+    //                   gl_Position = projectedPosition;
+
+    //                   vUv = uv;
+    //                 }
+    //               `,
+    //           fragmentShader: /* glsl */ `
+    //             uniform float uGrid;
+    //                 varying vec2 vUv;
+
+    //                 void main() {
+    //                   vec2 uv = vUv;
+    //                   // uv.x = 1.-vUv.y;
+    //                   // uv.y = vUv.x;
+    //                   // float d = smoothstep(.0 - mix(.001, .075, clamp(uGrid, 0., 60.)/60.), .5, length(vUv - .5));
+    //                   float d = smoothstep(0., .01, 1.-(1.-sin(uv.y *3.14159)) * mix(1., 10., sin(uv.x * 3.14159)));
+    //                   // float d = 1.;
+    //                   gl_FragColor = vec4(vec3(1.), 1.);
+    //                 }
+    //               `,
+    //           // wireframe: true,
+    //           // side: DoubleSide,
+    //           transparent: true,
+    //         });
+    //         const mesh = new Mesh(geometry, material);
+    //         // scene.add(mesh);
+    //       }
+    //     }
+    //   }
+    // });
 
     console.log(nodes);
     return nodes;
@@ -174,7 +174,7 @@ const useNodes = () => {
 
   return {
     nodes,
-    uniforms,
+    // uniforms,
     grid,
   };
 };

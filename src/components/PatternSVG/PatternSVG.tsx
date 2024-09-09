@@ -65,7 +65,7 @@ const PatternSVG = () => {
 
   if (!nodes) return null;
 
-  const scl = 1;
+  const scl = 2.25;
 
   return (
     <>

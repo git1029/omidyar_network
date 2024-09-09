@@ -1,21 +1,24 @@
 // import { Vector2 } from "three";
 
-export const colors = [
-  "#5dc0a4",
-  "#b5e2dd",
-  "#8ba9f5",
-  "#c9d2ff",
-  "#a57ec9",
-  "#cfbcea",
-  "#df6651",
-  "#f3af9f",
-  "#f08c00",
-  "#eec07c",
-  "#e3ec31",
-  "#f6f69f",
-  "#ffffff",
-  "#e4e5e6",
-  "#3a3a3a",
+import { ColorInfo, InputMode } from "../types";
+
+export const palette: ColorInfo[] = [
+  { label: "Bright Green", hex: "#5dc0a4" },
+  { label: "Light Green", hex: "#b5e2dd" },
+  { label: "Bright Blue", hex: "#8ba9f5" },
+  { label: "Light Blue", hex: "#c9d2ff" },
+  { label: "Bright Purple", hex: "#a57ec9" },
+  { label: "Light Purple", hex: "#cfbcea" },
+  { label: "Bright Red", hex: "#df6651" },
+  { label: "Light Red", hex: "#f3af9f" },
+  { label: "Bright Orange", hex: "#f08c00" },
+  { label: "Light Orange", hex: "#eec07c" },
+  { label: "Bright Yellow", hex: "#e3ec31" },
+  { label: "Light Yellow", hex: "#f6f69f" },
+  { label: "White", hex: "#ffffff" },
+  { label: "Gray", hex: "#e4e5e6" },
+  { label: "Black", hex: "#3a3a3a" },
+  { label: "Transparent", hex: "#ffffff" },
 ];
 
 export const patternSettings = {
@@ -32,7 +35,7 @@ export const gridSettings = {
   gridQuantity: 9,
 };
 
-export const inputModes = [
+export const inputModes: InputMode[] = [
   {
     label: "Image",
     file: true,
@@ -55,12 +58,38 @@ export const inputModes = [
   },
 ];
 
-// export const layouts = [
-//   { label: "16:9", size: { width: 3840, height: 2160 } },
-//   { label: "4:3", size: { width: 3840, height: 2880 } },
-//   { label: "1:1", size: { width: 3840, height: 3840 } },
-//   { label: "9:16", size: { width: 2160, height: 3840 } },
-// ];
+export const layouts = [
+  { label: "1:1", aspect: 1, size: { width: 3840, height: 3840 } },
+  { label: "9:16", aspect: 9 / 16, size: { width: 2160, height: 3840 } },
+  { label: "16:9", aspect: 16 / 9, size: { width: 3840, height: 2160 } },
+  { label: "4:3", aspect: 4 / 3, size: { width: 3840, height: 2880 } },
+  { label: "Custom", aspect: 1, size: { width: 500, height: 500 } },
+];
+
+export const textPalette: ColorInfo[] = [
+  { label: "White", hex: "#ffffff" },
+  { label: "Black", hex: "#3a3a3a" },
+];
+
+export const textSettings = {
+  enabled: false,
+  layout: "Layout 1",
+  title: "This is a title",
+  titleSize: 5,
+  body: "This is body text",
+  bodySize: 3,
+  color: textPalette[0],
+};
+
+export const exportFormats = [
+  { label: "PNG", type: "image/png", ext: "png" },
+  { label: "MP4", type: "video/mp4", ext: "mp4" },
+];
+
+export const exportSettings = {
+  ffmpegLoaded: false,
+  format: exportFormats[0],
+};
 
 // const maxWidthAspect = Math.max(
 //   ...layouts.map((l) => l.size.width / l.size.height)

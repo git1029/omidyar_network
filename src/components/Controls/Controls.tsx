@@ -1,40 +1,44 @@
-// import { ReactNode } from "react";
-// import { colors } from "../../store/options";
-// import Slider from "../Slider";
-import ControlGroup from "./ControlGroup";
-import ControlColor from "./ControlColor";
+import ControlInput from "./ControlInput";
+import ControlRatio from "./ControlRatio";
 import ControlGrid from "./ControlGrid";
 import ControlPattern from "./ControlPattern";
-import ControlInput from "./ControlInput";
+import ControlColor from "./ControlColor";
+import ControlExport from "./ControlExport";
+import ControlText from "./ControlText";
+import Logo from "/logo.svg";
+import { ExportObject } from "../Scene";
+import { MutableRefObject } from "react";
 
-const Controls = () => {
+const ControlsHeader = () => {
   return (
-    <div className="w-[40%]">
-      <div className="flex flex-col gap-y-6 max-w-[550px]">
-        <h1 className="font-[TestFeijoaDisplay]">Omidyar Network</h1>
-        <ControlInput />
-        <ControlGroup>
-          <h2>Ratio</h2>
-          <select>
-            <option>1:1</option>
-            <option>16:9</option>
-            <option>9:16</option>
-            <option>4:5</option>
-            <option>Custom</option>
-          </select>
-        </ControlGroup>
+    <div className="flex items-center gap-x-2 border-b border-black-100 pb-6 pl-8">
+      <img src={Logo} className="w-14 h-14" />
+      <h1 className="font-[TestFeijoaDisplay] ">Omidyar Network</h1>
+    </div>
+  );
+};
 
-        <ControlGrid />
-        <ControlPattern />
-        <ControlColor />
-
-        <ControlGroup>
-          <h2>Export</h2>
-          <select>
-            <option>PNG</option>
-            <option>MP4</option>
-          </select>
-        </ControlGroup>
+const Controls = ({
+  ffmpeg,
+}: {
+  ffmpeg: MutableRefObject<ExportObject | null>;
+}) => {
+  return (
+    <div className="min-w-[600px] flex border-r border-black-100 pt-8">
+      <div className="flex flex-col grow">
+        <ControlsHeader />
+        <div
+          className="overflow-y-scroll h-full flex flex-col gap-y-6 pr-8 pl-8"
+          style={{ scrollbarColor: "#c4c5c6 transparent" }}
+        >
+          <ControlInput />
+          <ControlRatio />
+          <ControlGrid />
+          <ControlPattern />
+          <ControlColor />
+          <ControlText />
+          <ControlExport ffmpeg={ffmpeg} />
+        </div>
       </div>
     </div>
   );

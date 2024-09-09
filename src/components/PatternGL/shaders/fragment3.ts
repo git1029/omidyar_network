@@ -4,16 +4,23 @@ const fragmentShader = /* glsl */ `
   varying vec2 vUv;
   uniform float uTime;
   uniform float PI;
+  uniform float uMode; // 0 = image, 1 = video, 2 = camera, 3 = text
   uniform float uGrid; // 0 = square, 1 = isometric
   uniform float uQuantity; // 0 = square, 1 = isometric
-  uniform vec3 uNodeColor;
+  uniform vec3 uForegroundColor;
   uniform vec3 uBackgroundColor;
   uniform sampler2D uImage;
   uniform sampler2D uVideo;
+  uniform sampler2D uCamera;
+  uniform sampler2D uText;
   uniform float uDotSize;
+  uniform float uAlpha;
   uniform vec2 uDensity;
   uniform vec2 uConnectors;
   uniform float uContrast;
+  uniform float uInvert;
+  uniform vec2 uViewport;
+  uniform float uDPR;
 
   float sdCircle(vec2 p, float r) {
     return length(p) - r;
@@ -105,9 +112,55 @@ vec2 rotate(vec2 v, float a) {
 	mat2 m = mat2(c, s, -s, c);
 	return m * v;
 }
+
+
+  //  // Brightness (addition)
+  //  float brightnessAmount = .1;
+  //  // color += brightnessAmount;
+
+  //  // Saturation
+  //  float lumninanceLinear = dot(color, vec3(1./3.)); // (c.r + c.g + c.b) / 3.
+  //  // NB: weighing color rgb components equally does not align with human eye color perception and relative luminance, where green is perceived brighter than red and red more than blue 
+  //  float lumninancePerceptual = dot(color, vec3(0.2126, 0.7152, 0.0722));
+  //  float luminance = mix(lumninanceLinear, lumninancePerceptual, t);
+  //  luminance = lumninancePerceptual;
+  //  float saturationAmount = 0.;
+  //  // color = mix(vec3(luminance), color, saturationAmount);
+
+  //  // Contrast (darks darker, brights brighter)
+  //  float contrastAmount = t + 1.;
+  //  float midpoint = .5; // lower midpoint -> more weight to brights, higher -> more weight to dark
+  //  // remap of color from range [0,1] to [-.5, .5] * amount then back to [0,1]
+  //  // clamp to make sure maps back to 0,1 as multiplier could take it out of range [-.5,.5]
+  //  // color = saturate((color - midpoint) * contrastAmount + midpoint);
+  //  // Any operation that pushes color values away from midpoint can be considered contrast (like smoothstep which makes middle steeper and pushes outer values towrads 0 and 1), problem is has no control over contrast level
+  //  // color = mix(color, smoothstep(vec3(0.), vec3(1.), color), t);
+  //  vec3 sg = sign(color - midpoint);
+  //  // // Custom contrast curve
+  //  // color = sg * pow(
+  //  //   abs(color - midpoint) * 2.,
+  //  //   vec3(1. / contrastAmount)
+  //  // ) * .5 + midpoint;
+
+
    
-float brightness(vec3 color) {
-  return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+vec4 brightness(vec3 color) {
+  float b = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+  vec3 c = color;
+  if (uInvert == 1.) {
+    b = 1. - b;
+    c = 1. - c;
+  }
+  return vec4(c, b);
+}
+
+vec4 getBrightness(vec2 p) {
+  if (uMode == 0.) return brightness(texture(uImage, p).rgb);
+  else if (uMode == 1.) return brightness(texture(uVideo, p).rgb);
+  else if (uMode == 2.) return brightness(texture(uCamera, p).rgb);
+  else if (uMode == 3.) return brightness(texture(uText, p).rgb);
+  else return vec4(1.);
+  // else if (uMode == 3.) return brightness(texture(uImage, p).rgb);
 }
 
 
@@ -123,6 +176,11 @@ float brightness(vec3 color) {
     if (uGrid == 1.) scl.y *= 1./sqrt(3.); // approx y ratio for iso grid
     uv -= .5;
     uv /= scl;
+    if (uViewport.x > uViewport.y) {
+      uv *= vec2(uViewport.x/uViewport.y, 1.);
+    } else {
+      uv *= vec2(1., uViewport.y/uViewport.x);
+    }
     uv += .5;
 
     uv -= vec2(.5/grid, .5/grid) * scl;
@@ -144,6 +202,7 @@ float brightness(vec3 color) {
 
     
     vec3 color = vec3(0.);
+
 
     // float r = 1./grid * .75 * mix(1., 1., mod(i, 2.));
     float d1 = 1000000.;
@@ -177,12 +236,15 @@ float brightness(vec3 color) {
       // ip *= scl;
       vec2 ip = p;
       ip.y = 1. - ip.y;
-      color = texture(uVideo, ip).rgb;
-    float b = brightness(color);
+
+      // color = texture(uVideo, ip).rgb;
+    // float b = brightness(color);
+    vec4 b = getBrightness(ip);
+    color = b.rgb;
     // b = 1.;
 
     // float r2 = 1./grid * b * 1.5 * mix(1., 1., mod(ii, 2.)) * mix(.5, .75, t);
-    float r2 = 1./grid * b * map(uDotSize, 0., 1., .5, 2.);
+    float r2 = 1./grid * b.w * map(uDotSize, 0., 1., .5, 2.);
 
       d1 = smoothUnionSDF(d1, sdCircle(uv * vec2(scl) - p - .5/grid * 0., r2 / 4.), 0.015); // 0.02
  
@@ -217,15 +279,16 @@ float brightness(vec3 color) {
 
       vec2 ip2 = qq;
       ip2.y = 1. - ip2.y;
-      float b2 = brightness(texture(uVideo, ip2).rgb);
+      // float b2 = brightness(texture(uVideo, ip2).rgb);
+      vec4 b2 = getBrightness(ip2);
       // b2 = 1.;
-      vec2 sh = s0 * b2;
+      vec2 sh = s0 * b2.w;
       // vec2 off = vec2(s0.x/1., 0.) * 0.;
 
         // vec2 q1 = q + off;
         // if (x_ < grid - 1.) d2 = min(d2, sdRoundedBox(q0, s0, round));
         // if (x_ > 0.) d2 = min(d2, sdRoundedBox(q1, s0, round));
-        if (x_ < grid - 1. && uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(qh, sh, round * mix(0.5, 1., b)));
+        if (x_ < grid - 1. && uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(qh, sh, round * mix(0.5, 1., b.w)));
   
         vec2 qqv = vec2(x_ , y_ + .5) / grid * scl;
         vec2 qv = uv * vec2(scl) - qqv - .5/grid * 0.;
@@ -233,9 +296,10 @@ float brightness(vec3 color) {
   
         vec2 ip3 = qqv;
         ip3.y = 1. - ip3.y;
-        float b3 = brightness(texture(uVideo, ip3).rgb);
+        // float b3 = brightness(texture(uVideo, ip3).rgb);
+        vec4 b3 = getBrightness(ip3);
         // b3 = 1.;
-        vec2 sv = vec2(s0.y, s0.x) * b3;
+        vec2 sv = vec2(s0.y, s0.x) * b3.w;
 
         // Vertical
         // vec2 s1 = vec2(s0.y, s0.x);
@@ -244,7 +308,7 @@ float brightness(vec3 color) {
         // vec2 q3 = q + off1;
         // if (y_ < grid - 1.) d2 = min(d2, sdRoundedBox(q2, s1, round));
         // if (y_ > 0.) d2 = min(d2, sdRoundedBox(q3, s1, round));
-        if (y_ < grid - 1. && uConnectors.y == 1.) d2 = min(d2, sdRoundedBox(qv, sv, round * mix(.5, 1., b)));
+        if (y_ < grid - 1. && uConnectors.y == 1.) d2 = min(d2, sdRoundedBox(qv, sv, round * mix(.5, 1., b.w)));
       } 
 
       if (uGrid == 1. && r2 > threshold && (uConnectors.x == 1. || uConnectors.y == 1.)) {
@@ -267,13 +331,15 @@ float brightness(vec3 color) {
 
         vec2 ip4 = qq1;
         ip4.y = 1. - ip4.y;
-        float b4 = brightness(texture(uVideo, ip4).rgb);
+        // float b4 = brightness(texture(uVideo, ip4).rgb);
+        vec4 b4 = getBrightness(ip4);
         vec2 ip5 = qq2;
         ip5.y = 1. - ip5.y;
-        float b5 = brightness(texture(uVideo, ip5).rgb);
+        // float b5 = brightness(texture(uVideo, ip5).rgb);
+        vec4 b5 = getBrightness(ip5);
 
-        vec2 s4 = s0 * b4;
-        vec2 s5 = s0 * b5;
+        vec2 s4 = s0 * b4.w;
+        vec2 s5 = s0 * b5.w;
 
 
 
@@ -366,8 +432,9 @@ float brightness(vec3 color) {
     // gl_FragColor = vec4(color, 1.);
 
 
-    gl_FragColor = vec4(mix(uNodeColor, uBackgroundColor, d),1.);
-    // gl_FragColor = vec4(mix(mix(uNodeColor, uBackgroundColor, d), color, sin(uTime)*.5+.5), 1.);
+    // gl_FragColor = vec4(mix(uForegroundColor, uBackgroundColor, d),1.);
+    gl_FragColor = vec4(mix(uForegroundColor, mix(uForegroundColor, uBackgroundColor, uAlpha), d), mix(1.-d, 1., uAlpha));
+    // gl_FragColor = vec4(mix(mix(uForegroundColor, uBackgroundColor, d), color, sin(uTime)*.5+.5), 1.);
     // gl_FragColor = vec4(uv.x, 0., 0., 1.);
 
 

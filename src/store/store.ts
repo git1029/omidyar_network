@@ -1,14 +1,30 @@
 import { create } from "zustand";
-import { colors } from "./options";
+import { exportSettings, inputModes, layouts, textSettings } from "./options";
 import { ShaderMaterial } from "three";
+import { Layout, TextSettings, InputMode, ExportSettings } from "../types";
+// import { string } from "three/webgpu";
 
 interface State {
-  backgroundColor: string;
-  nodeColor: string;
-  setBackgroundColor: (backgroundColor: string) => void;
-  setNodeColor: (nodeColor: string) => void;
   grid: number;
   setGrid: (grid: number) => void;
+
+  inputMode: InputMode;
+  setInputMode: (mode: InputMode) => void;
+
+  cameraStatus: number;
+  setCameraStatus: (status: number) => void;
+
+  textInput: string;
+  setTextInput: (textInput: string) => void;
+
+  layout: Layout;
+  setLayout: (layout: Layout) => void;
+
+  text: TextSettings;
+  setText: (text: TextSettings) => void;
+
+  exportSettings: ExportSettings;
+  setExportSettings: (exportSettings: ExportSettings) => void;
 
   // patternDotSize: number;
   // patternContrast: number;
@@ -30,15 +46,36 @@ interface State {
 
   patternRef: ShaderMaterial | null;
   setPatternRef: (ref: ShaderMaterial) => void;
+
+  textRef: HTMLImageElement | null;
+  setTextRef: (ref: HTMLImageElement) => void;
+
+  cameraRef: HTMLVideoElement | null;
+  setCameraRef: (ref: HTMLVideoElement) => void;
+
+  canvasContainerRef: HTMLDivElement | null;
+  setCanvasContainerRef: (ref: HTMLDivElement) => void;
 }
 
 const useStore = create<State>((set) => ({
-  backgroundColor: colors[0],
-  nodeColor: colors[1],
-  setBackgroundColor: (backgroundColor) => set(() => ({ backgroundColor })),
-  setNodeColor: (nodeColor) => set(() => ({ nodeColor })),
+  // backgroundColor: colors[0],
+  // nodeColor: colors[1],
+  // setBackgroundColor: (backgroundColor) => set(() => ({ backgroundColor })),
+  // setNodeColor: (nodeColor) => set(() => ({ nodeColor })),
   grid: 0,
-  setGrid: (grid: number) => set(() => ({ grid })),
+  setGrid: (grid) => set(() => ({ grid })),
+
+  inputMode: inputModes[0],
+  setInputMode: (mode) => set(() => ({ inputMode: mode })),
+
+  cameraStatus: 0,
+  setCameraStatus: (status) => set(() => ({ cameraStatus: status })),
+
+  textInput: "Tech",
+  setTextInput: (textInput) => set(() => ({ textInput })),
+
+  textRef: null,
+  setTextRef: (ref) => set(() => ({ textRef: ref })),
 
   // ...patternSettings,
   // setPatternDotSize: (size) => set(() => ({ patternDotSize: size })),
@@ -52,8 +89,23 @@ const useStore = create<State>((set) => ({
   // setGridType: (type) => set(() => ({ gridType: type })),
   // setGridQuantity: (quantity) => set(() => ({ gridQuantity: quantity })),
 
+  layout: layouts[0],
+  setLayout: (layout) => set(() => ({ layout })),
+
   patternRef: null,
   setPatternRef: (ref) => set(() => ({ patternRef: ref })),
+  cameraRef: null,
+  setCameraRef: (ref) => set(() => ({ cameraRef: ref })),
+
+  canvasContainerRef: null,
+  setCanvasContainerRef: (ref) => set(() => ({ canvasContainerRef: ref })),
+
+  text: textSettings,
+  setText: (text: TextSettings) => set(() => ({ text })),
+
+  exportSettings: exportSettings,
+  setExportSettings: (exportSettings: ExportSettings) =>
+    set(() => ({ exportSettings })),
 }));
 
 useStore.subscribe((state) => console.log(state));

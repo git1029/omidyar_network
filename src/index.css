@@ -13,6 +13,14 @@
     src: url("/TestFeijoa-Display.otf") format("opentype");
   }
 
+  html {
+    @apply w-full h-full min-w-[1280px];
+  }
+
+  body {
+    @apply bg-gray-100 w-full h-full;
+  }
+
   h1 {
     @apply text-4xl;
   }
@@ -21,8 +29,13 @@
     @apply text-2xl uppercase;
   }
 
+  input[type="text"],
+  input[type="number"] {
+    @apply border border-black-100 p-1 px-2 min-w-24 h-8 rounded-sm;
+  }
+
   input[type="range"] {
-    @apply appearance-none h-3 border-black-100 border bg-transparent z-10
+    @apply appearance-none h-3 border-black-100 border bg-transparent z-10 rounded-sm overflow-hidden
     [&::-webkit-slider-thumb]:appearance-none 
     [&::-webkit-slider-thumb]:bg-black-100 
     [&::-webkit-slider-thumb]:w-3 
@@ -33,25 +46,46 @@
   }
 
   select {
-    @apply border border-black-100 p-1 w-[300px];
+    @apply border border-black-100 p-1 w-[300px] h-8 rounded-sm;
+  }
+
+  button {
+    @apply relative px-2 text-sm border border-black-100 bg-white text-black-100 h-8 rounded-sm w-fit disabled:bg-transparent disabled:text-slate-500 disabled:border-slate-500 enabled:active:top-[2px];
+  }
+
+  label {
+    @apply w-[200px];
+  }
+
+  textarea {
+    @apply min-h-8 border border-black-100 rounded-sm p-1 px-2 w-[300px];
   }
 }
 
-/* @layer components {
+@layer components {
   .btn-link {
-    @apply h-fit p-0 gap-x-1 bg-transparent border-0 text-slate-900 font-medium underline rounded-none hover:bg-transparent hover:text-blue-600;
+    @apply h-fit p-0 bg-transparent border-0 underline rounded-none;
   }
-} */
+}
 
 :root {
   font-family: F37LinecaMedium, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
+  box-sizing: border-box;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  /* width: 100%; */
+  /* display: flex; */
+  /* flex: grow; */
+  height: 100%;
 }
 
 /* a {
@@ -75,6 +109,8 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+
+
 
 button {
   border-radius: 8px;

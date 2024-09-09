@@ -12,7 +12,7 @@ import {
   Uniform,
   Vector2,
 } from "three";
-import { colors, gridSettings, patternSettings } from "../../store/options";
+import { palette, gridSettings, patternSettings } from "../../store/options";
 import useStore from "../../store/store";
 import { useTexture, useVideoTexture } from "@react-three/drei";
 
@@ -22,8 +22,8 @@ const PatternGL = () => {
   const ref = useRef<Mesh>(null);
   const matRef = useRef<ShaderMaterial>(null);
 
-  const backgroundColor = useStore((state) => state.backgroundColor);
-  const nodeColor = useStore((state) => state.nodeColor);
+  // const backgroundColor = useStore((state) => state.backgroundColor);
+  // const nodeColor = useStore((state) => state.nodeColor);
   // const grid = useStore((state) => state.grid);
   const setPatternRef = useStore((state) => state.setPatternRef);
 
@@ -33,11 +33,16 @@ const PatternGL = () => {
   const uniforms = useMemo(() => {
     return {
       uTime: new Uniform(0),
+      uMode: new Uniform(0),
       PI: new Uniform(Math.PI),
-      uBackgroundColor: new Uniform(new Color(colors[0])),
-      uNodeColor: new Uniform(new Color(colors[1])),
+      uBackgroundColor: new Uniform(new Color(palette[0].hex)),
+      uForegroundColor: new Uniform(new Color(palette[1].hex)),
+      uAlpha: new Uniform(1),
       uImage: new Uniform(null),
       uVideo: new Uniform(null),
+      uCamera: new Uniform(null),
+      uText: new Uniform(null),
+      uDPR: new Uniform(Math.min(window.devicePixelRatio, 2)),
       uGrid: new Uniform(gridSettings.gridType),
       uConnectors: new Uniform(
         new Vector2().set(
@@ -54,6 +59,8 @@ const PatternGL = () => {
           patternSettings.patternDensityY
         )
       ),
+      uInvert: new Uniform(0),
+      uViewport: new Uniform(new Vector2(1, 1)),
     };
   }, []);
 
@@ -81,25 +88,33 @@ const PatternGL = () => {
   }, [matRef, setPatternRef]);
 
   useEffect(() => {
-    if (ref.current && video) {
-      const material = ref.current.material as ShaderMaterial;
-      material.uniforms.uVideo.value = video;
+    if (matRef.current && video) {
+      matRef.current.uniforms.uVideo.value = video;
     }
   }, [video]);
 
   useEffect(() => {
-    if (ref.current) {
-      const material = ref.current.material as ShaderMaterial;
-      material.uniforms.uBackgroundColor.value.set(backgroundColor);
+    if (matRef.current) {
+      matRef.current.uniforms.uViewport.value.set(
+        viewport.width,
+        viewport.height
+      );
     }
-  }, [backgroundColor]);
+  }, [viewport]);
 
-  useEffect(() => {
-    if (ref.current) {
-      const material = ref.current.material as ShaderMaterial;
-      material.uniforms.uNodeColor.value.set(nodeColor);
-    }
-  }, [nodeColor]);
+  // useEffect(() => {
+  //   if (ref.current) {
+  //     const material = ref.current.material as ShaderMaterial;
+  //     material.uniforms.uBackgroundColor.value.set(backgroundColor);
+  //   }
+  // }, [backgroundColor]);
+
+  // useEffect(() => {
+  //   if (ref.current) {
+  //     const material = ref.current.material as ShaderMaterial;
+  //     material.uniforms.uNodeColor.value.set(nodeColor);
+  //   }
+  // }, [nodeColor]);
 
   // useEffect(() => {
   //   if (ref.current) {
@@ -109,9 +124,8 @@ const PatternGL = () => {
   // }, [grid]);
 
   useFrame((_state, delta) => {
-    if (ref.current) {
-      const material = ref.current.material as ShaderMaterial;
-      material.uniforms.uTime.value += delta;
+    if (matRef.current) {
+      matRef.current.uniforms.uTime.value += delta;
     }
   });
 

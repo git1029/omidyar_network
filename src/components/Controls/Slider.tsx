@@ -38,7 +38,8 @@ const Slider = ({
 
   useEffect(() => {
     if (sliderProgress.current) {
-      sliderProgress.current.style.width = `${map(value, min, max, 1, 99)}%`;
+      const s = map(value, min, max, 1, 99);
+      sliderProgress.current.style.width = `${s}%)`;
     }
   }, [value, map, min, max]);
 
@@ -51,7 +52,7 @@ const Slider = ({
 
   return (
     <div className="flex items-cetner">
-      <label className="w-[200px]">{label}</label>
+      <label>{label}</label>
       <div className="flex items-center gap-x-2">
         <div className="relative h-3 flex w-[200px]">
           <input

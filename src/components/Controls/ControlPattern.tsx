@@ -69,7 +69,7 @@ const ControlPattern = () => {
   return (
     <ControlGroup>
       <h2>Pattern</h2>
-      <div>
+      <div className="flex flex-col gap-y-0">
         {patternSliders.map((s) => (
           <Slider key={s.label} {...s} />
         ))}
