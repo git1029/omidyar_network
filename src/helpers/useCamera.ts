@@ -5,7 +5,7 @@ import useStore from "../store/store";
 const useCamera = () => {
   const [texture, setTexture] = useState<VideoTexture | null>(null);
 
-  const [initialized, setInitialized] = useState(false);
+  const [, setInitialized] = useState(false);
 
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);

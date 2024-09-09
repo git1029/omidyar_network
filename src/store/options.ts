@@ -1,5 +1,3 @@
-// import { Vector2 } from "three";
-
 import { ColorInfo, InputMode } from "../types";
 
 export const palette: ColorInfo[] = [

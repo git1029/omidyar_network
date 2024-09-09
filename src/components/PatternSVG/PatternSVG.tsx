@@ -61,7 +61,7 @@ const PatternSVG = () => {
   //   return nodes;
   // }, [viewport, grid]);
 
-  const { nodes, uniforms } = useNodes();
+  const { nodes } = useNodes();
 
   if (!nodes) return null;
 
@@ -98,7 +98,7 @@ const PatternSVG = () => {
                 }
               `
           }
-          uniforms={uniforms}
+          // uniforms={uniforms}
           transparent={true}
           blending={AdditiveBlending}
         />

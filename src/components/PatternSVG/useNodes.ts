@@ -1,20 +1,20 @@
 import { useThree } from "@react-three/fiber";
 import { useMemo } from "react";
 import {
-  BufferGeometry,
-  DoubleSide,
+  // BufferGeometry,
+  // DoubleSide,
   MathUtils,
-  Mesh,
-  MeshBasicMaterial,
-  Path,
-  PlaneGeometry,
-  ShaderMaterial,
-  Shape,
-  ShapeGeometry,
-  Uniform,
+  // Mesh,
+  // MeshBasicMaterial,
+  // Path,
+  // PlaneGeometry,
+  // ShaderMaterial,
+  // Shape,
+  // ShapeGeometry,
+  // Uniform,
   Vector2,
 } from "three";
-import { metaball } from "./metaball";
+// import { metaball } from "./metaball";
 
 interface Neighbour {
   node: number;
@@ -29,7 +29,7 @@ interface Node {
 }
 
 const useNodes = (grid = 20) => {
-  const { viewport, scene } = useThree();
+  const { viewport } = useThree();
 
   // const [uniforms] = useMemo(() => {
   //   // const grid = 20;

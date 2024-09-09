@@ -2,7 +2,7 @@ import {
   Instance,
   Instances,
   useFBO,
-  useTexture,
+  // useTexture,
   useVideoTexture,
 } from "@react-three/drei";
 // import { useThree } from "@react-three/fiber";
@@ -28,7 +28,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 const PatternSVG = () => {
   // const { viewport } = useThree();
 
-  const tex = useTexture("/download.png");
+  // const tex = useTexture("/download.png");
 
   // const [grid, uniforms] = useMemo(() => {
   //   const grid = 10;
@@ -135,7 +135,7 @@ const PatternSVG = () => {
 
 const PatternScene = () => {
   const grid = 30;
-  const { nodes, uniforms } = useNodes(grid);
+  const { nodes } = useNodes(grid);
 
   const { viewport } = useThree();
 
@@ -144,7 +144,7 @@ const PatternScene = () => {
   const vid = useVideoTexture("/footage.mp4");
   // const vid = useTexture("/img.jpg");
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (ref.current) {
       ref.current.uniforms.uTime.value += delta;
     }
