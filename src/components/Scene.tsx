@@ -14,6 +14,9 @@ import {
 import { useProgress } from "@react-three/drei";
 import Logo from "/logo.svg";
 import Renderer from "./Renderer/Renderer";
+import useResize from "../helpers/useResize";
+import Modal from "./Modal";
+// import { clamp } from "three/src/math/MathUtils.js";
 // import PatternSVG from "./PatternSVG/PatternSVG2";
 
 const Progress = ({
@@ -44,6 +47,7 @@ const Scene = ({
   ffmpeg: MutableRefObject<ExportObject | null>;
 }) => {
   const layout = useStore((state) => state.layout);
+  const setCanvasRef = useStore((state) => state.setCanvasRef);
   const setCanvasContainerRef = useStore(
     (state) => state.setCanvasContainerRef
   );
@@ -51,6 +55,7 @@ const Scene = ({
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [canvasLoaded, setCanvasLoaded] = useState(false);
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
   const fade = useRef<HTMLDivElement | null>(null);
 
@@ -65,6 +70,36 @@ const Scene = ({
   // console.log(`aspect-[${layout.label.split(":").join("/")}]`);
 
   // console.log(layout.label.split(":").join("/"));
+
+  useResize();
+
+  // scl();
+
+  // const scl = () => {
+  //   const br = 1;
+  //   const padX = 32;
+  //   const padY = 32;
+  //   const panelWidth = 630;
+
+  //   // const minWidth = 1280;
+  //   // const minHeight = 600;
+
+  //   const limit = {
+  //     min: 320,
+  //     max: 1000,
+  //   };
+
+  //   let availableWidth =
+  //     clamp(window.innerWidth, 1280, 2560) - panelWidth - padX * 2 - br * 2;
+  //   let availableHeight =
+  //     clamp(window.innerHeight, 600, 2560) - padY * 2 - br * 2;
+
+  //   availableWidth = clamp(availableWidth, limit.min, limit.max);
+  //   availableHeight = clamp(availableHeight, limit.min, limit.max);
+
+  //   console.log(availableWidth / availableHeight, layout.aspect);
+  //   return availableWidth / availableHeight < layout.aspect;
+  // };
 
   return (
     <>
@@ -91,20 +126,26 @@ const Scene = ({
           }`}
         ></div> */}
       </div>
-      <div className="flex grow px-8 border-0 border-black-100 rounded-sm items-center justify-center relative min-w-0">
+      <div className="flex grow border-0 border-black-100 rounded-sm items-center justify-center relative min-w-0 min-h-0 overflow-hidden">
+        <Modal />
         {/* <div className="h-full w-full"> */}
         <div
-          className={`max-h-[1000px] max-w-[1000px] border border-transparent ${
-            layout.aspect >= 1 ? "w-full h-auto" : "h-full w-auto"
-          }`}
+          // className="w-full h-full"
+          className={`border border-transparent box-content relative`}
           style={{ aspectRatio: layout.aspect }}
           ref={canvasContainerRef}
         >
           <Canvas
             dpr={[1, 2]}
+            ref={canvasRef}
+            resize={{ debounce: 50, scroll: false }}
             onCreated={() => {
               // console.log("ready");
               setCanvasLoaded(true);
+
+              if (canvasRef.current) {
+                setCanvasRef(canvasRef.current);
+              }
               // gl.setClearColor(0x000000);
             }}
             camera={{

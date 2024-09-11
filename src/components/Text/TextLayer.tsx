@@ -5,6 +5,7 @@ import { Vector3 } from "three";
 import useStore from "../../store/store";
 import TestFeijoaDisplay from "/TestFeijoa-Display.otf";
 import TextMaterial from "./TextMaterial";
+import { TextAlign } from "../../types";
 
 const TextLayer = () => {
   const { viewport } = useThree();
@@ -28,6 +29,7 @@ const TextLayer = () => {
     position: new Vector3(0, 0, 0.01),
     maxWidth: viewport.width * 0.9,
     lineHeight: 1,
+    textAlign: "left" as TextAlign,
     // textAlign: "left",
     // onSync: (text: Text) => {
     //   console.log(text);
@@ -40,12 +42,7 @@ const TextLayer = () => {
 
   return (
     <group visible={enabled}>
-      <Text
-        {...textSettings}
-        position={[0, 0.1, 0]}
-        anchorY="bottom-baseline"
-        textAlign="left"
-      >
+      <Text {...textSettings} position={[0, 0.1, 0]} anchorY="bottom-baseline">
         {title}
         <TextMaterial color={color} />
       </Text>
@@ -54,7 +51,6 @@ const TextLayer = () => {
         fontSize={titleSize * 0.05}
         anchorY="top"
         position={[0, -0.1, 0]}
-        textAlign="left"
       >
         {body}
         <TextMaterial color={color} />

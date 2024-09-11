@@ -5,7 +5,9 @@ import { useEffect, useMemo, useRef } from "react";
 import {
   Color,
   // LinearFilter,
+  // LinearFilter,
   Mesh,
+  // RepeatWrapping,
   // NearestFilter,
   // RepeatWrapping,
   ShaderMaterial,

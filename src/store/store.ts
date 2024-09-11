@@ -1,7 +1,19 @@
 import { create } from "zustand";
-import { exportSettings, inputModes, layouts, textSettings } from "./options";
+import {
+  customLayout,
+  exportSettings,
+  inputModes,
+  layouts,
+  textSettings,
+} from "./options";
 import { ShaderMaterial } from "three";
-import { Layout, TextSettings, InputMode, ExportSettings } from "../types";
+import {
+  Layout,
+  TextSettings,
+  InputMode,
+  ExportSettings,
+  Modal,
+} from "../types";
 // import { string } from "three/webgpu";
 
 interface State {
@@ -19,6 +31,9 @@ interface State {
 
   layout: Layout;
   setLayout: (layout: Layout) => void;
+
+  customLayout: Layout;
+  setCustomLayout: (customLayout: Layout) => void;
 
   text: TextSettings;
   setText: (text: TextSettings) => void;
@@ -55,6 +70,11 @@ interface State {
 
   canvasContainerRef: HTMLDivElement | null;
   setCanvasContainerRef: (ref: HTMLDivElement) => void;
+  canvasRef: HTMLCanvasElement | null;
+  setCanvasRef: (ref: HTMLCanvasElement) => void;
+
+  modal: Modal | null;
+  setModal: (modal: Modal) => void;
 }
 
 const useStore = create<State>((set) => ({
@@ -77,6 +97,9 @@ const useStore = create<State>((set) => ({
   textRef: null,
   setTextRef: (ref) => set(() => ({ textRef: ref })),
 
+  modal: null,
+  setModal: (modal) => set(() => ({ modal })),
+
   // ...patternSettings,
   // setPatternDotSize: (size) => set(() => ({ patternDotSize: size })),
   // setPatternContrast: (contrast) => set(() => ({ patternContrast: contrast })),
@@ -92,11 +115,16 @@ const useStore = create<State>((set) => ({
   layout: layouts[0],
   setLayout: (layout) => set(() => ({ layout })),
 
+  customLayout: customLayout,
+  setCustomLayout: (customLayout) => set(() => ({ customLayout })),
+
   patternRef: null,
   setPatternRef: (ref) => set(() => ({ patternRef: ref })),
   cameraRef: null,
   setCameraRef: (ref) => set(() => ({ cameraRef: ref })),
 
+  canvasRef: null,
+  setCanvasRef: (ref) => set(() => ({ canvasRef: ref })),
   canvasContainerRef: null,
   setCanvasContainerRef: (ref) => set(() => ({ canvasContainerRef: ref })),
 

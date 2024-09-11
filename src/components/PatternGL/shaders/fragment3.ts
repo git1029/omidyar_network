@@ -22,6 +22,51 @@ const fragmentShader = /* glsl */ `
   uniform vec2 uViewport;
   uniform float uDPR;
 
+  // precision mediump float;
+
+
+// vec4 getImage(sampler2D tex, vec2 uv, vec2 imageRes, vec2 resolution) {
+//   vec4 image = vec4(0.);
+
+//   vec2 texAspect = vec2(
+//     imageRes.x > imageRes.y ? imageRes.x / imageRes.y : 1.,
+//     imageRes.x > imageRes.y ? 1. : imageRes.y / imageRes.x
+//   );
+
+//   vec2 uvF = vec2(
+//     imageRes.x / resolution.x,
+//     imageRes.y / resolution.y
+//   );
+  
+//   // Reset texture aspect
+//   uv /= uvF;
+
+//   float offSide = resolution.y / imageRes.y;
+
+//   vec2 uvOff = vec2(
+//     (resolution.x - imageRes.x * offSide),
+//     (resolution.y - imageRes.y * offSide)
+//   );
+
+//   uvOff *= .5;
+//   uvOff /= imageRes;
+
+//   uv -= uvOff;
+//   uv *= imageRes.y / resolution.y;
+
+//   image = texture2D(tex, uv);
+
+//   // Correct image gamma
+//   image = sRGBTransferOETF(image);
+
+//   // Crop edge of image if doesn't fit canvas
+//   float bounds = 1.;
+//   if (uv.x < 0. || uv.x >= 1. || uv.y < 0. || uv.y >= 1.) bounds = 0.;
+//   image.a *= bounds;
+
+//   return image;
+// }
+
   float sdCircle(vec2 p, float r) {
     return length(p) - r;
   }
@@ -151,7 +196,32 @@ vec4 brightness(vec3 color) {
     b = 1. - b;
     c = 1. - c;
   }
-  return vec4(c, b);
+  return vec4(c, clamp(b, 0., 1.));
+}
+
+vec2 getImgUv(vec2 p, float grid, float aspect) {
+  vec2 ip = p;
+  ip.y = 1. - ip.y;
+
+  // if (aspect < 1.) {
+  //   ip.y -= 1. - .5/grid;
+  //   ip.y *= aspect;
+  //   ip.y += 1. - .5/grid;
+  // } else {
+  //   ip.y -= 1. - .5/grid;
+  //   ip.y *= aspect;
+  //   ip.y += 1. - .5/grid;
+  // }
+
+  // ip += vec2(0.1);
+    
+  ip.y -= 1. - .5/grid;
+  ip.y *= aspect;
+  ip.y += 1. - .5/grid;
+
+  ip = clamp(ip, 0., 1.);
+
+  return ip;
 }
 
 vec4 getBrightness(vec2 p) {
@@ -165,25 +235,31 @@ vec4 getBrightness(vec2 p) {
 
 
   void main() {
-    float grid = uQuantity;
+    float grid = uQuantity * 1.;
 
     vec2 uv = vUv;
     uv.y = 1. - uv.y; // swap y+ to bottom of canvas so easier to work with cols/rows
 
+    float aspect = uViewport.x/uViewport.y;
 
     // float scl = 1./sqrt(3.);
     vec2 scl = vec2(map(uDensity.x, 0., 1., .5, 1.), map(uDensity.y, 0., 1., .5, 1.));
-    if (uGrid == 1.) scl.y *= 1./sqrt(3.); // approx y ratio for iso grid
+    scl = vec2(1.);
+    // if (uGrid == 1.) scl.y *= 1./sqrt(3.); // approx y ratio for iso grid
     uv -= .5;
     uv /= scl;
-    if (uViewport.x > uViewport.y) {
-      uv *= vec2(uViewport.x/uViewport.y, 1.);
-    } else {
-      uv *= vec2(1., uViewport.y/uViewport.x);
-    }
     uv += .5;
 
     uv -= vec2(.5/grid, .5/grid) * scl;
+
+
+    // if (aspect >= 1.) {
+    //   scl *= vec2(1., 1./aspect);
+    // } else {
+    //   scl *= vec2(1., 1./aspect);
+    // }
+    scl *= vec2(1., 1./aspect);
+    
 
     // if (uv.y < scl / 2.) uv.y = 0.;
     // else if( uv.y < 1. - scl/2.) uv.y = map(uv.y, scl/2., 1.-scl/2., 0., 1.);
@@ -217,36 +293,100 @@ vec4 getBrightness(vec2 p) {
     //   d = smoothUnionSDF(d, sdCircle(uv - p - .5/grid, r / 4.), r/1.5);
     // }
 
+   vec2 iUv = floor(vUv * grid + 0.) / grid;
+
 
   float angle = angleBetween(vec2(.5, .5) * scl, vec2(1., 1.5) * scl);
 
     // Check neighbours - square
     for (float i = -1.; i <= 1.; i++) {
       for (float j = -1.; j <= 1.; j++) {
-      float x_ = floor(uv.x * grid + i);
-      float y_ = floor(uv.y * grid + j);
+      float x_ = floor(uv.x * grid) + i;
+      float y_ = floor(uv.y * grid) + j;
       float odd = mod(y_, 2.) * uGrid;
-      if (x_ < 0. || x_ > grid - 1. || y_ < 0. || y_ > grid - 1. || (uGrid == 1. && odd == 1. && x_ > grid - 2.)) continue;
+      float sf = 1.;
+      if (x_ < 0. || x_ > grid - 1. || y_ < 0. || y_ > grid - 1. || (uGrid == 1. && odd == 1. && x_ > grid - 2.)) sf = 0.;
+      // x_ = clamp(x_, 0., grid - 1.);
+      // y_ = clamp(y_, 0., grid - 1.);
+      // x_ = smoothstep(0., grid, x_) * grid;
       vec2 p = vec2(x_ + odd * .5, y_) / grid;
       p *= scl;
+      // p.x *= aspect;
       float ii = x_ + y_ * grid;
       float t = sin(uTime * PI + mod(ii, 2.) * 0.) * .5 + .5;
 
       // vec2 ip = vec2((floor(uv.x * grid + i + .5) + odd * .5) / grid, (floor(uv.y * grid + j + .5)) / grid);
       // ip *= scl;
-      vec2 ip = p;
-      ip.y = 1. - ip.y;
+      vec2 ip = getImgUv(p, grid, aspect);
+        
+      // ip.y -= (.5/grid) * scl.x;
+
+      // iUv = floor(vUv * grid + 0.) / grid;
+      // iUv = floor(vUv * grid + vec2(i, j)) / grid;
+
+      vec2 imgAspect = vec2(1118./924., 1.);
+      // ip -= .5;
+      // ip /= scl;
+      // ip += .5;
+
+      // vec2 uvF = vec2(
+      //   imgAspect.x / aspect,
+      //   imgAspect.y / 1.
+      // );
+    
+      // ip -= .5;
+      // ip *= uvF;
+      // ip += .5;
+
+      // if (aspect < 1.) {
+      //   ip.y -= .5 * 1./aspect;
+      //   ip.y *= 1./imgAspect;
+      //   ip.y *= 1./aspect;
+      //     ip.y += .5 * 1./aspect;
+      // } else {
+      //   ip.y -= .5;
+      //   // ip.y *= imgAspect;
+      //   // ip.y *= imgAspect;
+      //   // ip.y *= aspect;
+      //   ip.y += .5;
+
+      // }
+
+      // ip.y *= 1./imgAspect.x;
+      // ip.y += .5;
+
+      // ip -= .5;
+      // ip /= imgAspect;
+      // ip.y *= aspect;
+      // ip += .5;
+      // if (aspect >= 1.) {
+      //   ip.y -= .5 * aspect;
+      //   ip.y *= aspect;
+      //   ip.y += .5 * aspect;
+      // }
+
+    
+
+      //need to transform ip to uv [0, 1]
+
+      // ip = clamp(ip, 0., 1.);
+      // ip /= scl;
 
       // color = texture(uVideo, ip).rgb;
     // float b = brightness(color);
     vec4 b = getBrightness(ip);
+    // b.w = smoothstep(b.w, .1, 1.);
+    // vec4 b = getBrightness(iUv);
     color = b.rgb;
     // b = 1.;
 
     // float r2 = 1./grid * b * 1.5 * mix(1., 1., mod(ii, 2.)) * mix(.5, .75, t);
-    float r2 = 1./grid * b.w * map(uDotSize, 0., 1., .5, 2.);
+      float threshold = 1./grid * .5;
+    float r2 = 1./grid * b.w * map(uDotSize, 0., 1., .5, 2.) * sf;
+    bool render = r2 > threshold;
+    render = b.w > .15;
 
-      d1 = smoothUnionSDF(d1, sdCircle(uv * vec2(scl) - p - .5/grid * 0., r2 / 4.), 0.015); // 0.02
+      if (render) d1 = smoothUnionSDF(d1, sdCircle(uv * vec2(scl) - p - .5/grid * 0., r2 / 4.), 0.015); // 0.02
  
       vec4 round = vec4(.125/grid*.5);
       // vec2 s0 = vec2(.3/grid, .125/grid*.5) * t; 
@@ -262,27 +402,29 @@ vec4 getBrightness(vec2 p) {
       // float b2 = brightness(texture(uVideo, ip2).rgb);
       // s0 *= b2;
 
-      float threshold = 1./grid * .5;
+      // threshold = 0.;
 
       vec2 s0 = vec2(.5/grid, .125/grid*.5);
       s0.y *= mix(1.5, .333, uContrast); 
 
       // Horizontal
-      if (uGrid == 0. && r2 > threshold && (uConnectors.x == 1. || uConnectors.y == 1.) ) {
+      if (uGrid == 0. && render && (uConnectors.x == 1. || uConnectors.y == 1.) ) {
 
         // vec2 s0 = vec2(.3/grid * t, .125/grid*.5 * mix(.5, 1., t));
         // vec2 q = uv * vec2(scl) - p - .5/grid * 0.;
         // vec2 off = vec2(s0.x/1., 0.);
       vec2 qq = vec2(x_ + .5, y_) / grid * scl;
+      // qq.x *= aspect;
       vec2 qh = uv * vec2(scl) - qq - .5/grid * 0.;
         // vec2 q0 = q - off;
 
-      vec2 ip2 = qq;
-      ip2.y = 1. - ip2.y;
+      vec2 ip2 = getImgUv(qq, grid, aspect);
       // float b2 = brightness(texture(uVideo, ip2).rgb);
       vec4 b2 = getBrightness(ip2);
+      // vec4 b2 = getBrightness(floor((vUv + vec2(.5, 0.)/grid) * grid) / grid);
+      // color = b2.rgb;
       // b2 = 1.;
-      vec2 sh = s0 * b2.w;
+      vec2 sh = s0 * b2.w * sf;
       // vec2 off = vec2(s0.x/1., 0.) * 0.;
 
         // vec2 q1 = q + off;
@@ -291,15 +433,17 @@ vec4 getBrightness(vec2 p) {
         if (x_ < grid - 1. && uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(qh, sh, round * mix(0.5, 1., b.w)));
   
         vec2 qqv = vec2(x_ , y_ + .5) / grid * scl;
+        // qqv.x *= aspect;
         vec2 qv = uv * vec2(scl) - qqv - .5/grid * 0.;
           // vec2 q0 = q - off;
   
-        vec2 ip3 = qqv;
-        ip3.y = 1. - ip3.y;
+        vec2 ip3 = getImgUv(qqv, grid, aspect);
         // float b3 = brightness(texture(uVideo, ip3).rgb);
         vec4 b3 = getBrightness(ip3);
+        // vec4 b3 = getBrightness(floor(vUv * grid) / grid + vec2(0., .5) / grid);
         // b3 = 1.;
-        vec2 sv = vec2(s0.y, s0.x) * b3.w;
+        vec2 sv = vec2(s0.y, s0.x) * b3.w * sf;
+        sv.y *= 1./aspect;
 
         // Vertical
         // vec2 s1 = vec2(s0.y, s0.x);
@@ -311,7 +455,7 @@ vec4 getBrightness(vec2 p) {
         if (y_ < grid - 1. && uConnectors.y == 1.) d2 = min(d2, sdRoundedBox(qv, sv, round * mix(.5, 1., b.w)));
       } 
 
-      if (uGrid == 1. && r2 > threshold && (uConnectors.x == 1. || uConnectors.y == 1.)) {
+      if (uGrid == 1. && render && (uConnectors.x == 1. || uConnectors.y == 1.)) {
 
         // Diagonal
         // vec2 s0 = vec2(.3/grid * t, .125/grid*.5 * mix(.5, 1., t)); // scale
@@ -329,17 +473,21 @@ vec4 getBrightness(vec2 p) {
         // off *= b;
 
 
-        vec2 ip4 = qq1;
-        ip4.y = 1. - ip4.y;
+        vec2 ip4 = getImgUv(qq1, grid, aspect);
         // float b4 = brightness(texture(uVideo, ip4).rgb);
         vec4 b4 = getBrightness(ip4);
-        vec2 ip5 = qq2;
-        ip5.y = 1. - ip5.y;
+        // vec4 b4 = getBrightness(iUv);
+        vec2 ip5 = getImgUv(qq2, grid, aspect);
+      
         // float b5 = brightness(texture(uVideo, ip5).rgb);
         vec4 b5 = getBrightness(ip5);
+        // vec4 b5 = getBrightness(iUv);
 
-        vec2 s4 = s0 * b4.w;
-        vec2 s5 = s0 * b5.w;
+        vec2 s4 = s0 * b4.w * sf;
+        s4.x *= 1./aspect;
+        // else sv. *= 1./aspect;
+        vec2 s5 = s0 * b5.w * sf;
+        s5.x *= 1./aspect;
 
 
 
@@ -433,9 +581,12 @@ vec4 getBrightness(vec2 p) {
 
 
     // gl_FragColor = vec4(mix(uForegroundColor, uBackgroundColor, d),1.);
-    gl_FragColor = vec4(mix(uForegroundColor, mix(uForegroundColor, uBackgroundColor, uAlpha), d), mix(1.-d, 1., uAlpha));
+    vec4 c = vec4(mix(uForegroundColor, mix(uForegroundColor, uBackgroundColor, uAlpha), d), mix(1.-d, 1., uAlpha));
     // gl_FragColor = vec4(mix(mix(uForegroundColor, uBackgroundColor, d), color, sin(uTime)*.5+.5), 1.);
-    // gl_FragColor = vec4(uv.x, 0., 0., 1.);
+    // gl_FragColor = vec4(mix(color, c.rgb, sin(uTime)*.5+.5), 1.);
+    gl_FragColor = c;
+
+    // gl_FragColor = texture(uImage, uv);
 
 
   // #include <tonemapping_fragment>

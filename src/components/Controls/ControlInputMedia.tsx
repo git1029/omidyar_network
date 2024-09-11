@@ -161,12 +161,14 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
                   inverted ? "filter invert" : ""
                 } ${inputMode.value === 0 ? "flex" : "hidden"}`}
                 style={{
-                  backgroundImage: imageUpload
-                    ? `url(${imageUpload.url})`
-                    : "none",
+                  // backgroundImage: imageUpload
+                  //   ? `url(${imageUpload.url})`
+                  //   : "none",
                   backgroundColor: "rgba(0, 0, 0, .05)",
                 }}
-              ></div>
+              >
+                <img src={imageUpload?.url} className="object-contain" />
+              </div>
               <div
                 className="items-center justify-center w-full h-full"
                 style={{
@@ -180,7 +182,9 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
                   autoPlay={true}
                   muted={true}
                   loop={true}
-                  className={`max-h-[100px] ${inverted ? "filter invert" : ""}`}
+                  className={`max-h-[100px] ${
+                    inverted ? "filter invert" : ""
+                  } object-contain`}
                   ref={videoRef}
                 >
                   {initial.video && videoUpload && (

@@ -6,7 +6,7 @@ function App() {
   const ffmpeg = useRef<ExportObject | null>(null);
 
   return (
-    <div className="flex grow bg-gray-100 text-black-100 gap-x-0 h-full">
+    <div className="flex grow bg-gray-100 text-black-100 gap-x-0 h-full w-full">
       <Controls ffmpeg={ffmpeg} />
       <Scene ffmpeg={ffmpeg} />
     </div>

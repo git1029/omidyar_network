@@ -5,6 +5,7 @@ import { Scene, Vector3 } from "three";
 import useStore from "../../store/store";
 import TestFeijoaDisplay from "/TestFeijoa-Display.otf";
 import TextMaterial from "./TextMaterial";
+import { TextAlign } from "../../types";
 
 const TextInput = () => {
   const [scene] = useState(() => new Scene());
@@ -41,6 +42,8 @@ const TextScene = ({ scene }: { scene: Scene }) => {
     fontSize: 1.5,
     position: new Vector3(0, 0, 0.01),
     maxWidth: viewport.width,
+    lineHeight: 0.9,
+    textAlign: "center" as TextAlign,
     // onSync: (text: Text) => {
     //   console.log(text);
 

@@ -4,7 +4,7 @@ import ControlGrid from "./ControlGrid";
 import ControlPattern from "./ControlPattern";
 import ControlColor from "./ControlColor";
 import ControlExport from "./ControlExport";
-import ControlText from "./ControlText";
+// import ControlText from "./ControlText";
 import Logo from "/logo.svg";
 import { ExportObject } from "../Scene";
 import { MutableRefObject } from "react";
@@ -24,7 +24,7 @@ const Controls = ({
   ffmpeg: MutableRefObject<ExportObject | null>;
 }) => {
   return (
-    <div className="min-w-[600px] flex border-r border-black-100 pt-8">
+    <div className="w-[630px] flex border-r border-black-100 pt-8">
       <div className="flex flex-col grow">
         <ControlsHeader />
         <div
@@ -36,7 +36,7 @@ const Controls = ({
           <ControlGrid />
           <ControlPattern />
           <ControlColor />
-          <ControlText />
+          {/* <ControlText /> */}
           <ControlExport ffmpeg={ffmpeg} />
         </div>
       </div>

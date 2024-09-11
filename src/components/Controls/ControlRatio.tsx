@@ -5,31 +5,33 @@ import ControlGroup from "./ControlGroup";
 
 const ControlRatio = () => {
   const layout = useStore((state) => state.layout);
+  const customLayout = useStore((state) => state.customLayout);
   const setLayout = useStore((state) => state.setLayout);
+  const setCustomLayout = useStore((state) => state.setCustomLayout);
 
   const handleLayoutChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const match = layouts.find((l) => l.label === e.target.value);
-    if (match) {
-      setLayout(match);
+    if (e.target.value === "Custom") setLayout(customLayout);
+    else {
+      const match = layouts.find((l) => l.label === e.target.value);
+      if (match) {
+        setLayout(match);
+      }
     }
   };
 
   const handleCustomSize = () => {
-    const customLayout = layouts.find((layout) => layout.label === "Custom");
+    const newCustomLayout = {
+      ...customLayout,
+      aspect: customWidth / customHeight,
+      size: { width: customWidth, height: customHeight },
+    };
 
-    if (customLayout) {
-      const newCustomLayout = {
-        ...customLayout,
-        aspect: customWidth / customHeight,
-        size: { width: customWidth, height: customHeight },
-      };
-
-      setLayout(newCustomLayout);
-    }
+    setCustomLayout(newCustomLayout);
+    setLayout(newCustomLayout);
   };
 
-  const [customWidth, setCustomWidth] = useState(500);
-  const [customHeight, setCustomHeight] = useState(500);
+  const [customWidth, setCustomWidth] = useState(customLayout.size.width);
+  const [customHeight, setCustomHeight] = useState(customLayout.size.height);
 
   const limit = { min: 320, max: 2000 };
 

@@ -1,4 +1,4 @@
-import { ColorInfo, InputMode } from "../types";
+import { ColorInfo, InputMode, Layout } from "../types";
 
 export const palette: ColorInfo[] = [
   { label: "Bright Green", hex: "#5dc0a4" },
@@ -56,12 +56,18 @@ export const inputModes: InputMode[] = [
   },
 ];
 
-export const layouts = [
-  { label: "1:1", aspect: 1, size: { width: 3840, height: 3840 } },
+export const customLayout: Layout = {
+  label: "Custom",
+  aspect: 1,
+  size: { width: 500, height: 500 },
+};
+
+export const layouts: Layout[] = [
+  { label: "1:1", aspect: 1, size: { width: 2160, height: 2160 } },
   { label: "9:16", aspect: 9 / 16, size: { width: 2160, height: 3840 } },
   { label: "16:9", aspect: 16 / 9, size: { width: 3840, height: 2160 } },
   { label: "4:3", aspect: 4 / 3, size: { width: 3840, height: 2880 } },
-  { label: "Custom", aspect: 1, size: { width: 500, height: 500 } },
+  customLayout,
 ];
 
 export const textPalette: ColorInfo[] = [
@@ -80,13 +86,14 @@ export const textSettings = {
 };
 
 export const exportFormats = [
-  { label: "PNG", type: "image/png", ext: "png" },
-  { label: "MP4", type: "video/mp4", ext: "mp4" },
+  { label: "PNG", type: "image/png", ext: "png", typeRoot: "image" },
+  { label: "MP4", type: "video/mp4", ext: "mp4", typeRoot: "video" },
 ];
 
 export const exportSettings = {
   ffmpegLoaded: false,
   format: exportFormats[0],
+  exporting: false,
 };
 
 // const maxWidthAspect = Math.max(

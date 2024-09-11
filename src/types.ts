@@ -36,9 +36,25 @@ interface ExportFormat {
   label: string;
   type: string;
   ext: string;
+  typeRoot: string;
 }
 
 export interface ExportSettings {
   ffmpegLoaded: boolean;
   format: ExportFormat;
+  exporting: boolean;
+}
+
+export type TextAlign = "center" | "left" | "right" | "justify" | undefined;
+
+type ModalType = "message" | "warning" | "error";
+
+export interface Modal {
+  title: string;
+  progress?: {
+    value?: number;
+    status?: string;
+  };
+  description?: string;
+  type: ModalType;
 }

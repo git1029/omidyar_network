@@ -5,6 +5,7 @@ import { toBlobURL } from "@ffmpeg/util";
 import { useThree } from "@react-three/fiber";
 import { ExportObject } from "../components/Scene";
 import useStore from "../store/store";
+import { scaleCanvas } from "./useResize";
 // import JSZip from 'jszip'
 // import { useStore } from '../store/store.js'
 // import { scaleCanvas } from './utils'
@@ -29,6 +30,7 @@ const useExport = (): ExportObject => {
   // const setExportSettings = useStore((state) => state.setExportSettings);
   // const setValue = useStore((state) => state.setValue)
   const exportSettings = useStore((state) => state.exportSettings);
+  const layout = useStore((state) => state.layout);
 
   // const modalExport = {
   //   title: 'Exporting assets',
@@ -59,7 +61,7 @@ const useExport = (): ExportObject => {
   const { gl } = useThree();
 
   // const frames = animationDuration.value * exportFps
-  const format = exportSettings.format.type.split("/")[0];
+  const format = exportSettings.format.typeRoot;
   const exportFps = 30;
   const frameCount = format === "image" ? 1 : exportFps * 1;
   // console.log(format);
@@ -154,7 +156,7 @@ const useExport = (): ExportObject => {
 
     // if (useStore.getState().export.cancelled) return
 
-    // scaleCanvas(format)
+    scaleCanvas(layout, true, format);
 
     // render.current.reset = false
     // render.current.exportPrep = true
@@ -165,7 +167,7 @@ const useExport = (): ExportObject => {
     // })
 
     // Add timeout so canvas has time to resize before export begins
-    // await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     // render.current.exportPrep = false
 
@@ -230,8 +232,9 @@ const useExport = (): ExportObject => {
 
     // setValue('export.exporting', false)
 
-    // // Reset canvas size
+    // Reset canvas size
     // scaleCanvas()
+    scaleCanvas(layout);
 
     // if (useStore.getState().export.cancelled) return
 
