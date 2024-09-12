@@ -182,6 +182,8 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
                   autoPlay={true}
                   muted={true}
                   loop={true}
+                  playsInline={true}
+                  // onSeeked={}
                   className={`max-h-[100px] ${
                     inverted ? "filter invert" : ""
                   } object-contain`}

@@ -2,7 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
 import PatternGL from "./PatternGL/PatternGL";
 import TextInput from "./Text/TextInput";
-import TextLayer from "./Text/TextLayer";
+// import TextLayer from "./Text/TextLayer";
 import useStore from "../store/store";
 import {
   MutableRefObject,
@@ -66,6 +66,7 @@ const Scene = ({
   }, [canvasContainerRef, setCanvasContainerRef]);
 
   const loaded = canvasLoaded && assetsLoaded;
+  // const loaded = true;
 
   // console.log(`aspect-[${layout.label.split(":").join("/")}]`);
 
@@ -160,7 +161,7 @@ const Scene = ({
             <TextInput />
             <PatternGL />
             {/* <PatternSVG /> */}
-            <TextLayer />
+            {/* <TextLayer /> */}
             <Perf />
             <Renderer ffmpeg={ffmpeg} />
           </Canvas>

@@ -382,12 +382,11 @@ vec4 getBrightness(vec2 p) {
 
     // float r2 = 1./grid * b * 1.5 * mix(1., 1., mod(ii, 2.)) * mix(.5, .75, t);
       float threshold = 1./grid * .5;
-      // bool render = r2 > threshold;
-      // render = b.w > .15;
-      float bf = step(.15, b.w);
-    float r2 = 1./grid * b.w * map(uDotSize, 0., 1., .5, 2.) * bf;
+    float r2 = 1./grid * b.w * map(uDotSize, 0., 1., .5, 2.) * sf;
+    bool render = r2 > threshold;
+    render = b.w > .15;
 
-      d1 = mix(d1, smoothUnionSDF(d1, sdCircle(uv * vec2(scl) - p - .5/grid * 0., r2 / 4.), 0.015), bf); // 0.02
+      if (render) d1 = smoothUnionSDF(d1, sdCircle(uv * vec2(scl) - p - .5/grid * 0., r2 / 4.), 0.015); // 0.02
  
       vec4 round = vec4(.125/grid*.5);
       // vec2 s0 = vec2(.3/grid, .125/grid*.5) * t; 
@@ -409,7 +408,7 @@ vec4 getBrightness(vec2 p) {
       s0.y *= mix(1.5, .333, uContrast); 
 
       // Horizontal
-      if (uGrid == 0. && (uConnectors.x == 1. || uConnectors.y == 1.) ) {
+      if (uGrid == 0. && render && (uConnectors.x == 1. || uConnectors.y == 1.) ) {
 
         // vec2 s0 = vec2(.3/grid * t, .125/grid*.5 * mix(.5, 1., t));
         // vec2 q = uv * vec2(scl) - p - .5/grid * 0.;
@@ -425,13 +424,16 @@ vec4 getBrightness(vec2 p) {
       // vec4 b2 = getBrightness(floor((vUv + vec2(.5, 0.)/grid) * grid) / grid);
       // color = b2.rgb;
       // b2 = 1.;
-      vec2 sh = s0 * b2.w * sf;
+      float sf0 = 0.;
+      if (x_ < grid - 1. && uConnectors.x == 1.)  sf0 = 1.;
+      vec2 sh = s0 * b2.w * sf * sf0;
       // vec2 off = vec2(s0.x/1., 0.) * 0.;
 
         // vec2 q1 = q + off;
         // if (x_ < grid - 1.) d2 = min(d2, sdRoundedBox(q0, s0, round));
         // if (x_ > 0.) d2 = min(d2, sdRoundedBox(q1, s0, round));
-        if (x_ < grid - 1. && uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(qh, sh, round * mix(0.5, 1., b.w)));
+        // if (x_ < grid - 1. && uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(qh, sh, round * mix(0.5, 1., b.w)));
+        d2 = min(d2, sdRoundedBox(qh, sh, round * mix(0.5, 1., b.w)));
   
         vec2 qqv = vec2(x_ , y_ + .5) / grid * scl;
         // qqv.x *= aspect;
@@ -443,7 +445,9 @@ vec4 getBrightness(vec2 p) {
         vec4 b3 = getBrightness(ip3);
         // vec4 b3 = getBrightness(floor(vUv * grid) / grid + vec2(0., .5) / grid);
         // b3 = 1.;
-        vec2 sv = vec2(s0.y, s0.x) * b3.w * sf;
+        float sf1 = 0.;
+        if (y_ < grid - 1. && uConnectors.y == 1.)  sf1 = 1.;
+        vec2 sv = vec2(s0.y, s0.x) * b3.w * sf * sf1;
         sv.y *= 1./aspect;
 
         // Vertical
@@ -453,10 +457,10 @@ vec4 getBrightness(vec2 p) {
         // vec2 q3 = q + off1;
         // if (y_ < grid - 1.) d2 = min(d2, sdRoundedBox(q2, s1, round));
         // if (y_ > 0.) d2 = min(d2, sdRoundedBox(q3, s1, round));
-        if (y_ < grid - 1. && uConnectors.y == 1.) d2 = min(d2, sdRoundedBox(qv, sv, round * mix(.5, 1., b.w)));
+        d2 = min(d2, sdRoundedBox(qv, sv, round * mix(.5, 1., b.w)));
       } 
 
-      if (uGrid == 1. && (uConnectors.x == 1. || uConnectors.y == 1.)) {
+      if (uGrid == 1. && render && (uConnectors.x == 1. || uConnectors.y == 1.)) {
 
         // Diagonal
         // vec2 s0 = vec2(.3/grid * t, .125/grid*.5 * mix(.5, 1., t)); // scale
@@ -484,10 +488,15 @@ vec4 getBrightness(vec2 p) {
         vec4 b5 = getBrightness(ip5);
         // vec4 b5 = getBrightness(iUv);
 
-        vec2 s4 = s0 * b4.w * sf;
+        float sf4 = 0.;
+        if (y_ > 0. && !(odd == 0. && x_ == grid - 1.) && uConnectors.y == 1.)  sf4 = 1.;
+        float sf5 = 0.;
+        if (y_ < grid - 1. && !(odd == 0. && x_ == grid - 1.) && uConnectors.x == 1.)  sf5 = 1.;
+
+        vec2 s4 = s0 * b4.w * sf * sf4;
         s4.x *= 1./aspect;
         // else sv. *= 1./aspect;
-        vec2 s5 = s0 * b5.w * sf;
+        vec2 s5 = s0 * b5.w * sf * sf5;
         s5.x *= 1./aspect;
 
 
@@ -498,10 +507,15 @@ vec4 getBrightness(vec2 p) {
         // vec2 q3 = rotate(q, -angle + uTime*0.) + off;
         // vec4 round = vec4(.125/grid*.5);
         // q += .5/grid;
-        if (y_ > 0. && !(odd == 0. && x_ == grid - 1.) && uConnectors.y == 1.) d2 = min(d2, sdRoundedBox(q0, s4, round));
+        
         // if (y_ < grid - 1. && !(odd == 0. && x_ == 0.)) d2 = min(d2, sdRoundedBox(q1, s0, round));
-        if (y_ < grid - 1. && !(odd == 0. && x_ == grid - 1.) && uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(q2, s5, round));
         // if (y_ > 0. && !(odd == 0. && x_ == 0.)) d2 = min(d2, sdRoundedBox(q3, s0, round));
+
+        // if (y_ > 0. && !(odd == 0. && x_ == grid - 1.) && uConnectors.y == 1.) d2 = min(d2, sdRoundedBox(q0, s4, round));
+        // if (y_ < grid - 1. && !(odd == 0. && x_ == grid - 1.) && uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(q2, s5, round));
+
+        d2 = min(d2, sdRoundedBox(q0, s4, round));
+        d2 = min(d2, sdRoundedBox(q2, s5, round));
       }
 
     }

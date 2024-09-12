@@ -1,16 +1,21 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import vertexShader from "./shaders/vertex";
-import fragmentShader from "./shaders/fragment3";
+import fragmentShader from "./shaders/fragment7";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Color,
+  // LinearSRGBColorSpace,
   // LinearFilter,
   // LinearFilter,
   Mesh,
+  // MeshBasicMaterial,
+  // RepeatWrapping,
   // RepeatWrapping,
   // NearestFilter,
   // RepeatWrapping,
   ShaderMaterial,
+  // SRGBColorSpace,
+  // Texture,
   Uniform,
   Vector2,
 } from "three";
@@ -22,6 +27,7 @@ const PatternGL = () => {
   const { viewport } = useThree();
 
   const ref = useRef<Mesh>(null);
+  // const test = useRef<MeshBasicMaterial>(null);
   const matRef = useRef<ShaderMaterial>(null);
 
   // const backgroundColor = useStore((state) => state.backgroundColor);
@@ -31,6 +37,7 @@ const PatternGL = () => {
 
   const img = useTexture("/img.jpg");
   const video = useVideoTexture("/footage.mp4");
+  const imgtest = useTexture("/color2.png");
 
   const uniforms = useMemo(() => {
     return {
@@ -41,6 +48,7 @@ const PatternGL = () => {
       uForegroundColor: new Uniform(new Color(palette[1].hex)),
       uAlpha: new Uniform(1),
       uImage: new Uniform(null),
+      uColor: new Uniform(null),
       uVideo: new Uniform(null),
       uCamera: new Uniform(null),
       uText: new Uniform(null),
@@ -67,6 +75,7 @@ const PatternGL = () => {
   }, []);
 
   useEffect(() => {
+    // console.log(img);
     if (ref.current && img) {
       const material = ref.current.material as ShaderMaterial;
       // img.minFilter = LinearFilter;
@@ -75,11 +84,28 @@ const PatternGL = () => {
       img.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
       // img.wrapS = RepeatWrapping;
       // img.wrapT = RepeatWrapping;
-      // img.flipY = true;
+      // img.flipY = false;
       img.needsUpdate = true;
       material.uniforms.uImage.value = img;
     }
   }, [img]);
+
+  useEffect(() => {
+    // console.log(img);
+    if (ref.current && imgtest) {
+      const material = ref.current.material as ShaderMaterial;
+      // imgtest.minFilter = LinearFilter;
+      // imgtest.magFilter = LinearFilter;
+      // imgtest.colorSpace = LinearSRGBColorSpace;
+      // imgtest.anisotropy = 8;
+      imgtest.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
+      // imgtest.wrapS = RepeatWrapping;
+      // imgtest.wrapT = RepeatWrapping;
+      // imgtest.flipY = false;
+      imgtest.needsUpdate = true;
+      material.uniforms.uColor.value = imgtest;
+    }
+  }, [imgtest]);
 
   useEffect(() => {
     if (matRef.current) {
@@ -91,6 +117,28 @@ const PatternGL = () => {
 
   useEffect(() => {
     if (matRef.current && video) {
+      console.log(video);
+      video.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
+      // imgtest.wrapS = RepeatWrapping;
+      // imgtest.wrapT = RepeatWrapping;
+      // imgtest.flipY = false;
+      video.needsUpdate = true;
+
+      // video.image.play();
+
+      // const vf = new VideoFrame(video.image as HTMLVideoElement);
+      // console.log(vf);
+      // if (test.current) {
+      //   test.current.map = new Texture(vf);
+      //   test.current.needsUpdate = true;
+      // }
+      // video.image.play();
+      // (video.image as HTMLVideoElement).requestVideoFrameCallback(
+      //   (now, metadata) => {
+      //     console.log(now, metadata);
+      //   }
+      // );
+      // video.needsUpdate = false;
       matRef.current.uniforms.uVideo.value = video;
     }
   }, [video]);
@@ -128,20 +176,30 @@ const PatternGL = () => {
   useFrame((_state, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta;
+      // video.image.pause();
+      // video.source.data.currentTime =
+      //   _state.clock.elapsedTime % video.source.data.duration;
+      // video.needsUpdate = true;
     }
   });
 
   return (
-    <mesh scale={[viewport.width, viewport.height, 1]} ref={ref}>
-      <planeGeometry args={[1, 1]} />
-      <shaderMaterial
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        uniforms={uniforms}
-        transparent={true}
-        ref={matRef}
-      />
-    </mesh>
+    <>
+      {/* <mesh scale={[viewport.width, viewport.height, 1]} position={[0, 0, 0.1]}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial ref={test} color={0xff0000} map={null} />
+      </mesh> */}
+      <mesh scale={[viewport.width, viewport.height, 1]} ref={ref}>
+        <planeGeometry args={[1, 1]} />
+        <shaderMaterial
+          vertexShader={vertexShader}
+          fragmentShader={fragmentShader}
+          uniforms={uniforms}
+          transparent={true}
+          ref={matRef}
+        />
+      </mesh>
+    </>
   );
 };
 

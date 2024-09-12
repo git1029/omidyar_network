@@ -300,17 +300,17 @@ vec4 getBrightness(vec2 p) {
 
     // Check neighbours - square
     for (float i = -1.; i <= 1.; i++) {
-      for (float j = -1.; j <= 1.; j++) {
-      float x_ = floor(uv.x * grid) + i;
-      float y_ = floor(uv.y * grid) + j;
+      for (float j = -1.; j <=1.; j++) {
+      float x_ = floor(vUv.x * grid);
+      float y_ = floor(vUv.y * grid);
       float odd = mod(y_, 2.) * uGrid;
       float sf = 1.;
-      if (x_ < 0. || x_ > grid - 1. || y_ < 0. || y_ > grid - 1. || (uGrid == 1. && odd == 1. && x_ > grid - 2.)) sf = 0.;
+      // if (x_ < 0. || x_ > grid - 1. || y_ < 0. || y_ > grid - 1. || (uGrid == 1. && odd == 1. && x_ > grid - 2.)) sf = 0.;
       // x_ = clamp(x_, 0., grid - 1.);
       // y_ = clamp(y_, 0., grid - 1.);
       // x_ = smoothstep(0., grid, x_) * grid;
-      vec2 p = vec2(x_ + odd * .5, y_) / grid;
-      p *= scl;
+      vec2 p = vec2(x_, y_) / grid;
+      // p *= scl;
       // p.x *= aspect;
       float ii = x_ + y_ * grid;
       float t = sin(uTime * PI + mod(ii, 2.) * 0.) * .5 + .5;
@@ -318,6 +318,9 @@ vec4 getBrightness(vec2 p) {
       // vec2 ip = vec2((floor(uv.x * grid + i + .5) + odd * .5) / grid, (floor(uv.y * grid + j + .5)) / grid);
       // ip *= scl;
       vec2 ip = getImgUv(p, grid, aspect);
+
+      ip = (floor((vUv) * grid) + vec2(i, j)) / grid;
+      // ip.x += ;
         
       // ip.y -= (.5/grid) * scl.x;
 
@@ -385,9 +388,9 @@ vec4 getBrightness(vec2 p) {
       // bool render = r2 > threshold;
       // render = b.w > .15;
       float bf = step(.15, b.w);
-    float r2 = 1./grid * b.w * map(uDotSize, 0., 1., .5, 2.) * bf;
+    float r2 = 1./grid * b.w;
 
-      d1 = mix(d1, smoothUnionSDF(d1, sdCircle(uv * vec2(scl) - p - .5/grid * 0., r2 / 4.), 0.015), bf); // 0.02
+      // d1 = smoothUnionSDF(d1, sdCircle(vUv- ip - vec2(.5)/grid - .5/grid * 0., r2 / 4.), 0.015); // 0.02
  
       vec4 round = vec4(.125/grid*.5);
       // vec2 s0 = vec2(.3/grid, .125/grid*.5) * t; 
@@ -406,7 +409,7 @@ vec4 getBrightness(vec2 p) {
       // threshold = 0.;
 
       vec2 s0 = vec2(.5/grid, .125/grid*.5);
-      s0.y *= mix(1.5, .333, uContrast); 
+      // s0.y *= mix(1.5, .333, uContrast); 
 
       // Horizontal
       if (uGrid == 0. && (uConnectors.x == 1. || uConnectors.y == 1.) ) {
@@ -420,18 +423,20 @@ vec4 getBrightness(vec2 p) {
         // vec2 q0 = q - off;
 
       vec2 ip2 = getImgUv(qq, grid, aspect);
+
+      ip2 = (floor((vUv) * grid) + vec2(i, j) + vec2(.5, 0)) / grid;
       // float b2 = brightness(texture(uVideo, ip2).rgb);
       vec4 b2 = getBrightness(ip2);
       // vec4 b2 = getBrightness(floor((vUv + vec2(.5, 0.)/grid) * grid) / grid);
-      // color = b2.rgb;
+      color = mix(b.rgb, b2.rgb, t);
       // b2 = 1.;
-      vec2 sh = s0 * b2.w * sf;
+      vec2 sh = s0 * b2.w * 1.;
       // vec2 off = vec2(s0.x/1., 0.) * 0.;
 
         // vec2 q1 = q + off;
         // if (x_ < grid - 1.) d2 = min(d2, sdRoundedBox(q0, s0, round));
         // if (x_ > 0.) d2 = min(d2, sdRoundedBox(q1, s0, round));
-        if (x_ < grid - 1. && uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(qh, sh, round * mix(0.5, 1., b.w)));
+        if (uConnectors.x == 1.) d2 = min(d2, sdRoundedBox(vUv - ip2 - vec2(.5)/grid, sh, round * mix(0.5, 1., b.w)));
   
         vec2 qqv = vec2(x_ , y_ + .5) / grid * scl;
         // qqv.x *= aspect;
@@ -443,7 +448,7 @@ vec4 getBrightness(vec2 p) {
         vec4 b3 = getBrightness(ip3);
         // vec4 b3 = getBrightness(floor(vUv * grid) / grid + vec2(0., .5) / grid);
         // b3 = 1.;
-        vec2 sv = vec2(s0.y, s0.x) * b3.w * sf;
+        vec2 sv = vec2(s0.y, s0.x) * b3.w * 1.;
         sv.y *= 1./aspect;
 
         // Vertical
@@ -453,7 +458,7 @@ vec4 getBrightness(vec2 p) {
         // vec2 q3 = q + off1;
         // if (y_ < grid - 1.) d2 = min(d2, sdRoundedBox(q2, s1, round));
         // if (y_ > 0.) d2 = min(d2, sdRoundedBox(q3, s1, round));
-        if (y_ < grid - 1. && uConnectors.y == 1.) d2 = min(d2, sdRoundedBox(qv, sv, round * mix(.5, 1., b.w)));
+        if (uConnectors.y == 1.) d2 = min(d2, sdRoundedBox(qv, sv, round * mix(.5, 1., b.w)));
       } 
 
       if (uGrid == 1. && (uConnectors.x == 1. || uConnectors.y == 1.)) {
@@ -585,7 +590,8 @@ vec4 getBrightness(vec2 p) {
     vec4 c = vec4(mix(uForegroundColor, mix(uForegroundColor, uBackgroundColor, uAlpha), d), mix(1.-d, 1., uAlpha));
     // gl_FragColor = vec4(mix(mix(uForegroundColor, uBackgroundColor, d), color, sin(uTime)*.5+.5), 1.);
     // gl_FragColor = vec4(mix(color, c.rgb, sin(uTime)*.5+.5), 1.);
-    gl_FragColor = c;
+    gl_FragColor = vec4(max(color, vec3(1.-d)), 1.);
+    // gl_FragColor = c;
 
     // gl_FragColor = texture(uImage, uv);
 

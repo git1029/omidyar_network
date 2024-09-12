@@ -2,8 +2,9 @@ import {
   Instance,
   Instances,
   useFBO,
+  useTexture,
   // useTexture,
-  useVideoTexture,
+  // useVideoTexture,
 } from "@react-three/drei";
 // import { useThree } from "@react-three/fiber";
 // import { useMemo } from "react";
@@ -118,7 +119,8 @@ const PatternSVG = () => {
 
             void main() {
               vec4 c = texture(uImage, vUv);
-              vec4 cc = smoothstep(.75, .85, c);
+              vec4 cc = vec4(smoothstep(.75, .85, c.rgb), 1.);
+              // cc = mix(vec4(vec3(0.), 1.), cc, c.r);
               gl_FragColor = cc;
             }
           `
@@ -141,8 +143,8 @@ const PatternScene = () => {
 
   const ref = useRef<ShaderMaterial>(null);
 
-  const vid = useVideoTexture("/footage.mp4");
-  // const vid = useTexture("/img.jpg");
+  // const vid = useVideoTexture("/footage.mp4");
+  const vid = useTexture("/img.jpg");
 
   useFrame((_state, delta) => {
     if (ref.current) {
@@ -201,7 +203,7 @@ const PatternScene = () => {
 
               float uDensity = 1.;
               // p *= uDensity;
-              float smx = 4.;
+              float smx = 3.;
               vec2 uvs = off.xy/uViewport + .5;
               float c = texture(uVideo, uvs).r;
               if (c < .1) c = 0.;
