@@ -348,7 +348,7 @@ vec4 getBrightness(vec2 p) {
         p0 -= .5;
         p0 *= af;
         p0 += .5;
-        float r = 1./grid*.25 * b0f * map(uDotSize, 0., 1., .5, 2.);
+        float r = 1./grid*.25 * b0f * map(uDotSize, 0., 1., .5, 1.75);
         d0 = mix(d0, smoothUnionSDF(d0, sdCircle(uv0 - p0, r), .015 * mix(1., .5, uQuantity/uMaxCount)), step(threshold, b0f) * sf0);
         // d0 = min(d0, sdCircle(uv0 - p0, r));
 
