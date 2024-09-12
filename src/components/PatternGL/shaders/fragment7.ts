@@ -333,10 +333,10 @@ vec4 getBrightness(vec2 p) {
         vec2 p0 = (floor(uv * grid) + vec2(i, j) + off + 0.500) / grid;
         // vec2 p0a = (floor((uv - vec2(.5)/grid) * grid) + vec2(i, j) + vec2(.5, 0.)) / grid;
         float sf0 = 1.;
-        if (id.x < 0. || id.y < 0. || id.x > grid || id.y > grid) sf0 = 0.;
-        if ((uGrid == 1. && id.x >= grid - 1. && odd == 1.)) sf0 = 0.;
-        if ((uGrid == 1. && id.x >= grid && odd == 0.)) sf0 = 0.;
-        if ((uGrid == 1. && id.y >= grid)) sf0 = 0.;
+        if (id.x < 0. || id.y < 0. || id.x >= grid || id.y >= grid) sf0 = 0.;
+        if (uGrid == 1. && id.x >= grid - 1. && odd == 1.) sf0 = 0.;
+        if (uGrid == 1. && id.x >= grid && odd == 0.) sf0 = 0.;
+        if (uGrid == 1. && id.y >= grid) sf0 = 0.;
         vec2 p0b = (floor(uv * grid) + vec2(i, j) + off + 0.500) / grid;
         vec4 b0 = getBrightness(p0b);
         if (i == 0. && j == 0.) color = b0.rgb;
@@ -371,8 +371,9 @@ vec4 getBrightness(vec2 p) {
 
     vec3 c = mix(uForegroundColor, uBackgroundColor, uAlpha); // if alpha background mix use node color
     c = mix(uForegroundColor, c, d); // mix with distance to nodes/circles
-    c = mix(uBackgroundColor, c, alpha);
-    vec4 col = vec4(c, mix(1.-d, 1., uAlpha) * mix(alpha, 1., uAlpha));
+    // c = mix(uBackgroundColor, c, alpha);
+    // vec4 col = vec4(c, mix(1.-d, 1., uAlpha) * mix(alpha, 1., uAlpha));
+    vec4 col = vec4(c, mix(1.-d, 1., uAlpha));
     // gl_FragColor = vec4(max(color, vec3(1.-d)), 1.);
     // gl_FragColor = vec4(mix(color, vec3(1., 0., 0.) * (1.-d), 1.-d), 1.);
     gl_FragColor = col;

@@ -117,7 +117,7 @@ const PatternGL = () => {
 
   useEffect(() => {
     if (matRef.current && video) {
-      console.log(video);
+      // console.log(video);
       video.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
       // imgtest.wrapS = RepeatWrapping;
       // imgtest.wrapT = RepeatWrapping;
