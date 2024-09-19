@@ -1,8 +1,9 @@
-import { ChangeEvent, MutableRefObject } from "react";
+import { MutableRefObject } from "react";
 import ControlGroup from "./ControlGroup";
 import { ExportObject } from "../Scene";
 import { exportFormats } from "../../store/options";
 import useStore from "../../store/store";
+import Toggle from "./Toggle";
 
 const ControlExport = ({
   ffmpeg,
@@ -16,18 +17,31 @@ const ControlExport = ({
   const exportSettings = useStore((state) => state.exportSettings);
   const setExportSettings = useStore((state) => state.setExportSettings);
 
-  const handleFormatChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    const match = exportFormats.find((format) => format.type === value);
+  // const handleFormatChange = (e: ChangeEvent<HTMLSelectElement>) => {
+  //   const value = e.target.value;
+  //   const match = exportFormats.find((format) => format.type === value);
+  //   if (match) {
+  //     setExportSettings({ ...exportSettings, format: match });
+  //   }
+  // };
+
+  const handleFormatChange = (label: string) => {
+    const match = exportFormats.find((format) => format.label === label);
     if (match) {
       setExportSettings({ ...exportSettings, format: match });
     }
   };
 
+  const exportToggle = {
+    label: "Format",
+    options: exportFormats.map((f) => ({ label: f.label })),
+    onChange: handleFormatChange,
+    isSelected: (label: string) => exportSettings.format.label === label,
+  };
+
   return (
-    <ControlGroup className="pb-20">
-      <h2>Export</h2>
-      <div className="flex items-center">
+    <ControlGroup title="Export">
+      {/* <div className="flex items-center">
         <label>Format</label>
         <select
           value={exportSettings.format.type}
@@ -39,11 +53,11 @@ const ControlExport = ({
             </option>
           ))}
         </select>
-      </div>
-      <div className="flex items-center">
-        <label></label>
-        <button onClick={download}>Export</button>
-      </div>
+      </div> */}
+      <Toggle {...exportToggle} />
+      <button className="mt-2" onClick={download}>
+        Export
+      </button>
     </ControlGroup>
   );
 };

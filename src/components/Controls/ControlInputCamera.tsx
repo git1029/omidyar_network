@@ -19,7 +19,7 @@ const ControlInputCamera = ({ inverted }: { inverted: boolean }) => {
 
   return (
     <div
-      className={`border-dashed border-black-100 border w-[300px] overflow-hidden text-sm rounded-sm p-2 ${
+      className={`border border-foreground/50 border w-[300px] overflow-hidden text-sm rounded-md p-2 ${
         inputMode.value === 2 ? "flex" : "hidden"
       }`}
     >
@@ -33,10 +33,10 @@ const ControlInputCamera = ({ inverted }: { inverted: boolean }) => {
         )}
         <div
           className="flex w-auto h-auto items-center justify-center"
-          style={{ backgroundColor: "rgba(0, 0, 0, .05)" }}
+          // style={{ backgroundColor: "rgba(0, 0, 0, .05)" }}
         >
           <video
-            className={inverted ? "filter invert" : ""}
+            className={`-scale-x-100 ${inverted ? "filter invert" : ""}`}
             ref={cameraRef}
             autoPlay
             playsInline

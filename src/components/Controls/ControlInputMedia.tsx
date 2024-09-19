@@ -35,6 +35,7 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
 
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
+  const setVideoDuration = useStore((state) => state.setVideoDuration);
 
   const { loadFile } = useUpload();
 
@@ -42,6 +43,9 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
     if (inputMode.value > 1) return;
 
     if (!file || !dataUrl) return;
+
+    // Dispose existing upload
+    handleMediaClear();
 
     const upload = {
       name: file.name,
@@ -60,7 +64,11 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
         texture.needsUpdate = true;
 
         if (patternRef) {
+          // console.log(width, height);
           patternRef.uniforms.uImage.value = texture;
+          const { width, height } = texture.image;
+          if (width > 0 && height > 0)
+            patternRef.uniforms.uInputAspect.value.x = width / height;
         }
       });
     } else if (inputMode.value === 1) {
@@ -82,12 +90,38 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
             patternRef.uniforms.uVideo.value.dispose();
           }
           patternRef.uniforms.uVideo.value = texture;
+
+          // Video width/height available once metadata has loaded
+          (texture.image as HTMLVideoElement).addEventListener(
+            "loadedmetadata",
+            () => {
+              const { videoWidth, videoHeight, duration } = texture.image;
+
+              if (videoWidth > 0 && videoHeight > 0) {
+                patternRef.uniforms.uInputAspect.value.y =
+                  videoWidth / videoHeight;
+              } else {
+                console.warn(
+                  "Unable to access video width and height or have zero value"
+                );
+              }
+
+              if (!isNaN(duration) && duration > 0) {
+                setVideoDuration(duration);
+              } else {
+                console.warn(
+                  "Unable to access video duration or has zero value"
+                );
+              }
+            }
+          );
         }
       }
     }
   };
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    // console.log(e.target.value);
     loadFile(e, uploadFile);
   };
 
@@ -99,16 +133,18 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
       : null;
 
   const handleFileUploadClick = () => {
-    if (fileUploadInputRef.current && !currentUpload) {
+    // if (fileUploadInputRef.current && !currentUpload) {
+    if (fileUploadInputRef.current) {
       fileUploadInputRef.current.click();
     }
   };
 
-  const handleFileUploadKeydown = (code: string) => {
-    if (fileUploadInputRef.current && !currentUpload && code === "Enter") {
-      fileUploadInputRef.current.click();
-    }
-  };
+  // const handleFileUploadKeydown = (code: string) => {
+  //   // if (fileUploadInputRef.current && !currentUpload && code === "Enter") {
+  //   if (fileUploadInputRef.current && code === "Enter") {
+  //     fileUploadInputRef.current.click();
+  //   }
+  // };
 
   const handleMediaClear = () => {
     if (inputMode.value === 0 && imageUpload) {
@@ -116,6 +152,7 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
 
       if (patternRef && patternRef.uniforms.uImage.value) {
         patternRef.uniforms.uImage.value = null;
+        patternRef.uniforms.uInputAspect.value.x = 1;
       }
     } else if (inputMode.value === 1 && videoUpload) {
       setVideoUpload(null);
@@ -125,6 +162,7 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
       if (patternRef && patternRef.uniforms.uVideo.value) {
         patternRef.uniforms.uVideo.value.dispose();
         patternRef.uniforms.uVideo.value = null;
+        patternRef.uniforms.uInputAspect.value.y = 1;
       }
     }
 
@@ -143,31 +181,36 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
     <>
       <div className="flex flex-col gap-y-2">
         <div
-          className={`border-dashed border-black-100 border flex flex-col gap-y-2 h-fit w-[300px] text-sm rounded-sm p-2 ${
+          className={`border border-foreground/50 border flex flex-col gap-y-2 h-fit w-[300px] text-sm rounded-md p-2 ${
             currentUpload ? "" : "cursor-pointer"
           } ${inputMode.value < 2 ? "flex" : "hidden"}`}
-          tabIndex={0}
-          onClick={handleFileUploadClick}
-          onKeyDown={(e) => handleFileUploadKeydown(e.code)}
+          // tabIndex={0}
+          // onClick={handleFileUploadClick}
+          // onKeyDown={(e) => handleFileUploadKeydown(e.code)}
         >
           <div
             className={`gap-x-2 items-start ${
               currentUpload ? "flex" : "hidden"
             }`}
           >
-            <div className="h-[100px] max-h-[100px] w-[100px] border border-black-100 rounded-sm">
+            <div className="h-[100px] max-h-[100px] w-[100px] border border-foreground/50 rounded-sm">
               <div
-                className={`w-full h-full bg-contain bg-no-repeat bg-center  ${
+                className={`w-full h-full bg-contain bg-no-repeat bg-center ${
                   inverted ? "filter invert" : ""
                 } ${inputMode.value === 0 ? "flex" : "hidden"}`}
-                style={{
-                  // backgroundImage: imageUpload
-                  //   ? `url(${imageUpload.url})`
-                  //   : "none",
-                  backgroundColor: "rgba(0, 0, 0, .05)",
-                }}
+                style={
+                  {
+                    // backgroundImage: imageUpload
+                    //   ? `url(${imageUpload.url})`
+                    //   : "none",
+                    // backgroundColor: "rgba(0, 0, 0, .05)",
+                  }
+                }
               >
-                <img src={imageUpload?.url} className="object-contain" />
+                <img
+                  src={imageUpload?.url}
+                  className="object-contain mx-auto"
+                />
               </div>
               <div
                 className="items-center justify-center w-full h-full"
@@ -197,12 +240,9 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
             </div>
             {currentUpload && inputMode.value < 2 && (
               <div className="flex flex-col gap-y-1 grow">
-                <div className="line-clamp-3 break-all">
+                <div className="line-clamp-3 break-all uppercase">
                   {currentUpload.name}
                 </div>
-                <button className="btn-link" onClick={handleMediaClear}>
-                  Remove {inputMode.label}
-                </button>
               </div>
             )}
           </div>
@@ -212,6 +252,12 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
             {inputMode.label.toLowerCase()}
           </div>
         </div>
+
+        {currentUpload && inputMode.value < 2 && (
+          <button onClick={handleFileUploadClick}>
+            Replace {inputMode.label}
+          </button>
+        )}
       </div>
 
       <input

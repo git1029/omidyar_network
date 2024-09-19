@@ -51,10 +51,10 @@ const Slider = ({
   };
 
   return (
-    <div className="flex items-cetner">
+    <div className="flex flex-col gap-y-1">
       <label>{label}</label>
-      <div className="flex items-center gap-x-2">
-        <div className="relative h-3 flex w-[200px]">
+      <div className="flex items-center gap-x-2 border border-foreground h-6 px-2 rounded-md w-fit">
+        <div className="relative h-6 flex w-[200px]">
           <input
             type="range"
             min={min}
@@ -64,13 +64,14 @@ const Slider = ({
             onChange={(e) => handleChange(e.target.value)}
             className="z-10 w-full"
           />
+          <div className="absolute events-none left-0 top-1/2 h-px right-0 z-1 -translate-y-1/2 bg-foreground/50" />
           <div
             ref={sliderProgress}
-            className="absolute events-none left-0 top-0 h-3 bg-slate-400 z-1"
+            className="absolute events-none left-0 top-1/2 h-px bg-foreground z-1 -translate-y-1/2"
             style={{ width: `${map(value, min, max, 1, 99)}%` }}
           />
         </div>
-        <div className="text-sm w-[40px]">{Math.floor(value)}</div>
+        <div className="text-sm w-[30px] text-center">{Math.floor(value)}</div>
       </div>
     </div>
   );

@@ -30,6 +30,7 @@ const useExport = (): ExportObject => {
   // const setExportSettings = useStore((state) => state.setExportSettings);
   // const setValue = useStore((state) => state.setValue)
   const exportSettings = useStore((state) => state.exportSettings);
+  const videoDuration = useStore((state) => state.videoDuration);
   const layout = useStore((state) => state.layout);
 
   // const modalExport = {
@@ -63,8 +64,11 @@ const useExport = (): ExportObject => {
   // const frames = animationDuration.value * exportFps
   const format = exportSettings.format.typeRoot;
   const exportFps = 30;
-  const frameCount = format === "image" ? 1 : exportFps * 1;
-  // console.log(format);
+  // const exportDuration = Number((Math.round(videoDuration * 2) / 2).toFixed(1));
+  // console.log(exportDuration);
+  const frameCount =
+    format === "image" ? 1 : Math.floor(exportFps * videoDuration);
+  // console.log(frameCount);
   // // const frames = exportFps * 1
 
   // // let layerCount = bubbleCount + 1 // include gradient background in layer export
@@ -167,7 +171,7 @@ const useExport = (): ExportObject => {
     // })
 
     // Add timeout so canvas has time to resize before export begins
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // render.current.exportPrep = false
 

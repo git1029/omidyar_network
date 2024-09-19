@@ -32,7 +32,7 @@ const ControlText = () => {
   };
 
   return (
-    <ControlGroup>
+    <ControlGroup title="Text">
       <div className="flex">
         <h2 className="w-[200px]">Text</h2>
         {/* <div className="h-8 flex border border-black-100 rounded-sm items-center">

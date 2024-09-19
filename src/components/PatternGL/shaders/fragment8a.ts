@@ -10,7 +10,7 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uForegroundColor;
   uniform vec3 uBackgroundColor;
   uniform sampler2D uImage;
-  uniform sampler2D uColor;
+  // uniform sampler2D uColor;
   uniform sampler2D uVideo;
   uniform sampler2D uCamera;
   uniform sampler2D uText;
@@ -20,8 +20,12 @@ const fragmentShader = /* glsl */ `
   uniform vec2 uConnectors;
   uniform float uContrast;
   uniform float uInvert;
-  uniform vec2 uViewport;
+  uniform vec3 uViewport;
   uniform float uDPR;
+  // uniform vec3 uImageSize;
+  uniform vec3 uInputAspect;
+  uniform float uInputContrast;
+  uniform float uInputBackground;
 
 
   float sdCircle(vec2 p, float r) {
@@ -125,24 +129,28 @@ vec2 rotate(vec2 v, float a) {
   //  float saturationAmount = 0.;
   //  // color = mix(vec3(luminance), color, saturationAmount);
 
-  //  // Contrast (darks darker, brights brighter)
-  //  float contrastAmount = t + 1.;
-  //  float midpoint = .5; // lower midpoint -> more weight to brights, higher -> more weight to dark
-  //  // remap of color from range [0,1] to [-.5, .5] * amount then back to [0,1]
-  //  // clamp to make sure maps back to 0,1 as multiplier could take it out of range [-.5,.5]
-  //  // color = saturate((color - midpoint) * contrastAmount + midpoint);
-  //  // Any operation that pushes color values away from midpoint can be considered contrast (like smoothstep which makes middle steeper and pushes outer values towrads 0 and 1), problem is has no control over contrast level
-  //  // color = mix(color, smoothstep(vec3(0.), vec3(1.), color), t);
-  //  vec3 sg = sign(color - midpoint);
-  //  // // Custom contrast curve
-  //  // color = sg * pow(
-  //  //   abs(color - midpoint) * 2.,
-  //  //   vec3(1. / contrastAmount)
-  //  // ) * .5 + midpoint;
+  vec3 contrast(vec3 color) {
+   // Contrast (darks darker, brights brighter)
+   float contrastAmount = map(uInputContrast, 0., 1., -.5, 1.5) + 1.;
+   float midpoint = .5; // lower midpoint -> more weight to brights, higher -> more weight to dark
+   // remap of color from range [0,1] to [-.5, .5] * amount then back to [0,1]
+   // clamp to make sure maps back to 0,1 as multiplier could take it out of range [-.5,.5]
+   // color = saturate((color - midpoint) * contrastAmount + midpoint);
+   // Any operation that pushes color values away from midpoint can be considered contrast (like smoothstep which makes middle steeper and pushes outer values towrads 0 and 1), problem is has no control over contrast level
+   // color = mix(color, smoothstep(vec3(0.), vec3(1.), color), t);
+   vec3 sg = sign(color - midpoint);
+   // Custom contrast curve
+   return sg * pow(
+     abs(color - midpoint) * 2.,
+     vec3(1. / contrastAmount)
+   ) * .5 + midpoint;
+  }
 
 
    
-vec4 brightness(vec3 color) {
+vec4 brightness(vec3 color_) {
+  vec3 color = color_;
+  if (uMode < 3.) color = contrast(color);
   float b = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
   vec3 c = color;
   if (uInvert == 1.) {
@@ -180,19 +188,57 @@ vec2 getImgUv(vec2 p, float grid, float aspect) {
 vec4 getBrightness(vec2 p) {
   vec2 q = p;
   q.y = 1. - q.y;
-  if (uMode == 0.) return brightness(texture(uImage, q).rgb);
-  else if (uMode == 1.) return brightness(texture(uVideo, q).rgb);
-  else if (uMode == 2.) return brightness(texture(uCamera, q).rgb);
-  else if (uMode == 3.) return brightness(texture(uText, q).rgb);
-  else return vec4(1.);
 
-  // return vec4(1.);
+  // Flip camera horizontally
+  if (uMode == 2.) q.x = 1. - q.x; 
+
+  vec2 iUv = q;
+
+  // // float imgScale = clamp(uImgScale, 50., 200.);
+  // // imgScale = 1. / (imgScale / 100.);
+  // // float imgScale = 1.;
+  
+  // // Reset texture aspect
+  iUv -= .5;
+  if (uMode == 0.) iUv.x /= uInputAspect.x;
+  else if (uMode == 1.) iUv.x /= uInputAspect.y;
+  iUv.x *= uViewport.z;
+  iUv += .5;
+
+  // float uImgFitWidth = 1.;
+
+  // float offSide = uImgFitWidth == 1. ? uViewport.z / uTexAspect.x : 1. / uTexAspect.y;
+  // // // offSide /= imgScale;
+
+  // vec2 uvOff = vec2(
+  //   (uViewport.x - uTexAspect.x * offSide),
+  //   (1. - uTexAspect.y * offSide)
+  // );
+
+  // uvOff *= .5;
+  // uvOff /= uTexAspect;
+
+  // imgUv -= uvOff;
+  // imgUv *= uImgFitWidth == 1. ? uTexAspect.x / uViewport.z : uTexAspect.y / 1.;
+  // imgUv += uImgOffset;
+
+  // if (imgUv.x < 0. || imgUv.x >= 1. || imgUv.y < 0. || imgUv.y >= 1.) discard; 
+
+
+  // if (uMode == 0.) return brightness(texture(uImage, iUv).rgb);
+  // else if (uMode == 1.) return brightness(texture(uVideo, iUv).rgb);
+  // else if (uMode == 2.) return brightness(texture(uCamera, iUv).rgb);
+  // else if (uMode == 3.) return brightness(texture(uText, q).rgb);
+  // else return vec4(1.);
+
+  return vec4(1.);
   // else if (uMode == 3.) return brightness(texture(uImage, p).rgb);
 }
 
-  float getNodeIso(vec2 uv, float i, float j, vec2 id, vec2 scale, vec2 aspectFactor, float af, bool flip, float roundness, float threshold, float d) {
+  float getNodeIso(vec2 uv, float i, float j, vec2 id, vec2 scale, vec2 aspectFactor, float af, bool flip, float roundness, float threshold, float d, float b) {
     float dir = flip ? -1. : 1.;
-    float angle = angleBetween(vec2(.5, .5) * aspectFactor, vec2(1., 1.5) * aspectFactor) * dir;
+    // float angle = angleBetween(vec2(.5, .5) * aspectFactor, vec2(1., 1.5) * aspectFactor) * dir;
+    float angle = angleBetween(vec2(.5, .5), vec2(1., 1.5)) * dir;
     float oddA = mod(id.y, 2.) * uGrid;
     float oddB = mod(id.y + dir, 2.) * uGrid;
     vec2 offA = oddA * vec2(.5, 0.);
@@ -200,16 +246,16 @@ vec4 getBrightness(vec2 p) {
     vec2 pA = (floor(uv * uQuantity) + vec2(i, j) + offA + 0.5) / uQuantity;
     vec2 pB = (floor(uv * uQuantity) + vec2(i, j + dir) + offB + 0.5) / uQuantity;
     vec2 pC = mix(pA, pB, .5);
-    vec4 b = getBrightness(pC);
+    // vec4 b = getBrightness(pC);
     // if (i == 0. && j == 0.) color = b.rgb;
 
     vec2 uv_ = uv;
     uv_ -= .5;
     uv_ *= aspectFactor;
     uv_ += .5;
-    pC -= .5;
-    pC *= aspectFactor;
-    pC += .5;
+    // pC -= .5;
+    // pC *= aspectFactor;
+    // pC += .5;
 
     vec2 pD = rotate(uv_ - pC, angle);
 
@@ -221,19 +267,19 @@ vec4 getBrightness(vec2 p) {
     vec2 scl = scale;
 
 
-    float a = uViewport.x/uViewport.y;
-    if (a < 1.) scl.x /= a;
-    else scl.x *= a;
+    // float a = uViewport.z;
+    // if (a < 1.) scl.x /= a;
+    // else scl.x *= a;
 
     // scl.x *= af;
-    scl *= b.w * sf;
+    scl *= b * sf;
 
-    return mix(d, min(d, sdRoundedBox(pD, scl, vec4(roundness) * b.w * sf)), step(threshold, b.w) * sf);
+    return mix(d, min(d, sdRoundedBox(pD, scl, vec4(roundness) * b * sf)), step(threshold, b) * sf);
   }
 
 
   // Sqaure grid lines
-  float getNodeSquare(vec2 uv, vec2 off, vec2 aspectFactor, bool vert, vec2 scale, float roundness, float threshold, float d) {
+  float getNodeSquare(vec2 uv, vec2 off, vec2 aspectFactor, bool vert, vec2 scale, float roundness, float threshold, float d, float b) {
     // // Sqaure grid lines
     // vec2 sbox = vec2(.5/grid, .125/grid * .5);
     // vec4 roundness = vec4(0.1/grid);
@@ -270,26 +316,26 @@ vec4 getBrightness(vec2 p) {
     // vec2 ry = vec2(sbox.y, sbox.x) * b0f * sfy;
     // d1 = min(d1, sdRoundedBox(uvy - py, ry, roundness));
 
-    float a = uViewport.x/uViewport.y;
+    // float a = uViewport.z;
     vec2 scl = scale;
-    if (vert && a < 1.) scl.x /= a;
-    if (!vert && a >= 1.) scl.x *= a;
+    // if (vert && a < 1.) scl.x /= a;
+    // if (!vert && a >= 1.) scl.x *= a;
     if (vert) scl = scl.yx;
 
     vec2 p = (floor(uv * uQuantity) + off) / uQuantity;
     float sf = 1.;
     if (p.x < 0. || p.y < 0. || p.x > 1. || p.y > 1.) sf = 0.;
-    vec4 b = getBrightness(p);
+    // vec4 b = getBrightness(p);
     // color = mix(bx.rgb, b0.rgb, mod(floor(uTime), 2.));
     vec2 uv_ = uv;
     uv_ -= .5;
     uv_ *= aspectFactor;
     uv_ += .5;
-    p -= .5;
-    p *= aspectFactor;
-    p += .5;
-    vec2 r = scl * b.w * sf;
-    return mix(d, min(d, sdRoundedBox(uv_ - p, r, vec4(roundness) * b.w * sf)), step(threshold, b.w) * sf);
+    // p -= .5;
+    // p *= aspectFactor;
+    // p += .5;
+    vec2 r = scl * b * sf;
+    return mix(d, min(d, sdRoundedBox(uv_ - p, r, vec4(roundness) * b * sf)), step(threshold, b) * sf);
   }
 
   void main() {
@@ -303,7 +349,7 @@ vec4 getBrightness(vec2 p) {
     float uMaxCount = 30.;
 
     // float grid = 2.;
-    float aspect = uViewport.x/uViewport.y;
+    float aspect = uViewport.z;
     float threshold = .15;
     vec2 af = aspect < 1. ? vec2(1., 1./aspect) : vec2(aspect, 1.);
 
@@ -345,20 +391,20 @@ vec4 getBrightness(vec2 p) {
         uv0 -= .5;
         uv0 *= af;
         uv0 += .5;
-        p0 -= .5;
-        p0 *= af;
-        p0 += .5;
+        // p0 -= .5;
+        // p0 *= af;
+        // p0 += .5;
         float r = 1./grid*.25 * b0f * map(uDotSize, 0., 1., .5, 1.75);
         d0 = mix(d0, smoothUnionSDF(d0, sdCircle(uv0 - p0, r), .015 * mix(1., .5, uQuantity/uMaxCount)), step(threshold, b0f) * sf0);
         // d0 = min(d0, sdCircle(uv0 - p0, r));
 
         // // Square grid lines
-        if (id.x >= 0. && id.x < grid - 1. && uGrid == 0. && uConnectors.x == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.5, .0) + 0.500, af, false, sbox, roundness, threshold, d1); // horizontal
-        if (id.y >= 0. && id.y < grid - 1. && uGrid == 0. && uConnectors.y == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.0, .5) + 0.5, af, true, sbox, roundness, threshold, d1); // vertical
+        if (id.x >= 0. && id.x < grid - 1. && uGrid == 0. && uConnectors.x == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.5, .0) + 0.500, af, false, sbox, roundness, threshold, d1, b0.w); // horizontal
+        if (id.y >= 0. && id.y < grid - 1. && uGrid == 0. && uConnectors.y == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.0, .5) + 0.5, af, true, sbox, roundness, threshold, d1, b0.w); // vertical
 
         // // Isometric grid lines
-        if (uGrid == 1. && uConnectors.x == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, true, roundness, threshold, d1);
-        if (uGrid == 1. && uConnectors.y == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, false, roundness, threshold, d1);
+        if (uGrid == 1. && uConnectors.x == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, true, roundness, threshold, d1, b0.w);
+        if (uGrid == 1. && uConnectors.y == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, false, roundness, threshold, d1, b0.w);
       }
     }
 
@@ -369,14 +415,58 @@ vec4 getBrightness(vec2 p) {
     // float alpha = 1.;
     // if (vUv.x < edge.x || vUv.x > 1.-edge.x || vUv.y < edge.y || vUv.y > 1.-edge.y) alpha = 0.;
 
-    vec3 c = mix(uForegroundColor, uBackgroundColor, uAlpha); // if alpha background mix use node color
+
+    vec3 backgroundColor = uBackgroundColor;
+    if (uInputBackground == 1. && uMode < 3.) {
+      float inputAspect = uMode == 0. ? uInputAspect.x : uMode == 1. ? uInputAspect.y : uMode == 2. ? uInputAspect.z : 1.;
+      vec2 imgUv = vUv;
+
+      if (uMode == 2.) imgUv.x = 1. - imgUv.x; // flip camera horizontall
+
+      imgUv -= .5;
+      
+      if (inputAspect >= 1.) imgUv.x /= inputAspect;
+      else imgUv.y *= inputAspect;
+
+      if (inputAspect >= uViewport.z) {
+        // fit by height
+        imgUv.x *= uViewport.z;
+      } else {
+        // fit by width
+        imgUv.y /= uViewport.z;
+      }
+      imgUv += .5;
+  
+      if (uMode == 0.) backgroundColor = texture(uImage, imgUv).rgb;
+      else if (uMode == 1.) backgroundColor = texture(uVideo, imgUv).rgb;
+      else if (uMode == 2.) backgroundColor = texture(uCamera, imgUv).rgb;
+
+      // backgroundColor = sRGBTransferOETF(vec4(backgroundColor, 1.)).rgb;
+      backgroundColor = pow(backgroundColor, vec3(2.2));
+    }
+
+
+    vec3 c = mix(uForegroundColor, backgroundColor, uAlpha); // if alpha background mix use node color
     c = mix(uForegroundColor, c, d); // mix with distance to nodes/circles
     // c = mix(uBackgroundColor, c, alpha);
     // vec4 col = vec4(c, mix(1.-d, 1., uAlpha) * mix(alpha, 1., uAlpha));
     vec4 col = vec4(c, mix(1.-d, 1., uAlpha));
     // gl_FragColor = vec4(max(color, vec3(1.-d)), 1.);
     // gl_FragColor = vec4(mix(color, vec3(1., 0., 0.) * (1.-d), 1.-d), 1.);
+
+
+
+
+
     gl_FragColor = col;
+    
+    // vec2 imgUv = uv;
+    // imgUv.y = 1. - imgUv.y;
+    // imgUv -= .5;
+    // imgUv.x /= uImageSize.z;
+    // imgUv.x *= uViewport.z;
+    // imgUv += .5;
+    // gl_FragColor = texture(uImage, imgUv);
 
 
     // #include <tonemapping_fragment>

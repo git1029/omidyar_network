@@ -7,6 +7,10 @@ export interface Layout {
 export interface ColorInfo {
   label: string;
   hex: string;
+  contrast: string;
+  rgb: number[];
+  rgbContrast: number[];
+  pair: string;
 }
 
 export interface InputMode {
@@ -43,6 +47,7 @@ export interface ExportSettings {
   ffmpegLoaded: boolean;
   format: ExportFormat;
   exporting: boolean;
+  // duration: number;
 }
 
 export type TextAlign = "center" | "left" | "right" | "justify" | undefined;

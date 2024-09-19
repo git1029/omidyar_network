@@ -3,7 +3,7 @@ import { createPortal, useFrame, useThree } from "@react-three/fiber";
 import { useState } from "react";
 import { Scene, Vector3 } from "three";
 import useStore from "../../store/store";
-import TestFeijoaDisplay from "/TestFeijoa-Display.otf";
+import FeijoaMedium from "/Feijoa-Medium.otf";
 import TextMaterial from "./TextMaterial";
 import { TextAlign } from "../../types";
 
@@ -38,7 +38,7 @@ const TextScene = ({ scene }: { scene: Scene }) => {
   // }, [target, patternRef]);
 
   const textSettings = {
-    font: TestFeijoaDisplay,
+    font: FeijoaMedium,
     fontSize: 1.5,
     position: new Vector3(0, 0, 0.01),
     maxWidth: viewport.width,

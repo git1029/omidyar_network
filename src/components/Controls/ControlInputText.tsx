@@ -19,7 +19,7 @@ const ControlInputText = ({ inverted }: { inverted: boolean }) => {
 
   return (
     <div
-      className={`border-dashed border-black-100 border w-[300px] rounded-sm p-2 flex ${
+      className={`border border-foreground/50 border w-[300px] rounded-md p-2 flex ${
         inputMode.value === 3 ? "flex" : "hidden"
       }`}
     >
@@ -28,7 +28,9 @@ const ControlInputText = ({ inverted }: { inverted: boolean }) => {
         placeholder="Enter text here..."
         value={textInput}
         onChange={(e) => setTextInput(e.target.value)}
-        className={`min-h-[100px] ${inverted ? "" : "bg-[#222222] text-white"}`}
+        className={`min-h-[100px] ${
+          inverted ? "text-black-100" : "bg-[#222222] text-white"
+        }`}
       />
       {/* <img className=" w-[100px] h-[100px]" src="" ref={textPreview} /> */}
     </div>

@@ -144,16 +144,17 @@ export const scaleCanvas = (
 
   const canvasRef = useStore.getState().canvasRef;
   const canvasContainerRef = useStore.getState().canvasContainerRef;
+  const fullscreen = useStore.getState().fullscreen;
+
+  if (fullscreen) return;
 
   let availableWidth =
     clamp(window.innerWidth, 1280, 2560) - panelWidth - padX * 2 - br * 2;
   let availableHeight =
     clamp(window.innerHeight, 600, 2560) - padY * 2 - br * 2;
 
-  // if (!exporting) {
   availableWidth = clamp(availableWidth, limit.min, limit.max);
   availableHeight = clamp(availableHeight, limit.min, limit.max);
-  // }
 
   let { width, height } = layout.size;
 
@@ -325,6 +326,31 @@ export const scaleCanvas = (
       // canvasRef.style.removeProperty("width");
       // canvasRef.style.removeProperty("height");
     }
+  }
+};
+
+export const scaleCanvasScreen = () => {
+  // const canvasRef = useStore.getState().canvasRef;
+  const canvasContainerRef = useStore.getState().canvasContainerRef;
+
+  console.log(screen);
+
+  let width = screen.width;
+  let height = screen.height;
+  const orientation = screen.orientation.type;
+
+  if (orientation.includes("landscape")) {
+    width = screen.height;
+    height = screen.width;
+  }
+
+  // on ipad screen.width/height seems to be incorrect, window.innerWidth is correct...
+
+  console.log("scaling to", width, height);
+
+  if (canvasContainerRef) {
+    canvasContainerRef.style.width = `${width}px`;
+    canvasContainerRef.style.height = `${height}px`;
   }
 };
 

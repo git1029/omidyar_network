@@ -33,29 +33,29 @@ const ControlPattern = () => {
       defaultValue: patternSettings.patternContrast,
       onChange: (value: number) => {
         if (patternRef) {
-          patternRef.uniforms.uContrast.value = value;
+          patternRef.uniforms.uInputContrast.value = value;
         }
       },
     },
-    { label: "Frequency" },
-    {
-      label: "Horizontal Density",
-      defaultValue: patternSettings.patternDensityX,
-      onChange: (value: number) => {
-        if (patternRef) {
-          patternRef.uniforms.uDensity.value.x = value;
-        }
-      },
-    },
-    {
-      label: "Vertical Density",
-      defaultValue: patternSettings.patternDensityY,
-      onChange: (value: number) => {
-        if (patternRef) {
-          patternRef.uniforms.uDensity.value.y = value;
-        }
-      },
-    },
+    // { label: "Frequency" },
+    // {
+    //   label: "Horizontal Density",
+    //   defaultValue: patternSettings.patternDensityX,
+    //   onChange: (value: number) => {
+    //     if (patternRef) {
+    //       patternRef.uniforms.uDensity.value.x = value;
+    //     }
+    //   },
+    // },
+    // {
+    //   label: "Vertical Density",
+    //   defaultValue: patternSettings.patternDensityY,
+    //   onChange: (value: number) => {
+    //     if (patternRef) {
+    //       patternRef.uniforms.uDensity.value.y = value;
+    //     }
+    //   },
+    // },
   ];
 
   // const options = [
@@ -67,13 +67,10 @@ const ControlPattern = () => {
   // ];
 
   return (
-    <ControlGroup>
-      <h2>Pattern</h2>
-      <div className="flex flex-col gap-y-0">
-        {patternSliders.map((s) => (
-          <Slider key={s.label} {...s} />
-        ))}
-      </div>
+    <ControlGroup title="Pattern Control">
+      {patternSliders.map((s) => (
+        <Slider key={s.label} {...s} />
+      ))}
     </ControlGroup>
   );
 };

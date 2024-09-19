@@ -1,16 +1,18 @@
 import { useRef } from "react";
 import Controls from "./components/Controls/Controls";
 import Scene, { ExportObject } from "./components/Scene";
+import Entry from "./components/Entry";
 
-function App() {
+const App = () => {
   const ffmpeg = useRef<ExportObject | null>(null);
 
   return (
-    <div className="flex grow bg-gray-100 text-black-100 gap-x-0 h-full w-full">
+    <div className="flex grow text-foreground border-foreground gap-x-0 h-full w-full animate-fade">
       <Controls ffmpeg={ffmpeg} />
       <Scene ffmpeg={ffmpeg} />
+      <Entry />
     </div>
   );
-}
+};
 
 export default App;

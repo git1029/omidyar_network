@@ -10,15 +10,17 @@ const ColorIcon = ({
   onClick?: () => void;
   selected: boolean;
 }) => {
-  const line = () => `
-    absolute left-0 top-0 w-6 h-px -translate-x-1/2 -translate-y-1/2 ${
-      color.label === "Black" ? "bg-gray-100" : "bg-black-100"
-    }
-    `;
+  // const line = () => `
+  //   absolute left-0 top-0 w-6 h-px -translate-x-1/2 -translate-y-1/2 ${
+  //     color.label === "Black" ? "bg-gray-100" : "bg-black-100"
+  //   }
+  //   `;
 
   return (
     <div
-      className="w-5 h-4 border border-black-100 cursor-pointer relative"
+      className={`w-5 h-4 border border-foreground cursor-pointer relative ${
+        selected ? "border-foreground" : "border-foreground/50"
+      }`}
       style={{
         backgroundColor: color.hex,
         backgroundImage:
@@ -31,10 +33,14 @@ const ColorIcon = ({
           selected ? "" : "hidden"
         }`}
       >
-        {color.label !== "Transparent" && (
+        <span
+          className="w-1.5 h-1.5 rounded-full absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2"
+          style={{ backgroundColor: color.contrast }}
+        ></span>
+        {/* {color.label !== "Transparent" && (
           <span className={`${line()} rotate-[39deg]`}></span>
         )}
-        <span className={`${line()} -rotate-[39deg]`}></span>
+        <span className={`${line()} -rotate-[39deg]`}></span> */}
       </span>
     </div>
   );

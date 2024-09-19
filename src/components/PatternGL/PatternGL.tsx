@@ -1,13 +1,18 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import vertexShader from "./shaders/vertex";
-import fragmentShader from "./shaders/fragment7";
+import fragmentShader from "./shaders/fragment8";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Color,
+  // DataTexture,
+  // FloatType,
   // LinearSRGBColorSpace,
   // LinearFilter,
   // LinearFilter,
   Mesh,
+  MirroredRepeatWrapping,
+  // RepeatWrapping,
+  // RGBAFormat,
   // MeshBasicMaterial,
   // RepeatWrapping,
   // RepeatWrapping,
@@ -18,6 +23,7 @@ import {
   // Texture,
   Uniform,
   Vector2,
+  Vector3,
 } from "three";
 import { palette, gridSettings, patternSettings } from "../../store/options";
 import useStore from "../../store/store";
@@ -37,7 +43,7 @@ const PatternGL = () => {
 
   const img = useTexture("/img.jpg");
   const video = useVideoTexture("/footage.mp4");
-  const imgtest = useTexture("/color2.png");
+  // const imgtest = useTexture("/color2.png");
 
   const uniforms = useMemo(() => {
     return {
@@ -48,10 +54,11 @@ const PatternGL = () => {
       uForegroundColor: new Uniform(new Color(palette[1].hex)),
       uAlpha: new Uniform(1),
       uImage: new Uniform(null),
-      uColor: new Uniform(null),
+      // uColor: new Uniform(null),
       uVideo: new Uniform(null),
       uCamera: new Uniform(null),
       uText: new Uniform(null),
+      // uData: new Uniform(null),
       uDPR: new Uniform(Math.min(window.devicePixelRatio, 2)),
       uGrid: new Uniform(gridSettings.gridType),
       uConnectors: new Uniform(
@@ -63,6 +70,7 @@ const PatternGL = () => {
       uQuantity: new Uniform(gridSettings.gridQuantity),
       uDotSize: new Uniform(patternSettings.patternDotSize),
       uContrast: new Uniform(patternSettings.patternContrast),
+      uInputContrast: new Uniform(0.5),
       uDensity: new Uniform(
         new Vector2(
           patternSettings.patternDensityX,
@@ -70,42 +78,91 @@ const PatternGL = () => {
         )
       ),
       uInvert: new Uniform(0),
-      uViewport: new Uniform(new Vector2(1, 1)),
+      uViewport: new Uniform(new Vector3(1, 1, 1)),
+      // uImageSize: new Uniform(new Vector3(1, 1, 1)),
+      // uVideoSize: new Uniform(new Vector3(1, 1, 1)),
+      uInputAspect: new Uniform(new Vector3(1, 1, 1)),
+      uInputBackground: new Uniform(0),
     };
   }, []);
 
-  useEffect(() => {
-    // console.log(img);
-    if (ref.current && img) {
-      const material = ref.current.material as ShaderMaterial;
-      // img.minFilter = LinearFilter;
-      // img.magFilter = LinearFilter;
-      // img.anisotropy = 8;
-      img.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
-      // img.wrapS = RepeatWrapping;
-      // img.wrapT = RepeatWrapping;
-      // img.flipY = false;
-      img.needsUpdate = true;
-      material.uniforms.uImage.value = img;
-    }
-  }, [img]);
+  // const dataTex = useMemo(() => {
+  //   const width = 64;
+  //   const height = 64;
+
+  //   const size = width * height;
+  //   // const data = new Uint8Array(4 * size);
+  //   const data = new Float32Array(4 * size);
+  //   // const color = new Color( 0xffffff );
+
+  //   // const r = Math.floor( color.r * 255 );
+  //   // const g = Math.floor( color.g * 255 );
+  //   // const b = Math.floor( color.b * 255 );
+
+  //   // const b = Math.random()
+  //   const grid = 9;
+
+  //   for (let i = 0; i < size; i++) {
+  //     // const r = Math.random();
+  //     // const g = Math.random();
+
+  //     const x = (i % grid) / grid + 0.5 / grid;
+  //     const y = Math.floor(i / grid) / grid + 0.5 / grid;
+  //     const stride = i * 4;
+  //     data[stride] = x;
+  //     data[stride + 1] = y;
+  //     data[stride + 2] = 0;
+  //     data[stride + 3] = 0;
+  //   }
+
+  //   // used the buffer to create a DataTexture
+  //   const texture = new DataTexture(data, width, height, RGBAFormat, FloatType);
+  //   texture.needsUpdate = true;
+
+  //   return texture;
+  // }, []);
+
+  // useEffect(() => {
+  //   if (matRef.current) {
+  //     matRef.current.uniforms.uData.value = dataTex;
+  //   }
+  // }, [dataTex]);
 
   useEffect(() => {
     // console.log(img);
-    if (ref.current && imgtest) {
-      const material = ref.current.material as ShaderMaterial;
-      // imgtest.minFilter = LinearFilter;
-      // imgtest.magFilter = LinearFilter;
-      // imgtest.colorSpace = LinearSRGBColorSpace;
-      // imgtest.anisotropy = 8;
-      imgtest.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
-      // imgtest.wrapS = RepeatWrapping;
-      // imgtest.wrapT = RepeatWrapping;
-      // imgtest.flipY = false;
-      imgtest.needsUpdate = true;
-      material.uniforms.uColor.value = imgtest;
+    if (matRef.current && img) {
+      // img.minFilter = LinearFilter;
+      // img.magFilter = LinearFilter;
+      // img.anisotropy = 8;
+      // console.log(img.image.width, img.image.height);
+      img.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
+      img.wrapS = MirroredRepeatWrapping;
+      img.wrapT = MirroredRepeatWrapping;
+      // img.flipY = false;
+      img.needsUpdate = true;
+      matRef.current.uniforms.uImage.value = img;
+
+      const { width, height } = img.image;
+      matRef.current.uniforms.uInputAspect.value.x = width / height;
     }
-  }, [imgtest]);
+  }, [img]);
+
+  // useEffect(() => {
+  //   // console.log(img);
+  //   if (ref.current && imgtest) {
+  //     const material = ref.current.material as ShaderMaterial;
+  //     // imgtest.minFilter = LinearFilter;
+  //     // imgtest.magFilter = LinearFilter;
+  //     // imgtest.colorSpace = LinearSRGBColorSpace;
+  //     // imgtest.anisotropy = 8;
+  //     imgtest.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
+  //     // imgtest.wrapS = RepeatWrapping;
+  //     // imgtest.wrapT = RepeatWrapping;
+  //     // imgtest.flipY = false;
+  //     imgtest.needsUpdate = true;
+  //     material.uniforms.uColor.value = imgtest;
+  //   }
+  // }, [imgtest]);
 
   useEffect(() => {
     if (matRef.current) {
@@ -117,7 +174,6 @@ const PatternGL = () => {
 
   useEffect(() => {
     if (matRef.current && video) {
-      // console.log(video);
       video.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
       // imgtest.wrapS = RepeatWrapping;
       // imgtest.wrapT = RepeatWrapping;
@@ -140,6 +196,9 @@ const PatternGL = () => {
       // );
       // video.needsUpdate = false;
       matRef.current.uniforms.uVideo.value = video;
+
+      const { videoWidth, videoHeight } = video.image;
+      matRef.current.uniforms.uInputAspect.value.y = videoWidth / videoHeight;
     }
   }, [video]);
 
@@ -147,7 +206,8 @@ const PatternGL = () => {
     if (matRef.current) {
       matRef.current.uniforms.uViewport.value.set(
         viewport.width,
-        viewport.height
+        viewport.height,
+        viewport.aspect
       );
     }
   }, [viewport]);

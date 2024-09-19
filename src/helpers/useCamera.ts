@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { SRGBColorSpace, VideoTexture } from "three";
 import useStore from "../store/store";
 
+const constraints = {
+  video: { width: 910, height: 512, facingMode: "user" },
+};
+
 const useCamera = () => {
   const [texture, setTexture] = useState<VideoTexture | null>(null);
 
@@ -11,10 +15,6 @@ const useCamera = () => {
   const patternRef = useStore((state) => state.patternRef);
   const cameraRef = useStore((state) => state.cameraRef);
   const setCameraStatus = useStore((state) => state.setCameraStatus);
-
-  const constraints = {
-    video: { width: 910, height: 512, facingMode: "user" },
-  };
 
   const [stream, setStream] = useState<MediaStream | null>(null);
 
@@ -46,6 +46,8 @@ const useCamera = () => {
           setCameraStatus(2);
           if (patternRef) {
             patternRef.uniforms.uCamera.value = tex;
+            patternRef.uniforms.uInputAspect.value.z =
+              constraints.video.width / constraints.video.height;
           }
         })
         .catch((error) => {
@@ -128,6 +130,7 @@ const useCamera = () => {
         setTexture(null);
         if (patternRef) {
           patternRef.uniforms.uCamera.value = null;
+          patternRef.uniforms.uInputAspect.value.z = 1;
         }
         setCameraStatus(0);
       }

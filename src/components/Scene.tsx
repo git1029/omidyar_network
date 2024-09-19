@@ -6,18 +6,22 @@ import TextInput from "./Text/TextInput";
 import useStore from "../store/store";
 import {
   MutableRefObject,
+  // RefObject,
   SetStateAction,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { useProgress } from "@react-three/drei";
-import Logo from "/logo.svg";
+// import Logo from "/logo_light.svg";
 import Renderer from "./Renderer/Renderer";
-import useResize from "../helpers/useResize";
+import useResize, {
+  scaleCanvas,
+  scaleCanvasScreen,
+} from "../helpers/useResize";
 import Modal from "./Modal";
 // import { clamp } from "three/src/math/MathUtils.js";
-// import PatternSVG from "./PatternSVG/PatternSVG2";
+// import PatternSVG from "./PatternSVG/PatternSVG4";
 
 const Progress = ({
   setAssetsLoaded,
@@ -55,9 +59,16 @@ const Scene = ({
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [canvasLoaded, setCanvasLoaded] = useState(false);
 
+  const setLoaded = useStore((state) => state.setLoaded);
+  const fullscreen = useStore((state) => state.fullscreen);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
-  const fade = useRef<HTMLDivElement | null>(null);
+  // const fade = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (assetsLoaded && canvasLoaded) setLoaded(true);
+  }, [assetsLoaded, canvasLoaded, setLoaded]);
 
   useEffect(() => {
     if (canvasContainerRef.current) {
@@ -65,8 +76,22 @@ const Scene = ({
     }
   }, [canvasContainerRef, setCanvasContainerRef]);
 
-  const loaded = canvasLoaded && assetsLoaded;
-  // const loaded = true;
+  useEffect(() => {
+    // console.log(window.devicePixelRatio);
+    if (fullscreen) {
+      scaleCanvasScreen();
+    } else {
+      scaleCanvas(layout);
+    }
+  }, [fullscreen, layout]);
+
+  const [debug] = useState(
+    typeof window !== "undefined" &&
+      window.location.href.toLowerCase().includes("debug")
+  );
+
+  // const loaded = canvasLoaded && assetsLoaded;
+  // const loaded = false;
 
   // console.log(`aspect-[${layout.label.split(":").join("/")}]`);
 
@@ -105,34 +130,19 @@ const Scene = ({
   return (
     <>
       <div
-        className={`fixed top-0 left-0 w-full h-full bg-gray-100 pointer-events-none z-50 transition-opacity duration-500 delay-500 ease-in-out flex flex-col gap-y-2 items-center justify-center ${
-          loaded ? "opacity-0" : "opacity-1"
+        className={`flex grow items-center justify-center min-w-0 min-h-0 overflow-hidden ${
+          fullscreen
+            ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            : "relative"
         }`}
-        ref={fade}
-        onTransitionEnd={() => {
-          if (fade.current) fade.current.style.display = "none";
-        }}
       >
-        <img
-          src={Logo}
-          onTransitionEnd={(e) => e.stopPropagation()}
-          className={`transition-transform duration-500 delay-500 ease-in-out ${
-            loaded ? "scale-150" : "scale-100"
-          }`}
-        />
-        {/* <div
-          onTransitionEnd={(e) => e.stopPropagation()}
-          className={`h-0.5 bg-black-100 w-[125px] transition-transform duration-500 delay-250 ease-in-out origin-bottom-left ${
-            loaded ? "scale-x-100" : "scale-x-0"
-          }`}
-        ></div> */}
-      </div>
-      <div className="flex grow border-0 border-black-100 rounded-sm items-center justify-center relative min-w-0 min-h-0 overflow-hidden">
         <Modal />
         {/* <div className="h-full w-full"> */}
         <div
           // className="w-full h-full"
-          className={`border border-transparent box-content relative`}
+          className={`border-foreground/50 box-content relative transition-opacity duration-500 ease-in-out ${
+            assetsLoaded && canvasLoaded ? "" : "opacity-0"
+          } ${fullscreen ? "border-0" : "border"}`}
           style={{ aspectRatio: layout.aspect }}
           ref={canvasContainerRef}
         >
@@ -162,7 +172,7 @@ const Scene = ({
             <PatternGL />
             {/* <PatternSVG /> */}
             {/* <TextLayer /> */}
-            <Perf />
+            {debug && <Perf />}
             <Renderer ffmpeg={ffmpeg} />
           </Canvas>
         </div>

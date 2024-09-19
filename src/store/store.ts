@@ -41,6 +41,9 @@ interface State {
   exportSettings: ExportSettings;
   setExportSettings: (exportSettings: ExportSettings) => void;
 
+  videoDuration: number;
+  setVideoDuration: (duration: number) => void;
+
   // patternDotSize: number;
   // patternContrast: number;
   // patternFrequency: number;
@@ -75,6 +78,15 @@ interface State {
 
   modal: Modal | null;
   setModal: (modal: Modal) => void;
+
+  loaded: boolean;
+  setLoaded: (loaded: boolean) => void;
+
+  fullscreen: boolean;
+  setFullscreen: (fullscreen: boolean) => void;
+
+  inputBackground: boolean;
+  setInputBackground: (inputBackground: boolean) => void;
 }
 
 const useStore = create<State>((set) => ({
@@ -85,7 +97,7 @@ const useStore = create<State>((set) => ({
   grid: 0,
   setGrid: (grid) => set(() => ({ grid })),
 
-  inputMode: inputModes[0],
+  inputMode: inputModes[1],
   setInputMode: (mode) => set(() => ({ inputMode: mode })),
 
   cameraStatus: 0,
@@ -97,8 +109,14 @@ const useStore = create<State>((set) => ({
   textRef: null,
   setTextRef: (ref) => set(() => ({ textRef: ref })),
 
+  loaded: false,
+  setLoaded: (loaded) => set(() => ({ loaded })),
+
   modal: null,
   setModal: (modal) => set(() => ({ modal })),
+
+  inputBackground: false,
+  setInputBackground: (inputBackground) => set(() => ({ inputBackground })),
 
   // ...patternSettings,
   // setPatternDotSize: (size) => set(() => ({ patternDotSize: size })),
@@ -129,7 +147,13 @@ const useStore = create<State>((set) => ({
   setCanvasContainerRef: (ref) => set(() => ({ canvasContainerRef: ref })),
 
   text: textSettings,
-  setText: (text: TextSettings) => set(() => ({ text })),
+  setText: (text) => set(() => ({ text })),
+
+  videoDuration: 1,
+  setVideoDuration: (duration) => set(() => ({ videoDuration: duration })),
+
+  fullscreen: false,
+  setFullscreen: (fullscreen) => set(() => ({ fullscreen })),
 
   exportSettings: exportSettings,
   setExportSettings: (exportSettings: ExportSettings) =>

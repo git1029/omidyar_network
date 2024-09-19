@@ -2,17 +2,29 @@ import { ChangeEvent, useState } from "react";
 import { layouts } from "../../store/options";
 import useStore from "../../store/store";
 import ControlGroup from "./ControlGroup";
+import ControlGrid from "./ControlGrid";
+import Toggle from "./Toggle";
 
-const ControlRatio = () => {
+const ControlLayout = () => {
   const layout = useStore((state) => state.layout);
   const customLayout = useStore((state) => state.customLayout);
   const setLayout = useStore((state) => state.setLayout);
   const setCustomLayout = useStore((state) => state.setCustomLayout);
 
-  const handleLayoutChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (e.target.value === "Custom") setLayout(customLayout);
+  // const handleLayoutChange = (e: ChangeEvent<HTMLSelectElement>) => {
+  //   if (e.target.value === "Custom") setLayout(customLayout);
+  //   else {
+  //     const match = layouts.find((l) => l.label === e.target.value);
+  //     if (match) {
+  //       setLayout(match);
+  //     }
+  //   }
+  // };
+
+  const handleLayoutChange = (value: string) => {
+    if (value === "Custom") setLayout(customLayout);
     else {
-      const match = layouts.find((l) => l.label === e.target.value);
+      const match = layouts.find((l) => l.label === value);
       if (match) {
         setLayout(match);
       }
@@ -88,10 +100,16 @@ const ControlRatio = () => {
     }
   };
 
+  const layoutToggle = {
+    label: "Aspect Ratio",
+    options: layouts.map((l) => ({ label: l.label })),
+    onChange: handleLayoutChange,
+    isSelected: (label: string) => layout.label === label,
+  };
+
   return (
-    <ControlGroup>
-      <h2>Layout</h2>
-      <div className="flex items-center">
+    <ControlGroup title="Layout">
+      {/* <div className="flex items-center">
         <label>Aspect Ratio</label>
         <select onChange={handleLayoutChange} value={layout.label}>
           {layouts.map((layout) => (
@@ -100,11 +118,13 @@ const ControlRatio = () => {
             </option>
           ))}
         </select>
-      </div>
+      </div> */}
+
+      <Toggle {...layoutToggle} />
 
       {layout.label === "Custom" && (
         <div className="flex items-center">
-          <label></label>
+          {/* <label></label> */}
           <div className="flex flex-col gap-y-1">
             <div className="flex gap-x-2 items-center w-[300px]">
               <div className="flex items-center gap-x-1 grow">
@@ -153,8 +173,10 @@ const ControlRatio = () => {
           </div>
         </div>
       )}
+
+      <ControlGrid />
     </ControlGroup>
   );
 };
 
-export default ControlRatio;
+export default ControlLayout;
