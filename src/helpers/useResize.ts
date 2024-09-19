@@ -335,14 +335,14 @@ export const scaleCanvasScreen = () => {
 
   console.log(screen);
 
-  let width = screen.width;
-  let height = screen.height;
-  const orientation = screen.orientation.type;
+  const width = screen.width;
+  const height = screen.height;
+  // const orientation = screen.orientation.type;
 
-  if (orientation.includes("landscape")) {
-    width = screen.height;
-    height = screen.width;
-  }
+  // if (orientation.includes("landscape")) {
+  //   width = screen.height;
+  //   height = screen.width;
+  // }
 
   // on ipad screen.width/height seems to be incorrect, window.innerWidth is correct...
 
