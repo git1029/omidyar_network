@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef } from "react";
 import { Color, ShaderMaterial, Uniform } from "three";
 import { ColorInfo } from "../../types";
 
+type TextColor = Omit<ColorInfo, "contrast" | "rgb" | "rgbContrast" | "pair">;
+
 const TextMaterial = ({
   color = { label: "White", hex: "#ffffff" },
 }: {
-  color?: ColorInfo;
+  color?: TextColor;
 }) => {
   const ref = useRef<ShaderMaterial>(null);
 

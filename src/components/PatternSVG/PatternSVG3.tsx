@@ -1,6 +1,6 @@
 import {
-  Instance,
-  Instances,
+  // Instance,
+  // Instances,
   OrthographicCamera,
   useFBO,
   useTexture,
@@ -11,9 +11,9 @@ import {
 // import { useThree } from "@react-three/fiber";
 // import { useMemo } from "react";
 // import { AdditiveBlending } from "three";
-import useNodes from "./useNodes";
+// import useNodes from "./useNodes";
 import {
-  AdditiveBlending,
+  // AdditiveBlending,
   Points,
   Scene,
   ShaderMaterial,
@@ -282,7 +282,7 @@ const PatternScene = () => {
 };
 
 const PatternSVG = () => {
-  const { viewport, gl, camera } = useThree();
+  const { gl, camera } = useThree();
 
   const [scene] = useState(new Scene());
   // const [camera] = useState(new OrthographicCamera(-1, 1, 1, 1, -1, 1));

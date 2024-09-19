@@ -1,8 +1,8 @@
 import {
-  Instance,
-  Instances,
-  OrthographicCamera,
-  useFBO,
+  // Instance,
+  // Instances,
+  // OrthographicCamera,
+  // useFBO,
   useTexture,
   useVideoTexture,
   // useTexture,
@@ -11,18 +11,18 @@ import {
 // import { useThree } from "@react-three/fiber";
 // import { useMemo } from "react";
 // import { AdditiveBlending } from "three";
-import useNodes from "./useNodes";
+// import useNodes from "./useNodes";
 import {
   AdditiveBlending,
   Points,
-  Scene,
+  // Scene,
   ShaderMaterial,
   Uniform,
   Vector2,
   // OrthographicCamera,
 } from "three";
-import { createPortal, useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef } from "react";
 
 // interface Node {
 //   i: number;
@@ -117,42 +117,42 @@ const PatternSVG = () => {
   const img = useTexture("/img.jpg");
   const video = useVideoTexture("/footage.mp4");
 
-  const [position, index] = useMemo(() => {
-    const count = grid * grid;
-    // Create a Float32Array of count*3 length
-    // -> we are going to generate the x, y, and z values for 2000 particles
-    // -> thus we need 6000 items in this array
-    const positions = new Float32Array(count * 3 * 1);
-    const index = new Float32Array(count * 1 * 1);
+  // const [position, index] = useMemo(() => {
+  //   const count = grid * grid;
+  //   // Create a Float32Array of count*3 length
+  //   // -> we are going to generate the x, y, and z values for 2000 particles
+  //   // -> thus we need 6000 items in this array
+  //   const positions = new Float32Array(count * 3 * 1);
+  //   const index = new Float32Array(count * 1 * 1);
 
-    for (let j = 0; j < 1; j++) {
-      for (let i = 0; i < count; i++) {
-        index[i + j * count] = j;
-      }
-    }
+  //   for (let j = 0; j < 1; j++) {
+  //     for (let i = 0; i < count; i++) {
+  //       index[i + j * count] = j;
+  //     }
+  //   }
 
-    for (let j = 0; j < 1; j++) {
-      for (let i = 0; i < count; i++) {
-        // Generate random values for x, y, and z on every loop
-        // const x = (Math.random() - 0.5) * 2;
-        // const y = (Math.random() - 0.5) * 2;
-        // const z = (Math.random() - 0.5) * 2;
-        let x = (i % grid) / grid - 0.5 + 0.5 / grid;
-        const y = Math.floor(i / grid) / grid - 0.5 + 0.5 / grid;
-        const z = 0;
+  //   for (let j = 0; j < 1; j++) {
+  //     for (let i = 0; i < count; i++) {
+  //       // Generate random values for x, y, and z on every loop
+  //       // const x = (Math.random() - 0.5) * 2;
+  //       // const y = (Math.random() - 0.5) * 2;
+  //       // const z = (Math.random() - 0.5) * 2;
+  //       let x = (i % grid) / grid - 0.5 + 0.5 / grid;
+  //       const y = Math.floor(i / grid) / grid - 0.5 + 0.5 / grid;
+  //       const z = 0;
 
-        if (j === 1) x += 0.5 / grid;
+  //       if (j === 1) x += 0.5 / grid;
 
-        // We add the 3 values to the attribute array for every loop
-        positions.set([x, y, z], i * 3 + j * count * 3);
-      }
-    }
+  //       // We add the 3 values to the attribute array for every loop
+  //       positions.set([x, y, z], i * 3 + j * count * 3);
+  //     }
+  //   }
 
-    console.log(positions);
-    console.log(index);
+  //   console.log(positions);
+  //   console.log(index);
 
-    return [positions, index];
-  }, [grid]);
+  //   return [positions, index];
+  // }, [grid]);
 
   const uniforms = useMemo(
     () => ({
