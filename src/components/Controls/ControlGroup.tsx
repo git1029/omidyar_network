@@ -26,7 +26,7 @@ const ControlGroup = ({
         <h2>{title}</h2>
       </div>
       <div
-        className={`px-3 pb-4 flex-col gap-y-2 ${visible ? "flex" : "hidden"}`}
+        className={`px-3 pb-4 flex-col gap-y-3 ${visible ? "flex" : "hidden"}`}
       >
         {children}
       </div>

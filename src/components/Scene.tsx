@@ -1,8 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
-import PatternGL from "./PatternGL/PatternGL";
+// import PatternGL from "./PatternGL/PatternGL";
 import TextInput from "./Text/TextInput";
-// import TextLayer from "./Text/TextLayer";
+import TextLayer from "./Text/TextLayer";
 import useStore from "../store/store";
 import {
   MutableRefObject,
@@ -21,7 +21,7 @@ import useResize, {
 } from "../helpers/useResize";
 import Modal from "./Modal";
 // import { clamp } from "three/src/math/MathUtils.js";
-// import PatternSVG from "./PatternSVG/PatternSVG4";
+import PatternSVG from "./PatternSVG/PatternSVG3b";
 
 const Progress = ({
   setAssetsLoaded,
@@ -51,30 +51,27 @@ const Scene = ({
   ffmpeg: MutableRefObject<ExportObject | null>;
 }) => {
   const layout = useStore((state) => state.layout);
-  const setCanvasRef = useStore((state) => state.setCanvasRef);
-  const setCanvasContainerRef = useStore(
-    (state) => state.setCanvasContainerRef
-  );
+  const setValue = useStore((state) => state.setValue);
 
-  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const [assetsLoaded, setAssetsLoaded] = useState(true);
   const [canvasLoaded, setCanvasLoaded] = useState(false);
 
-  const setLoaded = useStore((state) => state.setLoaded);
   const fullscreen = useStore((state) => state.fullscreen);
+  const canvasSize = useStore((state) => state.canvasSize);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
   // const fade = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (assetsLoaded && canvasLoaded) setLoaded(true);
-  }, [assetsLoaded, canvasLoaded, setLoaded]);
+    if (assetsLoaded && canvasLoaded) setValue("loaded", true);
+  }, [assetsLoaded, canvasLoaded, setValue]);
 
   useEffect(() => {
     if (canvasContainerRef.current) {
-      setCanvasContainerRef(canvasContainerRef.current);
+      setValue("canvasContainerRef", canvasContainerRef.current);
     }
-  }, [canvasContainerRef, setCanvasContainerRef]);
+  }, [canvasContainerRef, setValue]);
 
   useEffect(() => {
     // console.log(window.devicePixelRatio);
@@ -96,6 +93,10 @@ const Scene = ({
   // console.log(`aspect-[${layout.label.split(":").join("/")}]`);
 
   // console.log(layout.label.split(":").join("/"));
+
+  // const [logo, setLogo] = useState(false);
+  const logo = useStore((state) => state.logo);
+  const { caption } = useStore((state) => state.text);
 
   useResize();
 
@@ -127,6 +128,31 @@ const Scene = ({
   //   return availableWidth / availableHeight < layout.aspect;
   // };
 
+  // const w = canvasContainerRef.current
+  //   ? (canvasContainerRef.current.offsetWidth * 1) / 34
+  //   : 0;
+
+  const w = canvasSize.width / 34;
+
+  // console.log("WIDTH", canvasContainerRef?.current?.offsetWidth);
+
+  const gridStyle = {
+    paddingTop: logo ? w * 2 : w,
+    paddingBottom: caption.length > 0 ? w * 2 : w,
+    paddingLeft: w,
+    paddingRight: w,
+    columnGap: w / 2,
+    rowGap: w / 2,
+  };
+
+  const gridStyle0 = {
+    ...gridStyle,
+    paddingTop: w,
+    paddingBottom: w,
+  };
+
+  // console.log(gridStyle, "GRIDSTYLE");
+
   return (
     <>
       <div
@@ -140,9 +166,9 @@ const Scene = ({
         {/* <div className="h-full w-full"> */}
         <div
           // className="w-full h-full"
-          className={`border-foreground/50 box-content relative transition-opacity duration-500 ease-in-out ${
+          className={`relative transition-opacity duration-500 ease-in-out ${
             assetsLoaded && canvasLoaded ? "" : "opacity-0"
-          } ${fullscreen ? "border-0" : "border"}`}
+          }`}
           style={{ aspectRatio: layout.aspect }}
           ref={canvasContainerRef}
         >
@@ -155,26 +181,60 @@ const Scene = ({
               setCanvasLoaded(true);
 
               if (canvasRef.current) {
-                setCanvasRef(canvasRef.current);
+                setValue("canvasRef", canvasRef.current);
               }
               // gl.setClearColor(0x000000);
             }}
-            camera={{
-              fov: 45,
-              near: 0.01,
-              far: 100,
-              position: [0, 0, 5], // 20
-            }}
+            // camera={{
+            //   fov: 45,
+            //   near: 0.01,
+            //   far: 100,
+            //   position: [0, 0, 5], // 20
+            // }}
             gl={{ preserveDrawingBuffer: true }}
           >
             <Progress setAssetsLoaded={setAssetsLoaded} />
             <TextInput />
-            <PatternGL />
-            {/* <PatternSVG /> */}
-            {/* <TextLayer /> */}
+            {/* <PatternGL /> */}
+            <PatternSVG />
+            <TextLayer />
             {debug && <Perf />}
             <Renderer ffmpeg={ffmpeg} />
           </Canvas>
+          <div
+            className={`top-0 left-0 w-full h-full absolute z-50 pointer-events-none border border-foreground/50 ${
+              fullscreen ? "border-0" : "border"
+            }`}
+          ></div>
+          <div className="top-0 left-0 w-full h-full absolute z-50 pointer-events-none">
+            <div
+              className="absolute top-0 left-0 w-full h-full flex"
+              style={gridStyle0}
+            >
+              <div className="border border-blue-500 grow"></div>
+              <div className="border border-blue-500 grow"></div>
+              <div className="border border-blue-500 grow"></div>
+              <div className="border border-blue-500 grow"></div>
+            </div>
+            <div
+              className="absolute top-0 left-0 w-full h-full flex"
+              style={gridStyle}
+            >
+              <div className="border border-pink-500 grow"></div>
+              <div className="border border-pink-500 grow"></div>
+              <div className="border border-pink-500 grow"></div>
+              <div className="border border-pink-500 grow"></div>
+            </div>
+            <div
+              className="absolute top-0 left-0 w-full h-full flex flex-col"
+              style={gridStyle}
+            >
+              <div className="border border-pink-500 grow"></div>
+              <div className="border border-pink-500 grow"></div>
+              <div className="border border-pink-500 grow"></div>
+              <div className="border border-pink-500 grow"></div>
+            </div>
+          </div>
         </div>
       </div>
     </>

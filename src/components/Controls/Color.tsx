@@ -1,43 +1,36 @@
-import ControlGroup from "./ControlGroup";
-import { palette } from "../../store/options";
+import { useEffect } from "react";
 import useStore from "../../store/store";
-import { useEffect, useState } from "react";
-// import { useShallow } from "zustand/react/shallow";
-// import IconTransparent from "/icon_transparent.svg";
-import ColorIcon from "./ColorIcon";
+import { palette } from "../../store/options";
 import { ColorInfo } from "../../types";
+
+import ControlGroup from "./ControlGroup";
+import ColorIcon from "./ColorIcon";
+
 import TransparentPattern from "/transparent.png";
 import TransparentPattern2 from "/transparent2.png";
 
-const ControlColor = () => {
-  // const [backgroundColor, setBackgroundColor, nodeColor, setNodeColor] =
-  //   useStore(
-  //     useShallow((state) => [
-  //       state.backgroundColor,
-  //       state.setBackgroundColor,
-  //       state.nodeColor,
-  //       state.setNodeColor,
-  //     ])
-  //   );
+const Color = () => {
+  // const [backgroundColor, setBackgroundColor] = useState(palette[0]);
+  // const [foregroundColor, setNodeColor] = useState(palette[1]);
 
-  const [backgroundColor, setBackgroundColor] = useState(palette[0]);
-  const [nodeColor, setNodeColor] = useState(palette[1]);
-
+  const backgroundColor = useStore((state) => state.backgroundColor);
+  const foregroundColor = useStore((state) => state.foregroundColor);
   const patternRef = useStore((state) => state.patternRef);
   const inputBackground = useStore((state) => state.inputBackground);
   const canvasRef = useStore.getState().canvasRef;
+  const setValue = useStore((state) => state.setValue);
 
   const handleColorSwap = () => {
     if (backgroundColor.label === "Transparent") return;
 
     if (patternRef) {
-      patternRef.uniforms.uBackgroundColor.value.set(nodeColor.hex);
+      patternRef.uniforms.uBackgroundColor.value.set(foregroundColor.hex);
       patternRef.uniforms.uForegroundColor.value.set(backgroundColor.hex);
     }
 
     const bgColor = backgroundColor;
-    setBackgroundColor(nodeColor);
-    setNodeColor(bgColor);
+    setValue("backgroundColor", foregroundColor);
+    setValue("foregroundColor", bgColor);
   };
 
   useEffect(() => {
@@ -55,44 +48,46 @@ const ControlColor = () => {
     if (canvasRef) {
       if (backgroundColor.label === "Transparent") {
         canvasRef.style.background = `url(${
-          nodeColor.label === "Black" ? TransparentPattern : TransparentPattern2
+          foregroundColor.label === "Black"
+            ? TransparentPattern
+            : TransparentPattern2
         }) repeat center`;
       } else {
         canvasRef.style.removeProperty("background");
       }
     }
-  }, [nodeColor, backgroundColor, canvasRef]);
+  }, [foregroundColor, backgroundColor, canvasRef]);
 
   useEffect(() => {
     if (inputBackground) {
-      const bg = palette.find((p) => p.label === nodeColor.pair);
-      // console.log(bg, nodeColor.pair);
+      const bg = palette.find((p) => p.label === foregroundColor.pair);
+      // console.log(bg, foregroundColor.pair);
       if (bg) {
         document.documentElement.style.setProperty(
           "--background-color",
           bg.rgb.join(" ")
         );
 
-        setBackgroundColor(bg);
+        setValue("backgroundColor", bg);
       }
 
       // document.documentElement.style.setProperty(
       //   "--foreground-color",
-      //   nodeColor.rgbContrast.join(" ")
+      //   foregroundColor.rgbContrast.join(" ")
       // );
     }
-  }, [nodeColor, inputBackground]);
+  }, [foregroundColor, inputBackground, setValue]);
 
   const handleColorSelect = (mode: string, color: ColorInfo) => {
     if (mode === "Background") {
-      setBackgroundColor(color);
+      setValue("backgroundColor", color);
       const foregroundMatch = palette.find((p) => p.pair === color.label);
       if (foregroundMatch) {
-        setNodeColor(foregroundMatch);
+        setValue("foregroundColor", foregroundMatch);
       }
     }
 
-    if (mode === "Foreground") setNodeColor(color);
+    if (mode === "Foreground") setValue("foregroundColor", color);
 
     // if (canvasContainerRef) {
     //   if (mode === "Background")
@@ -113,9 +108,9 @@ const ControlColor = () => {
       }
 
       patternRef.uniforms.uBackgroundColor.value.set(backgroundColor.hex);
-      patternRef.uniforms.uForegroundColor.value.set(nodeColor.hex);
+      patternRef.uniforms.uForegroundColor.value.set(foregroundColor.hex);
     }
-  }, [backgroundColor, nodeColor, patternRef]);
+  }, [backgroundColor, foregroundColor, patternRef]);
 
   const options = [
     {
@@ -127,7 +122,7 @@ const ControlColor = () => {
   const isSelected = (color: string, label: string) => {
     if (
       (color === "Background" && label === backgroundColor.label) ||
-      (color === "Foreground" && label === nodeColor.label)
+      (color === "Foreground" && label === foregroundColor.label)
     )
       return true;
 
@@ -199,4 +194,4 @@ const ControlColor = () => {
   );
 };
 
-export default ControlColor;
+export default Color;

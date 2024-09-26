@@ -1,20 +1,18 @@
 import { useEffect } from "react";
 import useStore from "../store/store";
-// import { scaleCanvasScreen } from "../helpers/useResize";
 
 const FullScreen = () => {
-  const setFullscreen = useStore((state) => state.setFullscreen);
+  const setValue = useStore((state) => state.setValue);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      if (document.fullscreenElement) setFullscreen(true);
-      else setFullscreen(false);
+      setValue("fullscreen", document.fullscreenElement !== null);
     };
     document.addEventListener("fullscreenchange", handleFullscreenChange);
 
     return () =>
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, [setFullscreen]);
+  }, [setValue]);
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {

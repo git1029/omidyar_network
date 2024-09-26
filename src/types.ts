@@ -11,6 +11,7 @@ export interface ColorInfo {
   rgb: number[];
   rgbContrast: number[];
   pair: string;
+  type: string;
 }
 
 export interface InputMode {
@@ -20,14 +21,22 @@ export interface InputMode {
   accepts?: string[];
 }
 
+export interface TextLayout {
+  label: string;
+  value: number;
+  icon?: string;
+}
+
 export interface TextSettings {
   enabled: boolean;
-  layout: string;
+  layout: TextLayout;
   title: string;
   titleSize: number;
-  body: string;
-  bodySize: number;
   color: ColorInfo;
+  caption: string;
+  animating: boolean;
+  animationSpeed: number;
+  animationScale: number;
 }
 
 export interface Upload {
@@ -36,7 +45,7 @@ export interface Upload {
   type: string;
 }
 
-interface ExportFormat {
+export interface ExportFormat {
   label: string;
   type: string;
   ext: string;

@@ -64,10 +64,16 @@ const useExport = (): ExportObject => {
   // const frames = animationDuration.value * exportFps
   const format = exportSettings.format.typeRoot;
   const exportFps = 30;
+  const videoDurationLimitSeconds = 10;
   // const exportDuration = Number((Math.round(videoDuration * 2) / 2).toFixed(1));
   // console.log(exportDuration);
   const frameCount =
-    format === "image" ? 1 : Math.floor(exportFps * videoDuration);
+    format === "image"
+      ? 1
+      : Math.min(
+          Math.floor(exportFps * videoDuration),
+          exportFps * videoDurationLimitSeconds
+        );
   // console.log(frameCount);
   // // const frames = exportFps * 1
 

@@ -136,7 +136,7 @@ const PatternSVG = () => {
 };
 
 const PatternScene = () => {
-  const grid = 30;
+  const grid = 10;
   const { nodes } = useNodes(grid);
 
   const { viewport } = useThree();

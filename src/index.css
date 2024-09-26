@@ -36,7 +36,7 @@
 
   input[type="text"],
   input[type="number"] {
-    @apply border border-foreground p-1 px-2 min-w-24 h-8 rounded-md bg-transparent;
+    @apply border border-foreground px-2 min-w-24 h-8 rounded-md bg-transparent;
   }
 
   input[type="range"] {
@@ -61,7 +61,7 @@
   } */
 
   button {
-    @apply relative px-2 uppercase border border-foreground bg-transparent text-foreground h-8 rounded-md w-fit disabled:opacity-50;
+    @apply relative px-2 uppercase border border-foreground bg-transparent text-foreground h-8 rounded-md w-fit disabled:opacity-50 [&:not(:disabled)]:active:top-0.5;
   }
 
   label {
@@ -69,7 +69,7 @@
   }
 
   textarea {
-    @apply min-h-8 border border-foreground rounded-sm p-1 px-2 w-[300px] font-serif;
+    @apply min-h-8 border border-foreground rounded-md bg-transparent py-1 px-2 w-[300px] font-serif;
   }
 }
 

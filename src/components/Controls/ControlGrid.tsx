@@ -2,7 +2,7 @@ import { useState } from "react";
 import { gridSettings } from "../../store/options";
 import useStore from "../../store/store";
 // import ControlGroup from "./ControlGroup";
-import Slider from "./Slider";
+import Slider from "../Core/Slider";
 import IconArrowX from "/icon_arrow_x.svg";
 import IconArrowY from "/icon_arrow_y.svg";
 import IconArrowDiag1 from "/icon_arrow_diag_1.svg";

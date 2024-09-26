@@ -35,7 +35,7 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
 
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
-  const setVideoDuration = useStore((state) => state.setVideoDuration);
+  const setValue = useStore((state) => state.setValue);
 
   const { loadFile } = useUpload();
 
@@ -107,7 +107,7 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
               }
 
               if (!isNaN(duration) && duration > 0) {
-                setVideoDuration(duration);
+                setValue("videoDuration", duration);
               } else {
                 console.warn(
                   "Unable to access video duration or has zero value"

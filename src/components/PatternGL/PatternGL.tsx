@@ -1,6 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import vertexShader from "./shaders/vertex";
-import fragmentShader from "./shaders/fragment8";
+import fragmentShader from "./shaders/fragment";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Color,
@@ -39,7 +39,7 @@ const PatternGL = () => {
   // const backgroundColor = useStore((state) => state.backgroundColor);
   // const nodeColor = useStore((state) => state.nodeColor);
   // const grid = useStore((state) => state.grid);
-  const setPatternRef = useStore((state) => state.setPatternRef);
+  const setValue = useStore((state) => state.setValue);
 
   const img = useTexture("/img.jpg");
   const video = useVideoTexture("/footage.mp4");
@@ -166,11 +166,11 @@ const PatternGL = () => {
 
   useEffect(() => {
     if (matRef.current) {
-      setPatternRef(matRef.current);
+      setValue("patternRef", matRef.current);
       // const material = ref.current.material as ShaderMaterial;
       // material.uniforms.uDotSize.value = patternDotSize;
     }
-  }, [matRef, setPatternRef]);
+  }, [matRef, setValue]);
 
   useEffect(() => {
     if (matRef.current && video) {

@@ -1,13 +1,13 @@
 import ControlInput from "./ControlInput";
 import ControlLayout from "./ControlLayout";
 // import ControlGrid from "./ControlGrid";
-import ControlPattern from "./ControlPattern";
-import ControlColor from "./ControlColor";
-import ControlExport from "./ControlExport";
-// import ControlText from "./ControlText";
+import Pattern from "./Pattern";
+import Color from "./Color";
+// import ControlExport from "./ControlExport";
+import ControlText from "./ControlText";
 // import Logo from "/logo_light.svg";
-import { ExportObject } from "../Scene";
-import { MutableRefObject } from "react";
+// import { ExportObject } from "../Scene";
+// import { MutableRefObject } from "react";
 import useStore from "../../store/store";
 import Logo from "../Logo";
 import FullScreen from "../FullScreen";
@@ -44,11 +44,13 @@ const ControlsHeader = () => {
   );
 };
 
-const Controls = ({
-  ffmpeg,
-}: {
-  ffmpeg: MutableRefObject<ExportObject | null>;
-}) => {
+// const Controls = ({
+//   ffmpeg,
+// }: {
+//   ffmpeg: MutableRefObject<ExportObject | null>;
+// }) => {
+
+const Controls = () => {
   const fullscreen = useStore((state) => state.fullscreen);
 
   return (
@@ -72,10 +74,10 @@ const Controls = ({
             <ControlInput />
             <ControlLayout />
             {/* <ControlGrid /> */}
-            <ControlPattern />
-            <ControlColor />
-            {/* <ControlText /> */}
-            <ControlExport ffmpeg={ffmpeg} />
+            <Pattern />
+            <Color />
+            <ControlText />
+            {/* <ControlExport ffmpeg={ffmpeg} /> */}
           </div>
         </div>
         <div className="relative pt-4">

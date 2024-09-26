@@ -7,13 +7,13 @@ const ControlInputCamera = ({ inverted }: { inverted: boolean }) => {
 
   const inputMode = useStore((state) => state.inputMode);
   const cameraStatus = useStore((state) => state.cameraStatus);
-  const setCameraRef = useStore((state) => state.setCameraRef);
+  const setValue = useStore((state) => state.setValue);
 
   useEffect(() => {
     if (cameraRef.current) {
-      setCameraRef(cameraRef.current);
+      setValue("cameraRef", cameraRef.current);
     }
-  }, [setCameraRef, cameraRef]);
+  }, [setValue, cameraRef]);
 
   useCamera();
 

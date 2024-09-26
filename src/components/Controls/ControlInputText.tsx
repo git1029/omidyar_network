@@ -7,7 +7,7 @@ const ControlInputText = ({ inverted }: { inverted: boolean }) => {
   const inputMode = useStore((state) => state.inputMode);
   // const setTextRef = useStore((state) => state.setTextRef);
   const textInput = useStore((state) => state.textInput);
-  const setTextInput = useStore((state) => state.setTextInput);
+  const setValue = useStore((state) => state.setValue);
 
   // useEffect(() => {
   //   if (textPreview.current) {
@@ -27,7 +27,7 @@ const ControlInputText = ({ inverted }: { inverted: boolean }) => {
         rows={4}
         placeholder="Enter text here..."
         value={textInput}
-        onChange={(e) => setTextInput(e.target.value)}
+        onChange={(e) => setValue("textInput", e.target.value)}
         className={`min-h-[100px] ${
           inverted ? "text-black-100" : "bg-[#222222] text-white"
         }`}

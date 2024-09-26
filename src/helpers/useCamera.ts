@@ -14,7 +14,7 @@ const useCamera = () => {
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
   const cameraRef = useStore((state) => state.cameraRef);
-  const setCameraStatus = useStore((state) => state.setCameraStatus);
+  const setValue = useStore((state) => state.setValue);
 
   const [stream, setStream] = useState<MediaStream | null>(null);
 
@@ -23,7 +23,7 @@ const useCamera = () => {
     // const video = cameraRef;
 
     // console.log(video);
-    setCameraStatus(1);
+    setValue("cameraStatus", 1);
 
     if (!cameraRef) return;
 
@@ -43,7 +43,7 @@ const useCamera = () => {
           console.log(tex);
           setTexture(tex);
           setStream(mediaStream);
-          setCameraStatus(2);
+          setValue("cameraStatus", 2);
           if (patternRef) {
             patternRef.uniforms.uCamera.value = tex;
             patternRef.uniforms.uInputAspect.value.z =
@@ -52,12 +52,12 @@ const useCamera = () => {
         })
         .catch((error) => {
           console.error("Unable to access the camera/webcam.", error);
-          setCameraStatus(0);
+          setValue("cameraStatus", 0);
         });
     } else {
       console.error("MediaDevices interface not available.");
 
-      setCameraStatus(0);
+      setValue("cameraStatus", 0);
     }
   };
 
@@ -132,7 +132,7 @@ const useCamera = () => {
           patternRef.uniforms.uCamera.value = null;
           patternRef.uniforms.uInputAspect.value.z = 1;
         }
-        setCameraStatus(0);
+        setValue("cameraStatus", 0);
       }
     }
   }, [inputMode, texture]);

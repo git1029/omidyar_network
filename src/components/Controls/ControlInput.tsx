@@ -12,13 +12,12 @@ import Toggle from "./Toggle";
 
 const ControlInput = () => {
   const inputMode = useStore((state) => state.inputMode);
-  const setInputMode = useStore((state) => state.setInputMode);
   const patternRef = useStore((state) => state.patternRef);
 
   const [inverted, setInverted] = useState("Off");
 
   const inputBackground = useStore((state) => state.inputBackground);
-  const setInputBackground = useStore((state) => state.setInputBackground);
+  const setValue = useStore((state) => state.setValue);
 
   // const handleInputModeChange = (mode: number) => {
   //   const match = inputModes.find((m) => m.value === mode);
@@ -40,7 +39,7 @@ const ControlInput = () => {
   const handleInputModeChange = (label: string) => {
     const match = inputModes.find((m) => m.label === label);
     if (match) {
-      setInputMode(match);
+      setValue("inputMode", match);
     }
   };
 
@@ -58,7 +57,7 @@ const ControlInput = () => {
       (label === "Off" && !inputBackground)
     )
       return;
-    setInputBackground(label === "On" ? true : false);
+    setValue("inputBackground", label === "On" ? true : false);
     if (patternRef) {
       patternRef.uniforms.uInputBackground.value = label === "On" ? 1 : 0;
     }
@@ -121,6 +120,11 @@ const ControlInput = () => {
             </div> */}
           </div>
         </div>
+
+        {/* <div className="flex gap-x-1">
+          <button>Capture Image</button>
+          <button>Capture Video</button>
+        </div> */}
 
         <Toggle {...invertToggle} />
         {inputMode.value !== 3 && <Toggle {...inputBackgroundToggle} />}

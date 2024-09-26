@@ -3,13 +3,13 @@ import { layouts } from "../../store/options";
 import useStore from "../../store/store";
 import ControlGroup from "./ControlGroup";
 import ControlGrid from "./ControlGrid";
-import Toggle from "./Toggle";
+import Toggle from "../Core/Toggle";
+import { Layout } from "../../types";
 
 const ControlLayout = () => {
   const layout = useStore((state) => state.layout);
   const customLayout = useStore((state) => state.customLayout);
-  const setLayout = useStore((state) => state.setLayout);
-  const setCustomLayout = useStore((state) => state.setCustomLayout);
+  const setValue = useStore((state) => state.setValue);
 
   // const handleLayoutChange = (e: ChangeEvent<HTMLSelectElement>) => {
   //   if (e.target.value === "Custom") setLayout(customLayout);
@@ -21,13 +21,12 @@ const ControlLayout = () => {
   //   }
   // };
 
-  const handleLayoutChange = (value: string) => {
-    if (value === "Custom") setLayout(customLayout);
-    else {
-      const match = layouts.find((l) => l.label === value);
-      if (match) {
-        setLayout(match);
-      }
+  const handleLayoutChange = <T,>(value: T) => {
+    if (value === layout) return;
+    const match = layouts.find((l) => l === value);
+    if (match) {
+      if (match.label === "Custom") setValue("layout", customLayout);
+      setValue("layout", match);
     }
   };
 
@@ -38,8 +37,8 @@ const ControlLayout = () => {
       size: { width: customWidth, height: customHeight },
     };
 
-    setCustomLayout(newCustomLayout);
-    setLayout(newCustomLayout);
+    setValue("customLayout", newCustomLayout);
+    setValue("layout", newCustomLayout);
   };
 
   const [customWidth, setCustomWidth] = useState(customLayout.size.width);
@@ -102,9 +101,9 @@ const ControlLayout = () => {
 
   const layoutToggle = {
     label: "Aspect Ratio",
-    options: layouts.map((l) => ({ label: l.label })),
+    value: layout,
+    options: layouts,
     onChange: handleLayoutChange,
-    isSelected: (label: string) => layout.label === label,
   };
 
   return (
@@ -120,7 +119,7 @@ const ControlLayout = () => {
         </select>
       </div> */}
 
-      <Toggle {...layoutToggle} />
+      <Toggle<Layout> {...layoutToggle} />
 
       {layout.label === "Custom" && (
         <div className="flex items-center">
@@ -129,11 +128,9 @@ const ControlLayout = () => {
             <div className="flex gap-x-2 items-center w-[300px]">
               <div className="flex items-center gap-x-1 grow">
                 <input
-                  className={`grow flex ${
-                    isOutsideLimit(true, false) ? "outline-red-500" : ""
-                  }`}
+                  className={`grow flex`}
                   style={
-                    isOutsideLimit(true, false) ? { borderColor: "red" } : {}
+                    isOutsideLimit(true, false) ? { borderStyle: "dashed" } : {}
                   }
                   type="number"
                   min={320}
@@ -146,11 +143,9 @@ const ControlLayout = () => {
                 />
                 x
                 <input
-                  className={`grow flex ${
-                    isOutsideLimit(false, true) ? "outline-red-500" : ""
-                  }`}
+                  className={`grow flex`}
                   style={
-                    isOutsideLimit(false, true) ? { borderColor: "red" } : {}
+                    isOutsideLimit(false, true) ? { borderStyle: "dashed" } : {}
                   }
                   type="number"
                   min={320}
@@ -166,7 +161,7 @@ const ControlLayout = () => {
               </button>
             </div>
             {isOutsideLimit() && (
-              <div className="text-red-500 text-sm">
+              <div className="text-foreground text-sm">
                 Min: {limit.min}px / Max: {limit.max}px
               </div>
             )}
