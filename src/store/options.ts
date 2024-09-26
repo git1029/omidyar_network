@@ -235,8 +235,8 @@ export const textSettings: TextSettings = {
   color: textPalette[0],
   caption: "",
   animating: false,
-  animationSpeed: 0.5,
-  animationScale: 0.5,
+  animationSpeed: 0.3333,
+  animationScale: 0,
 };
 
 export const exportFormats = [

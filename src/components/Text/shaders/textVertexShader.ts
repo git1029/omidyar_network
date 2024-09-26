@@ -467,16 +467,18 @@ const textVertexShader = /* glsl */ `
       }
     }
 
+
     pos.xy *= g.scl;
     pos.xy += g.pos;
     pos.xy += offset;
 
-
-    // float scale = mix(1., map(step(.5, uScale), 0., 1., 1., 2.), uAnimating);
-    // // scale = 1.;
+    // float scale = mix(1., map(uScale, 0., 1., 1., 2.), 1.);
+    // // // scale = 1.;
     // pos.xy -= .5;
     // pos.xy *= scale;
     // pos.xy += .5;
+    
+
     // pos.x += 1. / 2. * uAnimating;
 
     // pos.x += mix(-1., 1., uId.x) * 1.75;

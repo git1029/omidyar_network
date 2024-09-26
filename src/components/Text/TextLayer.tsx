@@ -1,5 +1,5 @@
 import { Text } from "@react-three/drei";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { BufferGeometry, Group, ShaderMaterial } from "three";
 
 import useStore from "../../store/store";
@@ -12,9 +12,8 @@ import F37LinecaMedium from "/F37Lineca-Medium.ttf";
 import CanvasLogo from "./CanvasLogo";
 
 const TextLayer = () => {
-  const { enabled, title, caption, layout, animating } = useStore(
-    (state) => state.text
-  );
+  const { enabled, title, caption, layout, animating, animationScale } =
+    useStore((state) => state.text);
 
   const textGroup = useRef<Group>(null);
 
@@ -46,6 +45,23 @@ const TextLayer = () => {
 
     return true;
   };
+
+  useEffect(() => {
+    if (textGroup.current) {
+      if (animating) {
+        const scl = animationScale + 1;
+        textGroup.current.scale.set(scl, scl, 1);
+        textGroup.current.position.set(
+          (animationScale - (2 / 34) * animationScale) / 2,
+          (animationScale - (2 / 34) * animationScale) / 2,
+          0
+        );
+      } else {
+        textGroup.current.position.set(0, 0, 0);
+        textGroup.current.scale.set(1, 1, 1);
+      }
+    }
+  }, [animating, animationScale, textGroup]);
 
   // const textLayers = [
   //   { 0: [0, 3], 1: [0, 0], 2: [2, 0] },

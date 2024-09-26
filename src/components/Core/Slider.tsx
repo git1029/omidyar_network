@@ -50,6 +50,13 @@ const Slider = ({
     }
   };
 
+  const countDecimals = (step: number) => {
+    const str = step.toString();
+    const n = str.split(".");
+    if (n[1] !== undefined) return n[1].length;
+    return 0;
+  };
+
   return (
     <div className="flex flex-col gap-y-1">
       <label>{label}</label>
@@ -71,7 +78,10 @@ const Slider = ({
             style={{ width: `${map(value, min, max, 1, 99)}%` }}
           />
         </div>
-        <div className="text-sm w-[30px] text-center">{Math.floor(value)}</div>
+        {/* <div className="text-sm w-[30px] text-center">{Math.floor(value)}</div> */}
+        <div className="text-sm w-[30px] text-center">
+          {value.toFixed(countDecimals(step))}
+        </div>
       </div>
     </div>
   );

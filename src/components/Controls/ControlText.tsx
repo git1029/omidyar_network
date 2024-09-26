@@ -59,7 +59,10 @@ const ControlText = () => {
     speed: {
       label: "Speed",
       defaultValue: textSettings.animationSpeed,
-      step: 10,
+      // step: 10,
+      min: 0.5,
+      max: 2,
+      step: 0.1,
       onChange: (value: number) => {
         setValue("text", { ...text, animationSpeed: value });
       },
@@ -67,7 +70,9 @@ const ControlText = () => {
     scale: {
       label: "Scale",
       defaultValue: textSettings.animationScale,
-      step: 10,
+      min: 1,
+      max: 2,
+      step: 0.1,
       onChange: (value: number) => {
         setValue("text", { ...text, animationScale: value });
       },
@@ -164,7 +169,7 @@ const ControlText = () => {
 
         {/* <Control label="Speed"> */}
         <Slider {...textSliders.speed} />
-        {/* <Slider {...textSliders.scale} /> */}
+        <Slider {...textSliders.scale} />
         {/* </Control> */}
       </div>
     </ControlGroup>
