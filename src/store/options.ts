@@ -293,6 +293,18 @@ export const connectorOptions = [
   { label: "B", icon: [IconArrowY, IconArrowDiag2] },
 ];
 
+export const patternEffectOptions = {
+  enabled: [
+    { label: "Off", value: 0 },
+    { label: "On", value: 1 },
+  ],
+  styles: [
+    { label: "Style 1", value: 0 },
+    { label: "Style 2", value: 1 },
+    { label: "Style 3", value: 2 },
+  ],
+};
+
 // const maxWidthAspect = Math.max(
 //   ...layouts.map((l) => l.size.width / l.size.height)
 // );

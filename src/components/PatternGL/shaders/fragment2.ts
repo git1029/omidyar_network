@@ -8,15 +8,15 @@ const fragmentShader = /* glsl */ `
   uniform float uGrid; // 0 = square, 1 = isometric
   uniform float uQuantity; // 0 = square, 1 = isometric
   uniform vec3 uForegroundColor;
-  uniform vec3 uBackgroundColor;
+  // uniform vec3 uBackgroundColor;
   uniform sampler2D uImage;
-  uniform vec2 uEffect;
+  // uniform vec2 uEffect;
   // uniform sampler2D uColor;
   uniform sampler2D uVideo;
   uniform sampler2D uCamera;
   uniform sampler2D uText;
   uniform float uDotSize;
-  uniform float uAlpha;
+  // uniform float uAlpha;
   uniform vec2 uDensity;
   uniform vec2 uConnectors;
   uniform float uContrast;
@@ -26,7 +26,7 @@ const fragmentShader = /* glsl */ `
   // uniform vec3 uImageSize;
   uniform vec3 uInputAspect;
   uniform float uInputContrast;
-  uniform float uInputBackground;
+  // uniform float uInputBackground;
 
 
   float sdCircle(vec2 p, float r) {
@@ -437,44 +437,44 @@ vec4 getBrightness(vec2 p) {
     // if (vUv.x < edge.x || vUv.x > 1.-edge.x || vUv.y < edge.y || vUv.y > 1.-edge.y) alpha = 0.;
 
 
-    vec3 backgroundColor = uBackgroundColor;
-    if (uInputBackground == 1. && uMode < 3.) {
-      float inputAspect = uMode == 0. ? uInputAspect.x : uMode == 1. ? uInputAspect.y : uMode == 2. ? uInputAspect.z : 1.;
-      vec2 imgUv = vUv;
+    // vec3 backgroundColor = uBackgroundColor;
+    // if (uInputBackground == 1. && uMode < 3.) {
+    //   float inputAspect = uMode == 0. ? uInputAspect.x : uMode == 1. ? uInputAspect.y : uMode == 2. ? uInputAspect.z : 1.;
+    //   vec2 imgUv = vUv;
 
-      if (uMode == 2.) imgUv.x = 1. - imgUv.x; // flip camera horizontall
+    //   if (uMode == 2.) imgUv.x = 1. - imgUv.x; // flip camera horizontall
 
-      imgUv -= .5;
+    //   imgUv -= .5;
       
-      if (inputAspect >= 1.) imgUv.x /= inputAspect;
-      else imgUv.y *= inputAspect;
+    //   if (inputAspect >= 1.) imgUv.x /= inputAspect;
+    //   else imgUv.y *= inputAspect;
 
-      if (inputAspect >= uViewport.z) {
-        // fit by height
-        imgUv.x *= uViewport.z;
-      } else {
-        // fit by width
-        imgUv.y /= uViewport.z;
-      }
-      imgUv += .5;
+    //   if (inputAspect >= uViewport.z) {
+    //     // fit by height
+    //     imgUv.x *= uViewport.z;
+    //   } else {
+    //     // fit by width
+    //     imgUv.y /= uViewport.z;
+    //   }
+    //   imgUv += .5;
   
-      if (uMode == 0.) backgroundColor = texture(uImage, imgUv).rgb;
-      else if (uMode == 1.) backgroundColor = texture(uVideo, imgUv).rgb;
-      else if (uMode == 2.) backgroundColor = texture(uCamera, imgUv).rgb;
+    //   if (uMode == 0.) backgroundColor = texture(uImage, imgUv).rgb;
+    //   else if (uMode == 1.) backgroundColor = texture(uVideo, imgUv).rgb;
+    //   else if (uMode == 2.) backgroundColor = texture(uCamera, imgUv).rgb;
 
-      // backgroundColor = sRGBTransferOETF(vec4(backgroundColor, 1.)).rgb;
-      backgroundColor = pow(backgroundColor, vec3(2.2));
-    }
+    //   // backgroundColor = sRGBTransferOETF(vec4(backgroundColor, 1.)).rgb;
+    //   backgroundColor = pow(backgroundColor, vec3(2.2));
+    // }
 
     // uAlpha = 0 === transparent
     // uEffect.x == 1 === want transparent
-    float alpha = 1. * uAlpha * (1.-uEffect.x);
+    // float alpha = 1. * uAlpha * (1.-uEffect.x);
 
-    vec3 c = mix(uForegroundColor, backgroundColor, alpha); // if alpha background mix use node color
-    c = mix(uForegroundColor, c, d); // mix with distance to nodes/circles
+    // vec3 c = mix(uForegroundColor, backgroundColor, alpha); // if alpha background mix use node color
+    // c = mix(uForegroundColor, c, d); // mix with distance to nodes/circles
     // c = mix(uBackgroundColor, c, alpha);
     // vec4 col = vec4(c, mix(1.-d, 1., uAlpha) * mix(alpha, 1., uAlpha));
-    vec4 col = vec4(c, mix(1.-d, 1., alpha));
+    vec4 col = vec4(uForegroundColor, 1.-d);
     // gl_FragColor = vec4(max(color, vec3(1.-d)), 1.);
     // gl_FragColor = vec4(mix(color, vec3(1., 0., 0.) * (1.-d), 1.-d), 1.);
 

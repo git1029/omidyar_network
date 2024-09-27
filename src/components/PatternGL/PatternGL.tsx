@@ -1,6 +1,6 @@
-import { createPortal, useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import vertexShader from "./shaders/vertex";
-import fragmentShader from "./shaders/fragment";
+import fragmentShader from "./shaders/fragment2";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Color,
@@ -11,8 +11,8 @@ import {
   // LinearFilter,
   Mesh,
   MirroredRepeatWrapping,
-  RGBAFormat,
-  Scene,
+  // RGBAFormat,
+  // Scene,
   // RepeatWrapping,
   // RGBAFormat,
   // MeshBasicMaterial,
@@ -30,8 +30,10 @@ import {
 import { palette, gridSettings, patternSettings } from "../../store/options";
 import useStore from "../../store/store";
 import {
-  OrthographicCamera,
-  useFBO,
+  // Instance,
+  // Instances,
+  // OrthographicCamera,
+  // useFBO,
   useTexture,
   useVideoTexture,
 } from "@react-three/drei";
@@ -46,6 +48,7 @@ const PatternGL = () => {
   // const backgroundColor = useStore((state) => state.backgroundColor);
   // const nodeColor = useStore((state) => state.nodeColor);
   // const grid = useStore((state) => state.grid);
+  const displayRef = useStore((state) => state.displayRef);
   const setValue = useStore((state) => state.setValue);
 
   const img = useTexture("/img.jpg");
@@ -74,6 +77,7 @@ const PatternGL = () => {
           gridSettings.gridConnectors[1] === true ? 1 : 0
         )
       ),
+      uEffect: new Uniform(new Vector2(0, 0)),
       uQuantity: new Uniform(gridSettings.gridQuantity),
       uDotSize: new Uniform(patternSettings.patternDotSize),
       uContrast: new Uniform(patternSettings.patternContrast),
@@ -137,7 +141,7 @@ const PatternGL = () => {
 
   useEffect(() => {
     // console.log(img);
-    if (matRef.current && img) {
+    if (img) {
       // img.minFilter = LinearFilter;
       // img.magFilter = LinearFilter;
       // img.anisotropy = 8;
@@ -147,12 +151,19 @@ const PatternGL = () => {
       img.wrapT = MirroredRepeatWrapping;
       // img.flipY = false;
       img.needsUpdate = true;
-      matRef.current.uniforms.uImage.value = img;
 
       const { width, height } = img.image;
-      matRef.current.uniforms.uInputAspect.value.x = width / height;
+      const aspect = width > 0 && height > 0 ? width / height : 1;
+      if (matRef.current) {
+        matRef.current.uniforms.uImage.value = img;
+        matRef.current.uniforms.uInputAspect.value.x = aspect;
+      }
+      if (displayRef) {
+        displayRef.uniforms.uImage.value = img;
+        displayRef.uniforms.uInputAspect.value.x = aspect;
+      }
     }
-  }, [img]);
+  }, [img, displayRef]);
 
   // useEffect(() => {
   //   // console.log(img);
@@ -180,7 +191,7 @@ const PatternGL = () => {
   }, [matRef, setValue]);
 
   useEffect(() => {
-    if (matRef.current && video) {
+    if (video) {
       video.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
       // imgtest.wrapS = RepeatWrapping;
       // imgtest.wrapT = RepeatWrapping;
@@ -202,12 +213,21 @@ const PatternGL = () => {
       //   }
       // );
       // video.needsUpdate = false;
-      matRef.current.uniforms.uVideo.value = video;
-
       const { videoWidth, videoHeight } = video.image;
-      matRef.current.uniforms.uInputAspect.value.y = videoWidth / videoHeight;
+      const aspect =
+        videoWidth > 0 && videoHeight > 0 ? videoWidth / videoHeight : 1;
+
+      if (matRef.current) {
+        matRef.current.uniforms.uVideo.value = video;
+        matRef.current.uniforms.uInputAspect.value.y = aspect;
+      }
+
+      if (displayRef) {
+        displayRef.uniforms.uVideo.value = video;
+        displayRef.uniforms.uInputAspect.value.y = aspect;
+      }
     }
-  }, [video]);
+  }, [video, displayRef]);
 
   useEffect(() => {
     if (matRef.current) {
@@ -280,106 +300,4 @@ const PatternGL = () => {
   );
 };
 
-const PatternScene = () => {
-  const { size } = useThree();
-  const scene = useMemo(() => new Scene(), []);
-  const target = useFBO(size.width, size.height, {
-    depthBuffer: false,
-    format: RGBAFormat,
-    // samples: 2,
-  });
-
-  const mat = useRef<ShaderMaterial>(null);
-
-  const backgroundColor = useStore((state) => state.backgroundColor);
-  const foregroundColor = useStore((state) => state.foregroundColor);
-
-  useFrame(({ gl, camera }) => {
-    gl.setRenderTarget(target);
-    gl.render(scene, camera);
-    gl.setRenderTarget(null);
-  });
-
-  const uniforms = useMemo(() => {
-    return {
-      uTex: new Uniform(null),
-      uColor: new Uniform(new Color(0xffffff)),
-      uAlpha: new Uniform(0),
-    };
-  }, []);
-
-  useEffect(() => {
-    if (mat.current) {
-      mat.current.uniforms.uAlpha.value =
-        backgroundColor.label === "Transparent" ? 0 : 1;
-      mat.current.uniforms.uColor.value.set(foregroundColor.hex);
-    }
-  }, [backgroundColor, foregroundColor]);
-
-  useEffect(() => {
-    if (mat.current) {
-      mat.current.uniforms.uTex.value = target.texture;
-    }
-  }, [target]);
-
-  return (
-    <>
-      <OrthographicCamera
-        near={-1}
-        far={1}
-        left={-0.5}
-        right={0.5}
-        top={0.5}
-        bottom={-0.5}
-        manual
-        makeDefault
-      />
-
-      {createPortal(<PatternGL />, scene)}
-
-      <mesh scale={[1, 1, 1]}>
-        <planeGeometry args={[1, 1]} />
-        {/* <meshBasicMaterial
-          map={target.texture}
-          toneMapped={false}
-          transparent={true}
-        /> */}
-        <shaderMaterial
-          ref={mat}
-          vertexShader={
-            /*glsl*/ `
-            varying vec2 vUv;
-            void main() {
-              vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-              vec4 viewPosition = viewMatrix * modelPosition;
-              vec4 projectedPosition = projectionMatrix * viewPosition;
-              gl_Position = projectedPosition;
-          
-              vUv = uv;
-            }
-            `
-          }
-          fragmentShader={
-            /*glsl*/ `
-              uniform sampler2D uTex;
-              uniform vec3 uColor;
-              uniform float uAlpha;
-              varying vec2 vUv;
-              void main() {
-                vec4 c = texture(uTex, vUv);
-                gl_FragColor = vec4(mix(uColor, c.rgb, uAlpha), c.a);
-    // #include <tonemapping_fragment>
-    #include <colorspace_fragment>
-              }
-              `
-          }
-          uniforms={uniforms}
-          // alphaTest={0.95}
-          transparent={true}
-        />
-      </mesh>
-    </>
-  );
-};
-
-export default PatternScene;
+export default PatternGL;

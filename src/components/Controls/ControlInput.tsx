@@ -18,6 +18,7 @@ import Toggle from "../Core/Toggle";
 const ControlInput = () => {
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
+  const displayRef = useStore((state) => state.displayRef);
 
   const [inverted, setInverted] = useState(invertOptions[0]);
 
@@ -39,13 +40,22 @@ const ControlInput = () => {
     if (patternRef) {
       patternRef.uniforms.uMode.value = inputMode.value;
     }
-  }, [inputMode, patternRef]);
+    if (displayRef) {
+      displayRef.uniforms.uMode.value = inputMode.value;
+    }
+  }, [inputMode, patternRef, displayRef]);
 
   const handleInputModeChange = <T,>(value: T) => {
     if (inputMode === value) return;
     const match = inputModes.find((m) => m === value);
     if (match) {
       setValue("inputMode", match);
+      // if (patternRef) {
+      //   patternRef.uniforms.uMode.value = match.value;
+      // }
+      // if (displayRef) {
+      //   displayRef.uniforms.uMode.value = match.value;
+      // }
     }
   };
 
@@ -65,8 +75,11 @@ const ControlInput = () => {
     const match = inputBackgroundOptions.find((o) => o === value);
     if (match) {
       setValue("inputBackground", match);
-      if (patternRef) {
-        patternRef.uniforms.uInputBackground.value = match.value ? 1 : 0;
+      // if (patternRef) {
+      //   patternRef.uniforms.uInputBackground.value = match.value ? 1 : 0;
+      // }
+      if (displayRef) {
+        displayRef.uniforms.uInputBackground.value = match.value ? 1 : 0;
       }
     }
   };
