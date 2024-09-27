@@ -52,7 +52,9 @@ const ToggleOption = <T extends ToggleOption>({
   return (
     <div
       className={`w-8 h-8 flex w-fit min-w-10 border rounded-md cursor-pointer items-center justify-center ${
-        selected ? "border-foreground/100" : "border-foreground/50"
+        selected
+          ? "border-foreground/100 bg-foreground/5"
+          : "border-foreground/50"
       } ${hasIcon && iconOnly ? "" : hasIcon ? "pr-2" : "px-2"}`}
       onClick={handleClick}
       tabIndex={0}

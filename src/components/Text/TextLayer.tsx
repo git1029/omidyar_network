@@ -12,8 +12,10 @@ import F37LinecaMedium from "/F37Lineca-Medium.ttf";
 import CanvasLogo from "./CanvasLogo";
 
 const TextLayer = () => {
-  const { enabled, title, caption, layout, animating, animationScale } =
-    useStore((state) => state.text);
+  const { mode, title, layout, animationScale } = useStore(
+    (state) => state.text
+  );
+  const caption = useStore((state) => state.caption);
 
   const textGroup = useRef<Group>(null);
 
@@ -32,13 +34,13 @@ const TextLayer = () => {
 
   const isVisible = (i: number) => {
     if (layout.value !== 1) {
-      if (animating) {
+      if (mode.value === 2) {
         if (i > 7) return false;
       } else {
         if (i > 0) return false;
       }
     } else {
-      if (!animating) {
+      if (mode.value !== 2) {
         if (i > 3) return false;
       }
     }
@@ -48,7 +50,7 @@ const TextLayer = () => {
 
   useEffect(() => {
     if (textGroup.current) {
-      if (animating) {
+      if (mode.value === 2) {
         const scl = animationScale + 1;
         textGroup.current.scale.set(scl, scl, 1);
         textGroup.current.position.set(
@@ -61,7 +63,7 @@ const TextLayer = () => {
         textGroup.current.scale.set(1, 1, 1);
       }
     }
-  }, [animating, animationScale, textGroup]);
+  }, [mode, animationScale, textGroup]);
 
   // const textLayers = [
   //   { 0: [0, 3], 1: [0, 0], 2: [2, 0] },
@@ -138,7 +140,7 @@ const TextLayer = () => {
         <TextMaterial isCaption={true} />
       </Text>
 
-      <group ref={textGroup} visible={enabled}>
+      <group ref={textGroup} visible={mode.value > 0}>
         {textLayers.map((_l, i) => (
           <Text
             key={`text_layer_${i}`}

@@ -3,14 +3,15 @@ import ControlLayout from "./ControlLayout";
 // import ControlGrid from "./ControlGrid";
 import Pattern from "./Pattern";
 import Color from "./Color";
-// import ControlExport from "./ControlExport";
+import ControlExport from "./ControlExport";
 import ControlText from "./ControlText";
 // import Logo from "/logo_light.svg";
-// import { ExportObject } from "../Scene";
-// import { MutableRefObject } from "react";
+import { ExportObject } from "../Scene";
+import { MutableRefObject } from "react";
 import useStore from "../../store/store";
 import Logo from "../Logo";
 import FullScreen from "../FullScreen";
+import ControlLogo from "./ControlLogo";
 
 const Gradient = ({ reverse = false }) => {
   return (
@@ -44,13 +45,11 @@ const ControlsHeader = () => {
   );
 };
 
-// const Controls = ({
-//   ffmpeg,
-// }: {
-//   ffmpeg: MutableRefObject<ExportObject | null>;
-// }) => {
-
-const Controls = () => {
+const Controls = ({
+  ffmpeg,
+}: {
+  ffmpeg: MutableRefObject<ExportObject | null>;
+}) => {
   const fullscreen = useStore((state) => state.fullscreen);
 
   return (
@@ -77,7 +76,8 @@ const Controls = () => {
             <Pattern />
             <Color />
             <ControlText />
-            {/* <ControlExport ffmpeg={ffmpeg} /> */}
+            <ControlLogo />
+            <ControlExport ffmpeg={ffmpeg} />
           </div>
         </div>
         <div className="relative pt-4">

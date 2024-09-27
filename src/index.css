@@ -53,7 +53,7 @@
   }
 
   select {
-    @apply border border-foreground p-1 w-[300px] h-8 rounded-sm;
+    @apply border border-foreground bg-transparent p-1 w-[300px] h-8 rounded-md uppercase;
   }
 
   /* button {

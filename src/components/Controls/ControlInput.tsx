@@ -1,20 +1,25 @@
 // import { useEffect, useRef, useState } from "react";
 import ControlGroup from "./ControlGroup";
 // import { TextureLoader } from "three";
-import { inputModes } from "../../store/options";
+import {
+  inputBackgroundOptions,
+  inputModes,
+  invertOptions,
+} from "../../store/options";
 import useStore from "../../store/store";
 // import useCamera from "../../helpers/useCamera";
 import ControlInputText from "./ControlInputText";
 import ControlInputMedia from "./ControlInputMedia";
 import ControlInputCamera from "./ControlInputCamera";
 import { useEffect, useState } from "react";
-import Toggle from "./Toggle";
+import { InputMode } from "../../types";
+import Toggle from "../Core/Toggle";
 
 const ControlInput = () => {
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
 
-  const [inverted, setInverted] = useState("Off");
+  const [inverted, setInverted] = useState(invertOptions[0]);
 
   const inputBackground = useStore((state) => state.inputBackground);
   const setValue = useStore((state) => state.setValue);
@@ -36,54 +41,56 @@ const ControlInput = () => {
     }
   }, [inputMode, patternRef]);
 
-  const handleInputModeChange = (label: string) => {
-    const match = inputModes.find((m) => m.label === label);
+  const handleInputModeChange = <T,>(value: T) => {
+    if (inputMode === value) return;
+    const match = inputModes.find((m) => m === value);
     if (match) {
       setValue("inputMode", match);
     }
   };
 
-  const handleInvert = (label: string) => {
-    if (label === inverted) return;
-    setInverted(label);
-    if (patternRef) {
-      patternRef.uniforms.uInvert.value = label === "On" ? 1 : 0;
+  const handleInvert = <T,>(value: T) => {
+    if (value === inverted) return;
+    const match = invertOptions.find((o) => o === value);
+    if (match) {
+      setInverted(match);
+      if (patternRef) {
+        patternRef.uniforms.uInvert.value = match.value;
+      }
     }
   };
 
-  const handleInputBackground = (label: string) => {
-    if (
-      (label === "On" && inputBackground) ||
-      (label === "Off" && !inputBackground)
-    )
-      return;
-    setValue("inputBackground", label === "On" ? true : false);
-    if (patternRef) {
-      patternRef.uniforms.uInputBackground.value = label === "On" ? 1 : 0;
+  const handleInputBackgroundChange = <T,>(value: T) => {
+    if (inputBackground === value) return;
+    const match = inputBackgroundOptions.find((o) => o === value);
+    if (match) {
+      setValue("inputBackground", match);
+      if (patternRef) {
+        patternRef.uniforms.uInputBackground.value = match.value ? 1 : 0;
+      }
     }
   };
 
   const inputToggle = {
     label: "Mode",
-    options: inputModes.map((m) => ({ label: m.label })),
+    options: inputModes,
+    value: inputMode,
     onChange: handleInputModeChange,
-    isSelected: (label: string) => inputMode.label === label,
   };
 
   const invertToggle = {
     label: "Invert",
-    options: [{ label: "Off" }, { label: "On" }],
+    options: invertOptions,
+    value: inverted,
     onChange: handleInvert,
-    isSelected: (label: string) => inverted === label,
+    // isSelected: (label: string) => inverted === label,
   };
 
   const inputBackgroundToggle = {
     label: "Use as background",
-    options: [{ label: "Off" }, { label: "On" }],
-    onChange: handleInputBackground,
-    isSelected: (label: string) =>
-      (label === "On" && inputBackground) ||
-      (label === "Off" && !inputBackground),
+    options: inputBackgroundOptions,
+    value: inputBackground,
+    onChange: handleInputBackgroundChange,
   };
 
   return (
@@ -104,14 +111,14 @@ const ControlInput = () => {
           </select>
         </div> */}
 
-        <Toggle {...inputToggle} />
+        <Toggle<InputMode> {...inputToggle} />
 
         <div className="flex flex-col gap-y-1">
           <label>Select File</label>
           <div className="flex flex-col">
-            <ControlInputCamera inverted={inverted === "On"} />
-            <ControlInputText inverted={inverted === "On"} />
-            <ControlInputMedia inverted={inverted === "On"} />
+            <ControlInputCamera inverted={inverted.label === "On"} />
+            <ControlInputText inverted={inverted.label === "On"} />
+            <ControlInputMedia inverted={inverted.label === "On"} />
 
             {/* <div className="flex items-center mt-2">
               <div className="flex items-center grow gap-x-2"> */}

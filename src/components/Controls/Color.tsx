@@ -7,7 +7,7 @@ import ControlGroup from "./ControlGroup";
 import ColorIcon from "./ColorIcon";
 
 import TransparentPattern from "/transparent.png";
-import TransparentPattern2 from "/transparent2.png";
+// import TransparentPattern2 from "/transparent2.png";
 
 const Color = () => {
   // const [backgroundColor, setBackgroundColor] = useState(palette[0]);
@@ -47,11 +47,12 @@ const Color = () => {
   useEffect(() => {
     if (canvasRef) {
       if (backgroundColor.label === "Transparent") {
-        canvasRef.style.background = `url(${
-          foregroundColor.label === "Black"
-            ? TransparentPattern
-            : TransparentPattern2
-        }) repeat center`;
+        // canvasRef.style.background = `url(${
+        //   foregroundColor.label === "Black"
+        //     ? TransparentPattern
+        //     : TransparentPattern2
+        // }) repeat center`;
+        canvasRef.style.background = `url(${TransparentPattern}) repeat center`;
       } else {
         canvasRef.style.removeProperty("background");
       }
@@ -59,7 +60,7 @@ const Color = () => {
   }, [foregroundColor, backgroundColor, canvasRef]);
 
   useEffect(() => {
-    if (inputBackground) {
+    if (inputBackground.value) {
       const bg = palette.find((p) => p.label === foregroundColor.pair);
       // console.log(bg, foregroundColor.pair);
       if (bg) {
@@ -79,7 +80,7 @@ const Color = () => {
   }, [foregroundColor, inputBackground, setValue]);
 
   const handleColorSelect = (mode: string, color: ColorInfo) => {
-    if (mode === "Background") {
+    if (mode === "Background" && backgroundColor !== color) {
       setValue("backgroundColor", color);
       const foregroundMatch = palette.find((p) => p.pair === color.label);
       if (foregroundMatch) {
@@ -87,7 +88,8 @@ const Color = () => {
       }
     }
 
-    if (mode === "Foreground") setValue("foregroundColor", color);
+    if (mode === "Foreground" && foregroundColor !== color)
+      setValue("foregroundColor", color);
 
     // if (canvasContainerRef) {
     //   if (mode === "Background")
@@ -134,7 +136,7 @@ const Color = () => {
   // }
 
   const optionsFiltered = options.filter(
-    (o) => !(inputBackground && o.label === "Background")
+    (o) => !(inputBackground.value && o.label === "Background")
   );
 
   const neutrals = ["Gray", "White", "Black", "Transparent"];
@@ -145,12 +147,12 @@ const Color = () => {
       .filter((c) => c !== "Transparent")
       .filter((c) => c !== backgroundColor.label);
   }
-  if (inputBackground) {
+  if (inputBackground.value) {
     foregroundColors = palette
       .map((c) => c.label)
       .filter((c) => c !== "Transparent");
   }
-  if (!inputBackground && backgroundColor.pair)
+  if (!inputBackground.value && backgroundColor.pair)
     foregroundColors.push(backgroundColor.pair);
 
   return (
@@ -181,7 +183,7 @@ const Color = () => {
           </div>
         </div>
       ))}
-      {backgroundColor.label !== "Transparent" && !inputBackground && (
+      {backgroundColor.label !== "Transparent" && !inputBackground.value && (
         <button
           className="mt-2"
           disabled={backgroundColor.label === "Transparent"}

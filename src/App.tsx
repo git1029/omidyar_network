@@ -8,7 +8,7 @@ const App = () => {
 
   return (
     <div className="flex grow text-foreground border-foreground gap-x-0 h-full w-full animate-fade">
-      <Controls />
+      <Controls ffmpeg={ffmpeg} />
       <Scene ffmpeg={ffmpeg} />
       <Entry />
     </div>

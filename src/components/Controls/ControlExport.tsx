@@ -21,6 +21,7 @@ const ControlExport = ({
   const setValue = useStore((state) => state.setValue);
 
   const handleFormatChange = <T,>(value: T) => {
+    if (exportSettings.format === value) return;
     const match = exportFormats.find((format) => format === value);
     if (match) {
       setValue("exportSettings", { ...exportSettings, format: match });

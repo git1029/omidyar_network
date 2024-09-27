@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Scene, Vector3 } from "three";
 import useStore from "../../store/store";
 import FeijoaMedium from "/Feijoa-Medium.otf";
-import TextMaterial from "./TextMaterial";
+// import TextMaterial from "./TextMaterial";
 import { TextAlign } from "../../types";
 
 const TextInput = () => {
@@ -23,7 +23,7 @@ const TextInput = () => {
 
 const TextScene = ({ scene }: { scene: Scene }) => {
   const inputMode = useStore((state) => state.inputMode);
-  const { viewport, camera } = useThree();
+  const { camera } = useThree();
 
   const target = useFBO(512, 512);
 
@@ -39,10 +39,10 @@ const TextScene = ({ scene }: { scene: Scene }) => {
 
   const textSettings = {
     font: FeijoaMedium,
-    fontSize: 1.5,
-    position: new Vector3(0, 0, 0.01),
-    maxWidth: viewport.width,
-    lineHeight: 0.9,
+    fontSize: 2,
+    position: new Vector3(0, 0, 0),
+    maxWidth: 1,
+    lineHeight: 1.05,
     textAlign: "center" as TextAlign,
     // onSync: (text: Text) => {
     //   console.log(text);
@@ -68,13 +68,13 @@ const TextScene = ({ scene }: { scene: Scene }) => {
 
   return (
     <group>
-      <mesh scale={[viewport.width, viewport.height, 1]}>
+      <mesh scale={[1, 1, 1]}>
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial color={0x000000} />
       </mesh>
-      <Text {...textSettings}>
+      <Text {...textSettings} color={0xffffff}>
         {textInput}
-        <TextMaterial />
+        {/* <TextMaterial /> */}
       </Text>
     </group>
   );

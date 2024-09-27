@@ -21,9 +21,10 @@ const TextMaterial = ({
 }) => {
   const ref = useRef<ShaderMaterial>(null);
 
-  const { color, caption, layout, animating, animationSpeed, animationScale } =
+  const { mode, color, layout, animating, animationSpeed, animationScale } =
     useStore((state) => state.text);
   const logo = useStore((state) => state.logo);
+  const caption = useStore((state) => state.caption);
 
   const { viewport } = useThree();
 
@@ -36,6 +37,7 @@ const TextMaterial = ({
       uLayout: new Uniform(0),
       uSpeed: new Uniform(0.5),
       uScale: new Uniform(0.5),
+      uMode: new Uniform(0),
       uId: new Uniform(0),
       uAnimating: new Uniform(0),
       uViewport: new Uniform(new Vector3(1, 1, 1)),
@@ -51,6 +53,13 @@ const TextMaterial = ({
 
   useEffect(() => {
     if (ref.current) {
+      ref.current.uniforms.uMode.value = mode.value;
+      if (mode.value === 2) ref.current.uniforms.uTime.value = 0;
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (ref.current) {
       ref.current.uniforms.uCaption.value.x = caption.trim().length > 0 ? 1 : 0;
     }
   }, [caption]);
@@ -58,12 +67,13 @@ const TextMaterial = ({
   useEffect(() => {
     if (ref.current) {
       ref.current.uniforms.uLayout.value = layout.value;
+      ref.current.uniforms.uTime.value = 0;
     }
   }, [layout]);
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.uniforms.uTime.value = 0;
+      // ref.current.uniforms.uTime.value = 0;
       ref.current.uniforms.uAnimating.value = animating ? 1 : 0;
     }
   }, [animating]);
@@ -90,7 +100,7 @@ const TextMaterial = ({
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.uniforms.uLogo.value = logo ? 1 : 0;
+      ref.current.uniforms.uLogo.value = logo.value > 0 ? 1 : 0;
     }
   }, [logo]);
 
@@ -112,7 +122,7 @@ const TextMaterial = ({
 
   useFrame((_state, delta) => {
     if (ref.current) {
-      ref.current.uniforms.uTime.value += delta;
+      if (animating) ref.current.uniforms.uTime.value += delta;
     }
   });
 

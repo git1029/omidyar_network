@@ -28,12 +28,11 @@ export interface TextLayout {
 }
 
 export interface TextSettings {
-  enabled: boolean;
+  mode: { label: string; value: number };
   layout: TextLayout;
   title: string;
   titleSize: number;
   color: ColorInfo;
-  caption: string;
   animating: boolean;
   animationSpeed: number;
   animationScale: number;
@@ -43,6 +42,11 @@ export interface Upload {
   name: string;
   url: string;
   type: string;
+}
+
+export interface LogoOption {
+  label: string;
+  value: number;
 }
 
 export interface ExportFormat {

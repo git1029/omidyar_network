@@ -1,4 +1,4 @@
-import { useFrame, useThree } from "@react-three/fiber";
+import { createPortal, useFrame, useThree } from "@react-three/fiber";
 import vertexShader from "./shaders/vertex";
 import fragmentShader from "./shaders/fragment";
 import { useEffect, useMemo, useRef } from "react";
@@ -11,6 +11,8 @@ import {
   // LinearFilter,
   Mesh,
   MirroredRepeatWrapping,
+  RGBAFormat,
+  Scene,
   // RepeatWrapping,
   // RGBAFormat,
   // MeshBasicMaterial,
@@ -27,7 +29,12 @@ import {
 } from "three";
 import { palette, gridSettings, patternSettings } from "../../store/options";
 import useStore from "../../store/store";
-import { useTexture, useVideoTexture } from "@react-three/drei";
+import {
+  OrthographicCamera,
+  useFBO,
+  useTexture,
+  useVideoTexture,
+} from "@react-three/drei";
 
 const PatternGL = () => {
   const { viewport } = useThree();
@@ -245,11 +252,21 @@ const PatternGL = () => {
 
   return (
     <>
+      {/* <OrthographicCamera
+        near={-1}
+        far={1}
+        left={-0.5}
+        right={0.5}
+        top={0.5}
+        bottom={-0.5}
+        manual
+        makeDefault
+      /> */}
       {/* <mesh scale={[viewport.width, viewport.height, 1]} position={[0, 0, 0.1]}>
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial ref={test} color={0xff0000} map={null} />
       </mesh> */}
-      <mesh scale={[viewport.width, viewport.height, 1]} ref={ref}>
+      <mesh scale={[1, 1, 1]} ref={ref}>
         <planeGeometry args={[1, 1]} />
         <shaderMaterial
           vertexShader={vertexShader}
@@ -263,4 +280,106 @@ const PatternGL = () => {
   );
 };
 
-export default PatternGL;
+const PatternScene = () => {
+  const { size } = useThree();
+  const scene = useMemo(() => new Scene(), []);
+  const target = useFBO(size.width, size.height, {
+    depthBuffer: false,
+    format: RGBAFormat,
+    // samples: 2,
+  });
+
+  const mat = useRef<ShaderMaterial>(null);
+
+  const backgroundColor = useStore((state) => state.backgroundColor);
+  const foregroundColor = useStore((state) => state.foregroundColor);
+
+  useFrame(({ gl, camera }) => {
+    gl.setRenderTarget(target);
+    gl.render(scene, camera);
+    gl.setRenderTarget(null);
+  });
+
+  const uniforms = useMemo(() => {
+    return {
+      uTex: new Uniform(null),
+      uColor: new Uniform(new Color(0xffffff)),
+      uAlpha: new Uniform(0),
+    };
+  }, []);
+
+  useEffect(() => {
+    if (mat.current) {
+      mat.current.uniforms.uAlpha.value =
+        backgroundColor.label === "Transparent" ? 0 : 1;
+      mat.current.uniforms.uColor.value.set(foregroundColor.hex);
+    }
+  }, [backgroundColor, foregroundColor]);
+
+  useEffect(() => {
+    if (mat.current) {
+      mat.current.uniforms.uTex.value = target.texture;
+    }
+  }, [target]);
+
+  return (
+    <>
+      <OrthographicCamera
+        near={-1}
+        far={1}
+        left={-0.5}
+        right={0.5}
+        top={0.5}
+        bottom={-0.5}
+        manual
+        makeDefault
+      />
+
+      {createPortal(<PatternGL />, scene)}
+
+      <mesh scale={[1, 1, 1]}>
+        <planeGeometry args={[1, 1]} />
+        {/* <meshBasicMaterial
+          map={target.texture}
+          toneMapped={false}
+          transparent={true}
+        /> */}
+        <shaderMaterial
+          ref={mat}
+          vertexShader={
+            /*glsl*/ `
+            varying vec2 vUv;
+            void main() {
+              vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+              vec4 viewPosition = viewMatrix * modelPosition;
+              vec4 projectedPosition = projectionMatrix * viewPosition;
+              gl_Position = projectedPosition;
+          
+              vUv = uv;
+            }
+            `
+          }
+          fragmentShader={
+            /*glsl*/ `
+              uniform sampler2D uTex;
+              uniform vec3 uColor;
+              uniform float uAlpha;
+              varying vec2 vUv;
+              void main() {
+                vec4 c = texture(uTex, vUv);
+                gl_FragColor = vec4(mix(uColor, c.rgb, uAlpha), c.a);
+    // #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+              }
+              `
+          }
+          uniforms={uniforms}
+          // alphaTest={0.95}
+          transparent={true}
+        />
+      </mesh>
+    </>
+  );
+};
+
+export default PatternScene;

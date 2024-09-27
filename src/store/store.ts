@@ -2,8 +2,10 @@ import { create } from "zustand";
 import {
   customLayout,
   exportSettings,
+  inputBackgroundOptions,
   inputModes,
   layouts,
+  logoOptions,
   palette,
   textSettings,
 } from "./options";
@@ -15,6 +17,7 @@ import {
   ExportSettings,
   Modal,
   ColorInfo,
+  LogoOption,
 } from "../types";
 
 interface State {
@@ -24,7 +27,7 @@ interface State {
   inputMode: InputMode;
   cameraStatus: number;
   textInput: string;
-  inputBackground: boolean;
+  inputBackground: { label: string; value: boolean };
 
   canvasSize: { width: number; height: number };
 
@@ -34,10 +37,14 @@ interface State {
   foregroundColor: ColorInfo;
 
   text: TextSettings;
-  logo: boolean;
+  logo: LogoOption;
+  caption: string;
 
   exportSettings: ExportSettings;
   videoDuration: number;
+
+  loaded: boolean;
+  fullscreen: boolean;
 
   patternRef: ShaderMaterial | null;
   textRef: HTMLImageElement | null;
@@ -45,8 +52,6 @@ interface State {
   canvasContainerRef: HTMLDivElement | null;
   canvasRef: HTMLCanvasElement | null;
   modal: Modal | null;
-  loaded: boolean;
-  fullscreen: boolean;
 }
 
 interface Actions {
@@ -59,7 +64,7 @@ const initalState = {
   cameraStatus: 0,
   loaded: false,
   modal: null,
-  inputBackground: false,
+  inputBackground: inputBackgroundOptions[0],
   layout: layouts[0],
 
   backgroundColor: palette[0],
@@ -71,7 +76,8 @@ const initalState = {
   textInput: "Tech",
 
   text: textSettings,
-  logo: false,
+  logo: logoOptions[0],
+  caption: "",
 
   customLayout: customLayout,
   patternRef: null,

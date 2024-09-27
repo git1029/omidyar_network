@@ -1,6 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
-// import PatternGL from "./PatternGL/PatternGL";
+import PatternScene from "./PatternGL/PatternGL";
 import TextInput from "./Text/TextInput";
 import TextLayer from "./Text/TextLayer";
 import useStore from "../store/store";
@@ -21,7 +21,7 @@ import useResize, {
 } from "../helpers/useResize";
 import Modal from "./Modal";
 // import { clamp } from "three/src/math/MathUtils.js";
-import PatternSVG from "./PatternSVG/PatternSVG3b";
+// import PatternSVG from "./PatternSVG/PatternSVG3b";
 
 const Progress = ({
   setAssetsLoaded,
@@ -53,11 +53,10 @@ const Scene = ({
   const layout = useStore((state) => state.layout);
   const setValue = useStore((state) => state.setValue);
 
-  const [assetsLoaded, setAssetsLoaded] = useState(true);
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [canvasLoaded, setCanvasLoaded] = useState(false);
 
   const fullscreen = useStore((state) => state.fullscreen);
-  const canvasSize = useStore((state) => state.canvasSize);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
@@ -95,8 +94,6 @@ const Scene = ({
   // console.log(layout.label.split(":").join("/"));
 
   // const [logo, setLogo] = useState(false);
-  const logo = useStore((state) => state.logo);
-  const { caption } = useStore((state) => state.text);
 
   useResize();
 
@@ -131,26 +128,6 @@ const Scene = ({
   // const w = canvasContainerRef.current
   //   ? (canvasContainerRef.current.offsetWidth * 1) / 34
   //   : 0;
-
-  const w = canvasSize.width / 34;
-
-  // console.log("WIDTH", canvasContainerRef?.current?.offsetWidth);
-
-  const gridStyle = {
-    paddingTop: logo ? w * 2 : w,
-    paddingBottom: caption.length > 0 ? w * 2 : w,
-    paddingLeft: w,
-    paddingRight: w,
-    columnGap: w / 2,
-    rowGap: w / 2,
-  };
-
-  const gridStyle0 = {
-    ...gridStyle,
-    paddingTop: w,
-    paddingBottom: w,
-  };
-
   // console.log(gridStyle, "GRIDSTYLE");
 
   return (
@@ -195,8 +172,8 @@ const Scene = ({
           >
             <Progress setAssetsLoaded={setAssetsLoaded} />
             <TextInput />
-            {/* <PatternGL /> */}
-            <PatternSVG />
+            <PatternScene />
+            {/* <PatternSVG /> */}
             <TextLayer />
             {debug && <Perf />}
             <Renderer ffmpeg={ffmpeg} />
@@ -206,38 +183,69 @@ const Scene = ({
               fullscreen ? "border-0" : "border"
             }`}
           ></div>
-          <div className="top-0 left-0 w-full h-full absolute z-50 pointer-events-none">
-            <div
-              className="absolute top-0 left-0 w-full h-full flex"
-              style={gridStyle0}
-            >
-              <div className="border border-blue-500 grow"></div>
-              <div className="border border-blue-500 grow"></div>
-              <div className="border border-blue-500 grow"></div>
-              <div className="border border-blue-500 grow"></div>
-            </div>
-            <div
-              className="absolute top-0 left-0 w-full h-full flex"
-              style={gridStyle}
-            >
-              <div className="border border-pink-500 grow"></div>
-              <div className="border border-pink-500 grow"></div>
-              <div className="border border-pink-500 grow"></div>
-              <div className="border border-pink-500 grow"></div>
-            </div>
-            <div
-              className="absolute top-0 left-0 w-full h-full flex flex-col"
-              style={gridStyle}
-            >
-              <div className="border border-pink-500 grow"></div>
-              <div className="border border-pink-500 grow"></div>
-              <div className="border border-pink-500 grow"></div>
-              <div className="border border-pink-500 grow"></div>
-            </div>
-          </div>
+          <Grid debug={debug} />
         </div>
       </div>
     </>
+  );
+};
+
+const Grid = ({ debug }: { debug: boolean }) => {
+  const canvasSize = useStore((state) => state.canvasSize);
+  const logo = useStore((state) => state.logo);
+  const caption = useStore((state) => state.caption);
+
+  const w = canvasSize.width / 34;
+
+  // console.log("WIDTH", canvasContainerRef?.current?.offsetWidth);
+
+  const gridStyle = {
+    paddingTop: logo.value > 0 ? w * 2 : w,
+    paddingBottom: caption.length > 0 ? w * 2 : w,
+    paddingLeft: w,
+    paddingRight: w,
+    columnGap: w / 2,
+    rowGap: w / 2,
+  };
+
+  const gridStyle0 = {
+    ...gridStyle,
+    paddingTop: w,
+    paddingBottom: w,
+  };
+
+  if (!debug) return null;
+
+  return (
+    <div className="top-0 left-0 w-full h-full absolute z-50 pointer-events-none">
+      <div
+        className="absolute top-0 left-0 w-full h-full flex"
+        style={gridStyle0}
+      >
+        <div className="border border-blue-500 grow"></div>
+        <div className="border border-blue-500 grow"></div>
+        <div className="border border-blue-500 grow"></div>
+        <div className="border border-blue-500 grow"></div>
+      </div>
+      <div
+        className="absolute top-0 left-0 w-full h-full flex"
+        style={gridStyle}
+      >
+        <div className="border border-pink-500 grow"></div>
+        <div className="border border-pink-500 grow"></div>
+        <div className="border border-pink-500 grow"></div>
+        <div className="border border-pink-500 grow"></div>
+      </div>
+      <div
+        className="absolute top-0 left-0 w-full h-full flex flex-col"
+        style={gridStyle}
+      >
+        <div className="border border-pink-500 grow"></div>
+        <div className="border border-pink-500 grow"></div>
+        <div className="border border-pink-500 grow"></div>
+        <div className="border border-pink-500 grow"></div>
+      </div>
+    </div>
   );
 };
 

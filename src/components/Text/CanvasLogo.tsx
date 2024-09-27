@@ -4,6 +4,8 @@ import { useThree } from "@react-three/fiber";
 import useStore from "../../store/store";
 
 import LogoFull from "/logo_full.svg";
+import LogoEmblem from "/logo.svg";
+// import Logo from "../Logo";
 
 const CanvasLogo = () => {
   const { size } = useThree();
@@ -15,13 +17,15 @@ const CanvasLogo = () => {
   const [offscreen] = useState(new OffscreenCanvas(1000, 1000));
   const [glo] = useState(offscreen.getContext("2d"));
   const [tex, setTex] = useState(new CanvasTexture(offscreen));
-  const [image] = useState(new Image());
+  const [imageFull] = useState(new Image());
+  const [imageEmblem] = useState(new Image());
 
   useEffect(() => {
     setValue("canvasSize", { width: size.width, height: size.height });
   }, [size, setValue]);
 
   const [logoSrc, setLogoSrc] = useState(LogoFull);
+  const [logoSrcEmblem, setLogoSrcEmblem] = useState(LogoEmblem);
 
   useEffect(() => {
     // Convert logo to base64 string for image src so can adjust color before drawing to canvas
@@ -31,18 +35,40 @@ const CanvasLogo = () => {
       setLogoSrc(logoText);
       // const logoTextColor = logoText.replace("#3A3A3A", color.hex);
       const svg64 = btoa(logoText);
-      image.src = "data:image/svg+xml;base64," + svg64;
+      imageFull.src = "data:image/svg+xml;base64," + svg64;
+      return logoText;
     };
 
     getSVG();
-  }, [image]);
+  }, [imageFull]);
+
+  useEffect(() => {
+    // Convert logo to base64 string for image src so can adjust color before drawing to canvas
+    const getSVG = async () => {
+      const logo = await fetch(LogoEmblem);
+      const logoText = await logo.text();
+      setLogoSrcEmblem(logoText);
+      // const logoTextColor = logoText.replace("#3A3A3A", color.hex);
+      const svg64 = btoa(logoText);
+      imageEmblem.src = "data:image/svg+xml;base64," + svg64;
+      return logoText;
+    };
+
+    getSVG();
+  }, [imageEmblem]);
 
   useEffect(() => {
     // Replace svg file fill color with text color
-    const logoTextColor = logoSrc.replace("#3A3A3A", color.hex);
+    if (logo.value === 0) return;
+    const logoTextColor =
+      logo.value === 2
+        ? logoSrcEmblem.replace("#3A3A3A", color.hex)
+        : logoSrc.replace("#3A3A3A", color.hex);
     const svg64 = btoa(logoTextColor);
-    image.src = "data:image/svg+xml;base64," + svg64;
-  }, [color, image, logoSrc]);
+    if (logo.value === 1) imageFull.src = "data:image/svg+xml;base64," + svg64;
+    else if (logo.value === 2)
+      imageEmblem.src = "data:image/svg+xml;base64," + svg64;
+  }, [color, imageFull, imageEmblem, logoSrc, logoSrcEmblem, logo]);
   // console.log(svg);
   //   const XML = new XMLSerializer().serializeToString(svg);
   // const SVG64 = btoa(XML);
@@ -84,13 +110,16 @@ const CanvasLogo = () => {
     offscreen.width = size.width;
     offscreen.height = size.height;
 
+    const image = logo.value === 2 ? imageEmblem : imageFull;
+
     const pad = 1 / 34;
     const padX = pad;
 
     const grid = 4;
     const colw = (1 - padX * 2 - (grid - 1) * (padX * 0.5)) / grid;
     const spanx = 1;
-    const wtotal = colw * spanx + (Math.max(0, spanx - 1) * padX) / 2;
+    let wtotal = colw * spanx + (Math.max(0, spanx - 1) * padX) / 2;
+    if (logo.value === 2) wtotal /= 6; // if emblem reduce to 1/6th column width
     const scl = (wtotal * size.width) / image.width;
 
     if (glo) {
@@ -105,15 +134,23 @@ const CanvasLogo = () => {
       tex.dispose();
       setTex(new CanvasTexture(offscreen));
     }
-  }, [offscreen, image, glo, size]);
+  }, [offscreen, imageFull, imageEmblem, glo, size, logo]);
 
   useEffect(() => {
     // image.src = LogoFull;
-    image.onload = () => {
+    imageFull.onload = () => {
       // tex.dispose();
       drawLogo();
     };
-  }, [image, drawLogo]);
+  }, [imageFull, drawLogo]);
+
+  useEffect(() => {
+    // image.src = LogoFull;
+    imageEmblem.onload = () => {
+      // tex.dispose();
+      drawLogo();
+    };
+  }, [imageEmblem, drawLogo]);
 
   useEffect(() => {
     // tex.dispose();
@@ -121,7 +158,7 @@ const CanvasLogo = () => {
   }, [size, drawLogo]);
 
   return (
-    <mesh visible={logo}>
+    <mesh visible={logo.value > 0}>
       <planeGeometry args={[1, 1]} />
       <meshBasicMaterial transparent={true} map={tex} toneMapped={false} />
     </mesh>

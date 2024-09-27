@@ -3,9 +3,15 @@ import {
   ColorInfo,
   InputMode,
   Layout,
+  LogoOption,
   TextLayout,
   TextSettings,
 } from "../types";
+
+import IconArrowX from "/icon_arrow_x.svg";
+import IconArrowY from "/icon_arrow_y.svg";
+import IconArrowDiag1 from "/icon_arrow_diag_1.svg";
+import IconArrowDiag2 from "/icon_arrow_diag_2.svg";
 
 const paletteNeutral = [
   {
@@ -227,13 +233,18 @@ export const textLayoutOptions: TextLayout[] = [
   },
 ];
 
+export const textModeOptions = [
+  { label: "Off", value: 0 },
+  { label: "Static", value: 1 },
+  { label: "Animation", value: 2 },
+];
+
 export const textSettings: TextSettings = {
-  enabled: true,
+  mode: textModeOptions[0],
   layout: textLayoutOptions[0],
   title: "Shaping\nTomorrow",
   titleSize: 5,
   color: textPalette[0],
-  caption: "",
   animating: false,
   animationSpeed: 0.3333,
   animationScale: 0,
@@ -249,6 +260,38 @@ export const exportSettings = {
   format: exportFormats[0],
   exporting: false,
 };
+
+export const logoOptions: LogoOption[] = [
+  { label: "Off", value: 0 },
+  { label: "Full Logo", value: 1 },
+  { label: "Emblem Only", value: 2 },
+];
+
+export const inputBackgroundOptions = [
+  { label: "Off", value: false },
+  { label: "On", value: true },
+];
+
+export const invertOptions = [
+  { label: "Off", value: 0 },
+  { label: "On", value: 1 },
+];
+
+export const gridOptions = [
+  {
+    label: "Square",
+    value: 0,
+  },
+  {
+    label: "Isometric",
+    value: 1,
+  },
+];
+
+export const connectorOptions = [
+  { label: "A", icon: [IconArrowX, IconArrowDiag1] },
+  { label: "B", icon: [IconArrowY, IconArrowDiag2] },
+];
 
 // const maxWidthAspect = Math.max(
 //   ...layouts.map((l) => l.size.width / l.size.height)

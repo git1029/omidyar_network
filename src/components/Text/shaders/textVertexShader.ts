@@ -4,6 +4,7 @@ const textVertexShader = /* glsl */ `
   uniform float uId;
   uniform float uLogo;
   uniform float uLayout;
+  uniform float uMode;
   uniform vec2 uCaption;
   uniform vec3 uViewport;
   uniform float uSpeed;
@@ -135,9 +136,10 @@ const textVertexShader = /* glsl */ `
       else if (uId == 2.) xy = vec2(0., 2.);
       else if (uId == 3.) xy = vec2(2., 3.);
     }
-    else if (uLayout == 2.) xy = vec2(2., 0.);
+    // else if (uLayout == 2.) xy = vec2(2., 0.);
+    else if (uLayout == 2.) xy = vec2(2., 1.);
 
-    if (uCaption.y == 0. && uAnimating == 1.) {
+    if (uCaption.y == 0. && uMode == 2.) {
       if (uLayout == 0.) {
         if (uId == 0.) xy = vec2(0., 0.);
         if (uId == 1.) xy = vec2(2., 0.);
@@ -183,7 +185,7 @@ const textVertexShader = /* glsl */ `
 
     vec2 offset = vec2(0.);
 
-    if (uCaption.y == 0. && uAnimating == 1.) {
+    if (uCaption.y == 0. && uMode == 2.) {
       if (uLayout == 0.) {
         g.pos.y = 0.;
 
@@ -368,19 +370,19 @@ const textVertexShader = /* glsl */ `
       }
 
       if (uLayout == 2.) {
-        float steps = 2.;
+        float steps = 4.;
         float ld = 1.5 / speed;
         float off = (1.-xy.x) * .0 + (1.-xy.y)*.0;
         // off *= ld * steps;
         // off = xy.y * 1.6 + (3.-xy.x) * .25;
-        off = (xy.y) * 1.5;
+        off = (1.-mod(xy.y, 2.)) * 1.5;
         off *= (ld/1.5);
 
         float offm = 3. * 1.5 * ld/1.5;
 
         // max duration for complete animation
         // max offset 
-        float dmax = (offm + steps * ld);
+        float dmax = (offm + (steps - 2.) * ld);
         float time = mod(uTime, nearestHalfUp(dmax));
 
         float tmax = time / dmax;
@@ -425,6 +427,8 @@ const textVertexShader = /* glsl */ `
 
         if (s == 0.) startX = -w;
         if (s == 1.) startX = 0.;
+        if (s == 2.) startX = -w;
+        if (s == 3.) startX = 0.;
         // if (s >= 2.) startX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
         // if (s == 3.) startX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
         // if (s == 4.) startX = getPos(vec2(xy.x, 0.)).pos.y;
@@ -433,6 +437,8 @@ const textVertexShader = /* glsl */ `
 
         if (s == 0.) endX = 0.;
         if (s == 1.) endX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
+        if (s == 2.) endX = 0.;
+        if (s == 3.) endX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
         // if (s >= 2.) endX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
         // if (s == 3.) endX = getPos(vec2(xy.x + 3., xy.y)).pos.x - g.pos.x;
         // if (s == 4.) endX = .5 + g.scl.y * g.textSize.y;
@@ -461,6 +467,8 @@ const textVertexShader = /* glsl */ `
 
         if (s == 0.) a.x = 1.-t;
         else if (s == 1.) a.x = t;
+        if (s == 2.) a.x = 1.-t;
+        else if (s == 3.) a.x = t;
         // else a.x = 0.;
         a.y = s;
         // offset.y += offy;

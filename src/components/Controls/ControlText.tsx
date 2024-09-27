@@ -3,6 +3,7 @@ import ControlGroup from "./ControlGroup";
 import useStore from "../../store/store";
 import {
   textLayoutOptions,
+  textModeOptions,
   textPalette,
   textSettings,
 } from "../../store/options";
@@ -19,13 +20,17 @@ const ControlText = () => {
 
   const backgroundColor = useStore((state) => state.backgroundColor);
   const foregroundColor = useStore((state) => state.foregroundColor);
-  const logo = useStore((state) => state.logo);
+  // const logo = useStore((state) => state.logo);
 
   // const backgroundColor = useStore((state) => state.bac);
   const setValue = useStore((state) => state.setValue);
 
-  const handleEnableText = () => {
-    setValue("text", { ...text, enabled: !text.enabled });
+  const handleTextModeChange = <T,>(value: T) => {
+    if (text.mode === value) return;
+    const match = textModeOptions.find((o) => o === value);
+    if (match) {
+      setValue("text", { ...text, animating: match.value === 2, mode: match });
+    }
   };
 
   const handleColorChange = (c: ColorInfo) => {
@@ -79,6 +84,13 @@ const ControlText = () => {
     },
   };
 
+  const modeToggleProps = {
+    label: "Mode",
+    options: textModeOptions,
+    value: text.mode,
+    onChange: handleTextModeChange,
+  };
+
   const layoutToggleProps = {
     label: "Layout",
     options: textLayoutOptions,
@@ -102,14 +114,19 @@ const ControlText = () => {
 
   return (
     <ControlGroup title="Text">
-      <Control label="Enabled">
+      {/* <Control label="Enabled">
         <button onClick={handleEnableText}>
           {text.enabled ? "Hide" : "Show"} Text
         </button>
-      </Control>
+      </Control> */}
+      <Toggle {...modeToggleProps} />
 
-      {/* <div className={`flex-col gap-y-3 ${text.enabled ? "flex" : "hidden"}`}> */}
-      <div className={`flex flex-col gap-y-3`}>
+      <div
+        className={`flex-col gap-y-3 ${
+          text.mode.value > 0 ? "flex" : "hidden"
+        }`}
+      >
+        {/* <div className={`flex-col gap-y-3 ${text.enabled ? "flex" : "hidden"}`}> */}
         <Toggle<TextLayout> {...layoutToggleProps} />
 
         <Control label="Title">
@@ -121,49 +138,39 @@ const ControlText = () => {
             }
           />
         </Control>
+      </div>
 
-        <Control label="Caption">
-          <textarea
-            rows={1}
-            className="font-sans"
-            onChange={(e) =>
-              setValue("text", { ...text, caption: e.target.value })
-            }
-          ></textarea>
-        </Control>
+      <Control label="Color">
+        <div className="flex gap-x-0.5 p-1 border border-foreground/50 rounded-md w-fit">
+          {textPaletteFiltered.map((c) => {
+            // const selected = isSelected(color.label, c.label);
+            // const onClick = () => handleColorSelect(color.label, c);
+            // if (c === undefined) return null;
 
-        <Control label="Logo">
-          <button onClick={() => setValue("logo", !logo)}>
-            {logo ? "Hide" : "Show"} Logo
-          </button>
-        </Control>
+            return (
+              <ColorIcon
+                key={`color-${c.label}`}
+                color={c}
+                selected={text.color.label === c.label}
+                onClick={() => handleColorChange(c)}
+              />
+            );
+          })}
+        </div>
+      </Control>
 
-        <Control label="Color">
-          <div className="flex gap-x-0.5 p-1 border border-foreground/50 rounded-md w-fit">
-            {textPaletteFiltered.map((c) => {
-              // const selected = isSelected(color.label, c.label);
-              // const onClick = () => handleColorSelect(color.label, c);
-              // if (c === undefined) return null;
-
-              return (
-                <ColorIcon
-                  key={`color-${c.label}`}
-                  color={c}
-                  selected={text.color.label === c.label}
-                  onClick={() => handleColorChange(c)}
-                />
-              );
-            })}
-          </div>
-        </Control>
-
+      <div
+        className={`flex-col gap-y-3 ${
+          text.mode.value === 2 ? "flex" : "hidden"
+        }`}
+      >
         <Control label="Animation">
           <button
             onClick={() =>
               setValue("text", { ...text, animating: !text.animating })
             }
           >
-            {text.animating ? "Stop" : "Play"}
+            {text.animating ? "Pause" : "Play"}
           </button>
         </Control>
 

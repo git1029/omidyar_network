@@ -1,49 +1,27 @@
 import { useState } from "react";
-import { gridSettings } from "../../store/options";
+import {
+  connectorOptions,
+  gridOptions,
+  gridSettings,
+} from "../../store/options";
 import useStore from "../../store/store";
 // import ControlGroup from "./ControlGroup";
 import Slider from "../Core/Slider";
-import IconArrowX from "/icon_arrow_x.svg";
-import IconArrowY from "/icon_arrow_y.svg";
-import IconArrowDiag1 from "/icon_arrow_diag_1.svg";
-import IconArrowDiag2 from "/icon_arrow_diag_2.svg";
-import Toggle from "./Toggle";
+// import Toggle from "./Toggle";
+import Toggle from "../Core/Toggle";
+import Control from "../Core/Control";
 // import ControlRatio from "./ControlRatio";
 
 const ControlGrid = () => {
   // const setGrid = useStore((state) => state.setGrid);
 
-  const gridOptions = [
-    {
-      label: "Square",
-      value: 0,
-      connectors: [
-        { label: "sqr-x", icon: IconArrowX },
-        { label: "sqr-y", icon: IconArrowY },
-      ],
-    },
-    {
-      label: "Isometric",
-      value: 1,
-      connectors: [
-        { label: "iso-1", icon: IconArrowDiag1 },
-        { label: "iso-2", icon: IconArrowDiag2 },
-      ],
-    },
-  ];
-
   const patternRef = useStore((state) => state.patternRef);
 
-  let defaultGrid = gridOptions.find((o) => o.value === gridSettings.gridType);
-  if (!defaultGrid) defaultGrid = gridOptions[0];
+  const [grid, setGridOption] = useState(gridOptions[0]);
+  const [gridConnectors, setGridConnectors] = useState([true, false]);
 
-  const [grid, setGridOption] = useState(defaultGrid);
-  const [gridConnectors, setGridConnectors] = useState(
-    gridSettings.gridConnectors
-  );
-
-  const handleGridTypeChange = (label: string) => {
-    const match = gridOptions.find((o) => o.label === label);
+  const handleGridTypeChange = <T,>(value: T) => {
+    const match = gridOptions.find((o) => o === value);
     if (match) {
       setGridOption(match);
 
@@ -66,28 +44,28 @@ const ControlGrid = () => {
   //   }
   // };
 
-  const handleGridConnectorChange = (label: string) => {
-    const match = gridOptions.find((o) => o.value === grid.value);
-    if (match) {
-      const connectors = match.connectors;
-      const index = connectors.map((c) => c.label).indexOf(label);
-      const c = [...gridConnectors];
-      if (c[index] && c.filter((c) => !c).length > 0) return;
-      c[index] = !c[index];
-      setGridConnectors(c);
+  // const handleGridConnectorChange = (label: string) => {
+  //   const match = gridOptions.find((o) => o.value === grid.value);
+  //   if (match) {
+  //     const connectors = match.connectors;
+  //     const index = connectors.map((c) => c.label).indexOf(label);
+  //     const c = [...gridConnectors];
+  //     if (c[index] && c.filter((c) => !c).length > 0) return;
+  //     c[index] = !c[index];
+  //     setGridConnectors(c);
 
-      if (patternRef) {
-        patternRef.uniforms.uConnectors.value.set(
-          ...c.map((c) => (c === true ? 1 : 0))
-        );
-      }
-    }
+  //     if (patternRef) {
+  //       patternRef.uniforms.uConnectors.value.set(
+  //         ...c.map((c) => (c === true ? 1 : 0))
+  //       );
+  //     }
+  //   }
 
-    // const connectors = [...gridConnectors];
-    // if (connectors[index] && connectors.filter((c) => !c).length > 0) return;
-    // connectors[index] = !connectors[index];
-    // setGridConnectors(connectors);
-  };
+  //   // const connectors = [...gridConnectors];
+  //   // if (connectors[index] && connectors.filter((c) => !c).length > 0) return;
+  //   // connectors[index] = !connectors[index];
+  //   // setGridConnectors(connectors);
+  // };
 
   const gridSliders = [
     {
@@ -106,20 +84,32 @@ const ControlGrid = () => {
 
   const gridToggle = {
     label: "Grid",
-    options: gridOptions.map((o) => ({ label: o.label })),
+    options: gridOptions,
+    value: grid,
     onChange: handleGridTypeChange,
-    isSelected: (label: string) => grid.label === label,
   };
 
-  const connectorToggle = {
-    label: "Connectors",
-    iconOnly: true,
-    options: gridOptions[grid.value].connectors,
-    onChange: handleGridConnectorChange,
-    isSelected: (label: string) =>
-      gridConnectors[
-        gridOptions[grid.value].connectors.map((c) => c.label).indexOf(label)
-      ],
+  // const connectorToggle = {
+  //   label: "Connectors",
+  //   iconOnly: true,
+  //   options: gridOptions[grid.value].connectors,
+  //   onChange: handleGridConnectorChange,
+  //   isSelected: (label: string) =>
+  //     gridConnectors[
+  //       gridOptions[grid.value].connectors.map((c) => c.label).indexOf(label)
+  //     ],
+  // };
+
+  const handleConnectorChange = (i: number) => {
+    const connectors = [...gridConnectors];
+    if (connectors[i] && connectors.filter((c) => !c).length > 0) return;
+    connectors[i] = !connectors[i];
+    setGridConnectors(connectors);
+    if (patternRef) {
+      patternRef.uniforms.uConnectors.value.set(
+        ...connectors.map((c) => (c ? 1 : 0))
+      );
+    }
   };
 
   return (
@@ -154,7 +144,24 @@ const ControlGrid = () => {
           ))}
         </div>
       </div> */}
-      <Toggle {...connectorToggle} />
+      <Control label="Connectors">
+        <div className="flex gap-x-1">
+          {connectorOptions.map((o, i) => (
+            <div
+              key={o.label}
+              className={`w-8 h-8 border rounded-md cursor-pointer ${
+                gridConnectors[i]
+                  ? "bg-foreground/5 border-foreground"
+                  : "border-foreground/50"
+              }`}
+              onClick={() => handleConnectorChange(i)}
+            >
+              <img src={o.icon[grid.value]} />
+            </div>
+          ))}
+        </div>
+      </Control>
+      {/* <Toggle {...connectorToggle} /> */}
       <div>
         {gridSliders.map((slider) => (
           <Slider key={slider.label} {...slider} />
