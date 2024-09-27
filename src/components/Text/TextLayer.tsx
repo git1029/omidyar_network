@@ -16,6 +16,7 @@ const TextLayer = () => {
     (state) => state.text
   );
   const caption = useStore((state) => state.caption);
+  const fullscreen = useStore((state) => state.fullscreen);
 
   const textGroup = useRef<Group>(null);
 
@@ -128,31 +129,33 @@ const TextLayer = () => {
 
   return (
     <>
-      <CanvasLogo />
+      <group visible={!fullscreen}>
+        <CanvasLogo />
 
-      <Text
-        {...captionSettings}
-        anchorX="left"
-        anchorY="top"
-        visible={caption.trim().length > 0}
-      >
-        {caption.trim().toUpperCase()}
-        <TextMaterial isCaption={true} />
-      </Text>
+        <Text
+          {...captionSettings}
+          anchorX="left"
+          anchorY="top"
+          visible={caption.trim().length > 0}
+        >
+          {caption.trim().toUpperCase()}
+          <TextMaterial isCaption={true} />
+        </Text>
 
-      <group ref={textGroup} visible={mode.value > 0}>
-        {textLayers.map((_l, i) => (
-          <Text
-            key={`text_layer_${i}`}
-            {...textSettings}
-            anchorX="left"
-            anchorY="top"
-            visible={isVisible(i)}
-          >
-            {title.trim()}
-            <TextMaterial id={i} />
-          </Text>
-        ))}
+        <group ref={textGroup} visible={mode.value > 0}>
+          {textLayers.map((_l, i) => (
+            <Text
+              key={`text_layer_${i}`}
+              {...textSettings}
+              anchorX="left"
+              anchorY="top"
+              visible={isVisible(i)}
+            >
+              {title.trim()}
+              <TextMaterial id={i} />
+            </Text>
+          ))}
+        </group>
       </group>
     </>
   );

@@ -1,6 +1,5 @@
 import { Canvas } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
-import PatternScene from "./PatternGL/PatternGL";
 import TextInput from "./Text/TextInput";
 import TextLayer from "./Text/TextLayer";
 import useStore from "../store/store";
@@ -20,6 +19,7 @@ import useResize, {
   scaleCanvasScreen,
 } from "../helpers/useResize";
 import Modal from "./Modal";
+import Pattern from "./Pattern/Pattern";
 // import { clamp } from "three/src/math/MathUtils.js";
 // import PatternSVG from "./PatternSVG/PatternSVG3b";
 
@@ -172,7 +172,7 @@ const Scene = ({
           >
             <Progress setAssetsLoaded={setAssetsLoaded} />
             <TextInput />
-            <PatternScene />
+            <Pattern />
             {/* <PatternSVG /> */}
             <TextLayer />
             {debug && <Perf />}

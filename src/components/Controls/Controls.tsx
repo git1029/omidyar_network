@@ -65,8 +65,8 @@ const Controls = ({
           style={{ scrollbarColor: "rgb(var(--foreground-color)) transparent" }}
         >
           <p className="font-serif">
-            Design a digital pattern that's uniquely yours. Upload media that
-            represents you, customize the design, and export your personalized
+            Design a pattern that reflects our shared identity. Upload media
+            that represents Omidyar Network, customize the design, and export a
             creation for any need.
           </p>
           <div className="flex flex-col gap-y-1">

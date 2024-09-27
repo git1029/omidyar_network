@@ -47,6 +47,8 @@ interface State {
   fullscreen: boolean;
 
   patternRef: ShaderMaterial | null;
+  effectRef: ShaderMaterial | null;
+  displayRef: ShaderMaterial | null;
   textRef: HTMLImageElement | null;
   cameraRef: HTMLVideoElement | null;
   canvasContainerRef: HTMLDivElement | null;
@@ -81,6 +83,8 @@ const initalState = {
 
   customLayout: customLayout,
   patternRef: null,
+  effectRef: null,
+  displayRef: null,
   cameraRef: null,
   canvasRef: null,
   canvasContainerRef: null,

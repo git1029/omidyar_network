@@ -35,6 +35,7 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
 
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
+  const displayRef = useStore((state) => state.displayRef);
   const setValue = useStore((state) => state.setValue);
 
   const { loadFile } = useUpload();
@@ -63,12 +64,19 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
         texture.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
         texture.needsUpdate = true;
 
+        const { width, height } = texture.image;
+        const aspect = width > 0 && height > 0 ? width / height : 1;
+
         if (patternRef) {
           // console.log(width, height);
           patternRef.uniforms.uImage.value = texture;
-          const { width, height } = texture.image;
-          if (width > 0 && height > 0)
-            patternRef.uniforms.uInputAspect.value.x = width / height;
+          patternRef.uniforms.uInputAspect.value.x = aspect;
+        }
+
+        if (displayRef) {
+          // console.log(width, height);
+          displayRef.uniforms.uImage.value = texture;
+          displayRef.uniforms.uInputAspect.value.x = aspect;
         }
       });
     } else if (inputMode.value === 1) {
@@ -90,32 +98,38 @@ const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
             patternRef.uniforms.uVideo.value.dispose();
           }
           patternRef.uniforms.uVideo.value = texture;
-
-          // Video width/height available once metadata has loaded
-          (texture.image as HTMLVideoElement).addEventListener(
-            "loadedmetadata",
-            () => {
-              const { videoWidth, videoHeight, duration } = texture.image;
-
-              if (videoWidth > 0 && videoHeight > 0) {
-                patternRef.uniforms.uInputAspect.value.y =
-                  videoWidth / videoHeight;
-              } else {
-                console.warn(
-                  "Unable to access video width and height or have zero value"
-                );
-              }
-
-              if (!isNaN(duration) && duration > 0) {
-                setValue("videoDuration", duration);
-              } else {
-                console.warn(
-                  "Unable to access video duration or has zero value"
-                );
-              }
-            }
-          );
         }
+
+        if (displayRef) {
+          if (displayRef.uniforms.uVideo.value) {
+            displayRef.uniforms.uVideo.value.dispose();
+          }
+          displayRef.uniforms.uVideo.value = texture;
+        }
+
+        // Video width/height available once metadata has loaded
+        (texture.image as HTMLVideoElement).addEventListener(
+          "loadedmetadata",
+          () => {
+            const { videoWidth, videoHeight, duration } = texture.image;
+
+            if (videoWidth > 0 && videoHeight > 0) {
+              const aspect = videoWidth / videoHeight;
+              if (patternRef) patternRef.uniforms.uInputAspect.value.y = aspect;
+              if (displayRef) displayRef.uniforms.uInputAspect.value.y = aspect;
+            } else {
+              console.warn(
+                "Unable to access video width and height or have zero value"
+              );
+            }
+
+            if (!isNaN(duration) && duration > 0) {
+              setValue("videoDuration", duration);
+            } else {
+              console.warn("Unable to access video duration or has zero value");
+            }
+          }
+        );
       }
     }
   };
