@@ -181,6 +181,12 @@ export const scaleCanvas = (
       if (height % 2 === 1) {
         height = height + 1;
       }
+
+      // Halve video export (4k -> 1080p)
+      if (layout.label !== "Custom") {
+        width /= 2;
+        height /= 2;
+      }
     }
   }
 

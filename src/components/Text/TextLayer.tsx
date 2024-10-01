@@ -8,14 +8,12 @@ import { TextAlign } from "../../types";
 import TextMaterial from "./TextMaterial";
 
 import FeijoaMedium from "/Feijoa-Medium.otf";
-import F37LinecaMedium from "/F37Lineca-Medium.ttf";
-import CanvasLogo from "./CanvasLogo";
+// import CanvasLogo from "./CanvasLogo";
 
 const TextLayer = () => {
   const { mode, title, layout, animationScale } = useStore(
     (state) => state.text
   );
-  const caption = useStore((state) => state.caption);
   const fullscreen = useStore((state) => state.fullscreen);
 
   const textGroup = useRef<Group>(null);
@@ -120,27 +118,10 @@ const TextLayer = () => {
     onSync,
   };
 
-  const captionSettings = {
-    font: F37LinecaMedium,
-    fontSize: 0.1,
-    textAlign: "left" as TextAlign,
-    onSync,
-  };
-
   return (
     <>
       <group visible={!fullscreen}>
-        <CanvasLogo />
-
-        <Text
-          {...captionSettings}
-          anchorX="left"
-          anchorY="top"
-          visible={caption.trim().length > 0}
-        >
-          {caption.trim().toUpperCase()}
-          <TextMaterial isCaption={true} />
-        </Text>
+        {/* <CanvasLogo /> */}
 
         <group ref={textGroup} visible={mode.value > 0}>
           {textLayers.map((_l, i) => (

@@ -80,14 +80,14 @@ const TextMaterial = ({
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.uniforms.uTime.value = 0;
+      // ref.current.uniforms.uTime.value = 0;
       ref.current.uniforms.uSpeed.value = animationSpeed;
     }
   }, [animationSpeed]);
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.uniforms.uTime.value = 0;
+      // ref.current.uniforms.uTime.value = 0;
       ref.current.uniforms.uScale.value = animationScale;
     }
   }, [animationScale]);

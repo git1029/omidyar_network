@@ -1,11 +1,11 @@
 import { patternEffectOptions, patternSettings } from "../../store/options";
 import useStore from "../../store/store";
 
-import ControlGroup from "./ControlGroup";
+import ControlGroup from "../Core/ControlGroup";
 import Slider from "../Core/Slider";
 import Toggle from "../Core/Toggle";
 import Control from "../Core/Control";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 // import Control from "../Core/Control";
 
 const Pattern = () => {
@@ -13,6 +13,9 @@ const Pattern = () => {
   const effectRef = useStore((state) => state.effectRef);
 
   const [effectMode, setEffectMode] = useState(patternEffectOptions.enabled[0]);
+  const [effectStyle, setEffectStyle] = useState(
+    patternEffectOptions.styles[0]
+  );
 
   const patternSliders = [
     {
@@ -42,9 +45,7 @@ const Pattern = () => {
       setEffectMode(match);
       if (effectRef) {
         effectRef.uniforms.uEffect.value.x = match.value;
-      }
-      if (patternRef) {
-        patternRef.uniforms.uEffect.value.x = match.value;
+        effectRef.uniforms.uTime.value = 0;
       }
     }
   };
@@ -54,6 +55,19 @@ const Pattern = () => {
     options: patternEffectOptions.enabled,
     value: effectMode,
     onChange: handlePatternEffectChange,
+  };
+
+  const handleEffectStyleChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const match = patternEffectOptions.styles.find(
+      (o) => o.value === Number(e.target.value)
+    );
+    if (match) {
+      setEffectStyle(match);
+      if (effectRef) {
+        effectRef.uniforms.uEffect.value.y = match.value;
+        effectRef.uniforms.uTime.value = 0;
+      }
+    }
   };
 
   return (
@@ -66,10 +80,12 @@ const Pattern = () => {
 
       <div className={effectMode.value === 1 ? "flex" : "hidden"}>
         <Control label="Effect Style">
-          <select>
-            <option>Style 1</option>
-            <option>Style 2</option>
-            <option>Style 3</option>
+          <select value={effectStyle.value} onChange={handleEffectStyleChange}>
+            {patternEffectOptions.styles.map((o) => (
+              <option key={o.label} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
         </Control>
       </div>

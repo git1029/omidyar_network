@@ -85,12 +85,12 @@ const textVertexShader = /* glsl */ `
 
     // Add margin if logo and/or caption to calculate correct row height
     float marginY2 = 0.;
-    if (uLogo == 1.) marginY2 += marginY;
+    // if (uLogo == 1.) marginY2 += marginY;
     if (uCaption.x == 1.) marginY2 += marginY;
 
     // Add margin if logo to calculate correct y position
     float marginY3 = 0.;
-    if (uLogo == 1.) marginY3 += marginY;
+    // if (uLogo == 1.) marginY3 += marginY;
 
     float cWidth = (1.- margin.x * 2. - (grid - 1.) * gap.x) / grid;
     float rHeight = (1. - margin.y * 2. - (grid - 1.) * gap.y - marginY2) / grid;

@@ -5,7 +5,7 @@
 @layer base {
   @font-face {
     font-family: F37LinecaMedium;
-    src: url("/F37Lineca-Medium.ttf") format("truetype");
+    src: url("/F37Lineca-Medium.otf") format("opentype");
   }
 
   @font-face {

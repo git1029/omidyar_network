@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from "react";
 import { layouts } from "../../store/options";
 import useStore from "../../store/store";
-import ControlGroup from "./ControlGroup";
+import ControlGroup from "../Core/ControlGroup";
 import ControlGrid from "./ControlGrid";
 import Toggle from "../Core/Toggle";
 import { Layout } from "../../types";

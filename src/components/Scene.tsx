@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
 import TextInput from "./Text/TextInput";
-import TextLayer from "./Text/TextLayer";
+// import TextLayer from "./Text/TextLayer";
 import useStore from "../store/store";
 import {
   MutableRefObject,
@@ -11,7 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useProgress } from "@react-three/drei";
+import { OrthographicCamera, useProgress } from "@react-three/drei";
 // import Logo from "/logo_light.svg";
 import Renderer from "./Renderer/Renderer";
 import useResize, {
@@ -20,6 +20,9 @@ import useResize, {
 } from "../helpers/useResize";
 import Modal from "./Modal";
 import Pattern from "./Pattern/Pattern";
+import Background from "./Background/Background";
+import TextCaption from "./Text/TextCaption";
+import CanvasLogo from "./Text/CanvasLogo";
 // import { clamp } from "three/src/math/MathUtils.js";
 // import PatternSVG from "./PatternSVG/PatternSVG3b";
 
@@ -170,11 +173,25 @@ const Scene = ({
             // }}
             gl={{ preserveDrawingBuffer: true }}
           >
+            <OrthographicCamera
+              near={-1}
+              far={1}
+              left={-0.5}
+              right={0.5}
+              top={0.5}
+              bottom={-0.5}
+              manual
+              makeDefault
+            />
+
             <Progress setAssetsLoaded={setAssetsLoaded} />
             <TextInput />
-            <Pattern />
+            <Background />
             {/* <PatternSVG /> */}
-            <TextLayer />
+            <Pattern />
+            <TextCaption />
+            <CanvasLogo />
+            {/* <TextLayer /> */}
             {debug && <Perf />}
             <Renderer ffmpeg={ffmpeg} />
           </Canvas>
@@ -192,7 +209,7 @@ const Scene = ({
 
 const Grid = ({ debug }: { debug: boolean }) => {
   const canvasSize = useStore((state) => state.canvasSize);
-  const logo = useStore((state) => state.logo);
+  // const logo = useStore((state) => state.logo);
   const caption = useStore((state) => state.caption);
 
   const w = canvasSize.width / 34;
@@ -200,7 +217,8 @@ const Grid = ({ debug }: { debug: boolean }) => {
   // console.log("WIDTH", canvasContainerRef?.current?.offsetWidth);
 
   const gridStyle = {
-    paddingTop: logo.value > 0 ? w * 2 : w,
+    // paddingTop: logo.value > 0 ? w * 2 : w,
+    paddingTop: w,
     paddingBottom: caption.length > 0 ? w * 2 : w,
     paddingLeft: w,
     paddingRight: w,

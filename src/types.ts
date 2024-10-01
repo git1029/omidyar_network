@@ -42,6 +42,8 @@ export interface Upload {
   name: string;
   url: string;
   type: string;
+  width?: number;
+  height?: number;
 }
 
 export interface LogoOption {
@@ -54,12 +56,15 @@ export interface ExportFormat {
   type: string;
   ext: string;
   typeRoot: string;
+  modes?: number[];
+  sequence?: boolean;
 }
 
 export interface ExportSettings {
-  ffmpegLoaded: boolean;
+  // ffmpegLoaded: boolean;
   format: ExportFormat;
   exporting: boolean;
+  enabled: boolean;
   // duration: number;
 }
 

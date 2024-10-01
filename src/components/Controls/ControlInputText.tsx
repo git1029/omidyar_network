@@ -1,7 +1,8 @@
 import useStore from "../../store/store";
 // import { useEffect, useRef } from "react";
 
-const ControlInputText = ({ inverted }: { inverted: boolean }) => {
+// const ControlInputText = ({ inverted }: { inverted: boolean }) => {
+const ControlInputText = () => {
   // const textPreview = useRef<HTMLImageElement>(null);
 
   const inputMode = useStore((state) => state.inputMode);
@@ -28,9 +29,10 @@ const ControlInputText = ({ inverted }: { inverted: boolean }) => {
         placeholder="Enter text here..."
         value={textInput}
         onChange={(e) => setValue("textInput", e.target.value)}
-        className={`min-h-[100px] ${
-          inverted ? "text-black-100" : "bg-[#222222] text-white"
-        }`}
+        // className={`min-h-[100px] ${
+        //   inverted ? "text-black-100" : "bg-[#222222] text-white"
+        // }`}
+        className={`min-h-[100px]`}
       />
       {/* <img className=" w-[100px] h-[100px]" src="" ref={textPreview} /> */}
     </div>

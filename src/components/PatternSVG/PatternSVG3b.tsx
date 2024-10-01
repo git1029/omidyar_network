@@ -329,7 +329,7 @@ const PatternSVG = () => {
         makeDefault
       />
       {createPortal(<PatternScene grid={grid} />, scene)}
-      <mesh scale={[1, 1, 1]} visible={false}>
+      <mesh scale={[1, 1, 1]} visible={true}>
         <planeGeometry args={[1, 1]} />
         <shaderMaterial
           vertexShader={
@@ -394,6 +394,7 @@ const PatternSVG = () => {
               vec4 cc = texture(uImage, vUv);
               float gg = min(max(2., uGrid), 30.)/30.;
               gl_FragColor = vec4(mix(vec3(0.), vec3(1.), smoothstep(.475 - .1*gg, .525 + .1*gg, cc.r)), 1.);
+              // gl_FragColor = vec4(1., 0., 0., 1.);
               #include <colorspace_fragment>
             }
           `

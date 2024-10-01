@@ -3,11 +3,12 @@ import useStore from "../../store/store";
 import { LogoOption } from "../../types";
 import Control from "../Core/Control";
 import Toggle from "../Core/Toggle";
-import ControlGroup from "./ControlGroup";
+import ControlGroup from "../Core/ControlGroup";
 
 const ControlLogo = () => {
   const caption = useStore((state) => state.caption);
   const logo = useStore((state) => state.logo);
+  const patternRef = useStore((state) => state.patternRef);
   const setValue = useStore((state) => state.setValue);
 
   const handleLogoClick = <T,>(value: T) => {
@@ -15,6 +16,9 @@ const ControlLogo = () => {
     const match = logoOptions.find((o) => o === value);
     if (match) {
       setValue("logo", match);
+      if (patternRef) {
+        patternRef.uniforms.uLogo.value = match.value;
+      }
     }
   };
 

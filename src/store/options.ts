@@ -8,6 +8,9 @@ import {
   TextSettings,
 } from "../types";
 
+import DefaultImage from "/img.jpg";
+import DefaultVideo from "/footage.mp4";
+
 import IconArrowX from "/icon_arrow_x.svg";
 import IconArrowY from "/icon_arrow_y.svg";
 import IconArrowDiag1 from "/icon_arrow_diag_1.svg";
@@ -189,7 +192,7 @@ export const customLayout: Layout = {
 };
 
 export const layouts: Layout[] = [
-  { label: "1:1", aspect: 1, size: { width: 2160, height: 2160 } },
+  { label: "1:1", aspect: 1, size: { width: 3840, height: 3840 } },
   { label: "4:5", aspect: 4 / 5, size: { width: 3072, height: 3840 } },
   { label: "5:4", aspect: 5 / 4, size: { width: 3840, height: 3072 } },
   { label: "9:16", aspect: 9 / 16, size: { width: 2160, height: 3840 } },
@@ -252,11 +255,26 @@ export const textSettings: TextSettings = {
 
 export const exportFormats = [
   { label: "PNG", type: "image/png", ext: "png", typeRoot: "image" },
-  { label: "MP4", type: "video/mp4", ext: "mp4", typeRoot: "video" },
+  {
+    label: "PNG Sequence",
+    type: "image/png",
+    ext: "png",
+    sequence: true,
+    typeRoot: "image",
+    modes: [1, 2],
+  },
+  {
+    label: "MP4",
+    type: "video/mp4",
+    ext: "mp4",
+    typeRoot: "video",
+    modes: [1, 2],
+  },
 ];
 
 export const exportSettings = {
-  ffmpegLoaded: false,
+  // ffmpegLoaded: false,
+  enabled: false,
   format: exportFormats[0],
   exporting: false,
 };
@@ -302,7 +320,21 @@ export const patternEffectOptions = {
     { label: "Style 1", value: 0 },
     { label: "Style 2", value: 1 },
     { label: "Style 3", value: 2 },
+    { label: "Style 4", value: 3 },
   ],
+};
+
+export const defaultUpload = {
+  image: {
+    name: "img.jpg",
+    url: DefaultImage,
+    type: "image/jpg",
+  },
+  video: {
+    name: "footage.mp4",
+    url: DefaultVideo,
+    type: "video/mp4",
+  },
 };
 
 // const maxWidthAspect = Math.max(

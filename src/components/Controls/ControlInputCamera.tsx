@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import useStore from "../../store/store";
 import useCamera from "../../helpers/useCamera";
 
-const ControlInputCamera = ({ inverted }: { inverted: boolean }) => {
+// const ControlInputCamera = ({ inverted }: { inverted: boolean }) => {
+const ControlInputCamera = () => {
   const cameraRef = useRef<HTMLVideoElement>(null);
 
   const inputMode = useStore((state) => state.inputMode);
@@ -36,7 +37,8 @@ const ControlInputCamera = ({ inverted }: { inverted: boolean }) => {
           // style={{ backgroundColor: "rgba(0, 0, 0, .05)" }}
         >
           <video
-            className={`-scale-x-100 ${inverted ? "filter invert" : ""}`}
+            // className={`-scale-x-100 ${inverted ? "filter invert" : ""}`}
+            className={`-scale-x-100`}
             ref={cameraRef}
             autoPlay
             playsInline

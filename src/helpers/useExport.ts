@@ -28,8 +28,10 @@ const useExport = (): ExportObject => {
   // const exportFps = useStore((state) => state.export.fps)
   // const exportSettings = useStore((state) => state.exportSettings);
   // const setExportSettings = useStore((state) => state.setExportSettings);
-  // const setValue = useStore((state) => state.setValue)
+  const setValue = useStore((state) => state.setValue);
   const exportSettings = useStore((state) => state.exportSettings);
+  // const videoRef = useStore((state) => state.videoRef);
+  // const inputMode = useStore((state) => state.inputMode);
   const videoDuration = useStore((state) => state.videoDuration);
   const layout = useStore((state) => state.layout);
 
@@ -67,13 +69,16 @@ const useExport = (): ExportObject => {
   const videoDurationLimitSeconds = 10;
   // const exportDuration = Number((Math.round(videoDuration * 2) / 2).toFixed(1));
   // console.log(exportDuration);
-  const frameCount =
-    format === "image"
-      ? 1
-      : Math.min(
-          Math.floor(exportFps * videoDuration),
-          exportFps * videoDurationLimitSeconds
-        );
+  let frameCount = 1;
+  if (format === "video") {
+    if (videoDuration !== null && videoDuration > 0) {
+      frameCount = Math.min(
+        Math.floor(exportFps * videoDuration),
+        exportFps * videoDurationLimitSeconds
+      );
+    }
+  }
+
   // console.log(frameCount);
   // // const frames = exportFps * 1
 
@@ -140,6 +145,11 @@ const useExport = (): ExportObject => {
   const download = async () => {
     // const setting = useStore.getState().export.format
 
+    // Check formats and input mode
+    // if inputmode === 0 or 3 and video or sequence return
+    // if inputmode === 2 and camerastatus !== 2 return
+    // Check video duration is not null and > 0
+
     // if (!setting || useStore.getState().export.exporting) return
 
     // setValue('export.exporting', true)
@@ -167,6 +177,13 @@ const useExport = (): ExportObject => {
     // if (useStore.getState().export.cancelled) return
 
     scaleCanvas(layout, true, format);
+
+    // // If video input mode and image export pause video
+    // if (format === "image" && inputMode.value === 1 && videoRef) {
+    //   console.log(videoRef);
+    //   videoRef.pause();
+    //   // return;
+    // }
 
     // render.current.reset = false
     // render.current.exportPrep = true
@@ -581,10 +598,11 @@ const useExport = (): ExportObject => {
     if (ffmpegLoaded) {
       console.log("Loaded FFPMEG");
       document.body.classList.add("ffmpeg-loaded");
+      setValue("ffmpegLoaded", true);
     } else {
       document.body.classList.remove("ffmpeg-loaded");
     }
-  }, [ffmpegLoaded]);
+  }, [ffmpegLoaded, setValue]);
 
   return {
     ffmpegLoaded,

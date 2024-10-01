@@ -3,7 +3,7 @@ import useStore from "../../store/store";
 import { palette } from "../../store/options";
 import { ColorInfo } from "../../types";
 
-import ControlGroup from "./ControlGroup";
+import ControlGroup from "../Core/ControlGroup";
 import ColorIcon from "./ColorIcon";
 
 import TransparentPattern from "/transparent.png";
