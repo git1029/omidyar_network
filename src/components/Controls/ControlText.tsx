@@ -107,7 +107,7 @@ const ControlText = () => {
   };
 
   const textBlendToggle = {
-    label: "Blend Text",
+    label: "Pattern Overlay",
     options: textBlendOptions,
     value: textBlend,
     onChange: <T,>(value: T) => {
