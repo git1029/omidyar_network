@@ -17,6 +17,7 @@ export default {
         // "background": "#90a7d6",
         background: "rgb(var(--background-color))",
         foreground: "rgb(var(--foreground-color))",
+        contrast: "rgb(var(--contrast-color))",
       },
       transition: {
         background: "background-color .5s ease-in-out",

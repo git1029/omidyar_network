@@ -1,6 +1,9 @@
 // SDF circle formula from https://iquilezles.org/articles/distfunctions2d/
 
-const fragmentShader = /* glsl */ `
+import getNodeIso from "./partials/getNodeIso";
+import getNodeSquare from "./partials/getNodeSquare";
+
+const fragmentShader = (mode: number) => /* glsl */ `
   varying vec2 vUv;
   uniform float uTime;
   uniform float PI;
@@ -10,6 +13,8 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uForegroundColor;
   // uniform vec3 uBackgroundColor;
   uniform sampler2D uImage;
+  uniform sampler2D uExport;
+  uniform float uExporting;
   // uniform vec2 uEffect;
   // uniform sampler2D uColor;
   uniform sampler2D uVideo;
@@ -22,6 +27,8 @@ const fragmentShader = /* glsl */ `
   uniform float uContrast;
   uniform float uInvert;
   uniform vec3 uViewport;
+  // uniform vec2 uResolution;
+  uniform float uLogo;
   uniform float uDPR;
   // uniform vec3 uImageSize;
   uniform vec3 uInputAspect;
@@ -248,7 +255,10 @@ vec4 getBrightness(vec2 p) {
 
 
   if (uMode == 0.) return brightness(texture(uImage, iUv).rgb);
-  else if (uMode == 1.) return brightness(texture(uVideo, iUv).rgb);
+  else if (uMode == 1.) {
+    if (uExporting == 1.) return brightness(texture(uExport, iUv).rgb);
+    else return brightness(texture(uVideo, iUv).rgb);
+  }
   else if (uMode == 2.) return brightness(texture(uCamera, iUv).rgb);
   else if (uMode == 3.) return brightness(texture(uText, iUv).rgb);
   else return vec4(1.);
@@ -257,107 +267,8 @@ vec4 getBrightness(vec2 p) {
   // else if (uMode == 3.) return brightness(texture(uImage, p).rgb);
 }
 
-  float getNodeIso(vec2 uv, float i, float j, vec2 id, vec2 scale, vec2 aspectFactor, float af, bool flip, float roundness, float threshold, float d, float b) {
-    float dir = flip ? -1. : 1.;
-    float angle = angleBetween(vec2(.5, .5) * aspectFactor, vec2(1., 1.5) * aspectFactor) * dir;
-    float oddA = mod(id.y, 2.) * uGrid;
-    float oddB = mod(id.y + dir, 2.) * uGrid;
-    vec2 offA = oddA * vec2(.5, 0.);
-    vec2 offB = oddB * vec2(1.5, 0.);
-    vec2 pA = (floor(uv * uQuantity) + vec2(i, j) + offA + 0.5) / uQuantity;
-    vec2 pB = (floor(uv * uQuantity) + vec2(i, j + dir) + offB + 0.5) / uQuantity;
-    vec2 pC = mix(pA, pB, .5);
-    // vec4 b = getBrightness(pC);
-    // if (i == 0. && j == 0.) color = b.rgb;
 
-    vec2 uv_ = uv;
-    uv_ -= .5;
-    uv_ *= aspectFactor;
-    uv_ += .5;
-    pC -= .5;
-    pC *= aspectFactor;
-    pC += .5;
-
-    vec2 pD = rotate(uv_ - pC, angle);
-
-    float sf = 1.;
-    float lowY = flip ? 1. : 0.;
-    float highY = flip ? 1. : 2.;
-    if (id.x < 0. || id.y < lowY || id.x > uQuantity - 2. || id.y > uQuantity - highY) sf = 0.;
-
-    vec2 scl = scale;
-
-
-    float a = uViewport.z;
-    if (a < 1.) scl.x /= a;
-    else scl.x *= a;
-
-    // scl.x *= af;
-    scl *= b * sf;
-
-    return mix(d, min(d, sdRoundedBox(pD, scl, vec4(roundness) * b * sf)), step(threshold, b) * sf);
-  }
-
-
-  // Sqaure grid lines
-  float getNodeSquare(vec2 uv, vec2 off, vec2 aspectFactor, bool vert, vec2 scale, float roundness, float threshold, float d, float b) {
-    // // Sqaure grid lines
-    // vec2 sbox = vec2(.5/grid, .125/grid * .5);
-    // vec4 roundness = vec4(0.1/grid);
-
-    // // Horizontal
-    // vec2 px = (floor(uv * grid) + vec2(i, j) + vec2(.5, 0.)) / grid;
-    // float sfx = 1.;
-    // if (px.x < 0. || px.y < 0. || px.x > 1. || px.y > 1.) sfx = 0.;
-    // vec4 bx = getBrightness(px);
-    // // color = mix(bx.rgb, b0.rgb, mod(floor(uTime), 2.));
-    // vec2 uvx = uv;
-    // uvx -= .5;
-    // uvx *= af;
-    // uvx += .5;
-    // px -= .5;
-    // px *= af;
-    // px += .5;
-    // vec2 rx = sbox * b0f * sfx;
-    // d1 = min(d1, sdRoundedBox(uvx - px, rx, roundness));
-
-    // // Vertical
-    // vec2 py = (floor(uv * grid) + vec2(i, j) + vec2(.0, .5)) / grid;
-    // float sfy = 1.;
-    // if (py.x < 0. || py.y < 0. || py.x > 1. || py.y > 1.) sfy = 0.;
-    // vec4 by = getBrightness(py);
-    // // color = mix(by.rgb, b0.rgb, mod(floor(uTime), 2.));
-    // vec2 uvy = uv;
-    // uvy -= .5;
-    // uvy *= af;
-    // uvy += .5;
-    // py -= .5;
-    // py *= af;
-    // py += .5;
-    // vec2 ry = vec2(sbox.y, sbox.x) * b0f * sfy;
-    // d1 = min(d1, sdRoundedBox(uvy - py, ry, roundness));
-
-    float a = uViewport.z;
-    vec2 scl = scale;
-    if (vert && a < 1.) scl.x /= a;
-    if (!vert && a >= 1.) scl.x *= a;
-    if (vert) scl = scl.yx;
-
-    vec2 p = (floor(uv * uQuantity) + off) / uQuantity;
-    float sf = 1.;
-    if (p.x < 0. || p.y < 0. || p.x > 1. || p.y > 1.) sf = 0.;
-    // vec4 b = getBrightness(p);
-    // color = mix(bx.rgb, b0.rgb, mod(floor(uTime), 2.));
-    vec2 uv_ = uv;
-    uv_ -= .5;
-    uv_ *= aspectFactor;
-    uv_ += .5;
-    p -= .5;
-    p *= aspectFactor;
-    p += .5;
-    vec2 r = scl * b * sf;
-    return mix(d, min(d, sdRoundedBox(uv_ - p, r, vec4(roundness) * b * sf)), step(threshold, b) * sf);
-  }
+  ${mode === 1 ? getNodeIso : getNodeSquare}
 
   void main() {
 
@@ -366,26 +277,71 @@ vec4 getBrightness(vec2 p) {
     float d0 = 10000.;
     float d1 = 10000.;
 
-    float grid = uQuantity * 1.;
+    float aspect = uViewport.z;
+
+    vec2 grid = vec2(uQuantity * 1., (uQuantity / aspect));
+    if (aspect > 1.) grid = vec2((uQuantity * aspect), uQuantity);
+    // if (uGrid == 1.) grid.x /= 2.;
     float uMaxCount = 30.;
 
     // float grid = 2.;
-    float aspect = uViewport.z;
     float threshold = .15;
     vec2 af = aspect < 1. ? vec2(1., 1./aspect) : vec2(aspect, 1.);
 
-    float ascl = aspect < 1. ? 1./aspect : aspect;
-    vec2 sbox = vec2(.5/uQuantity, .125/uQuantity * .5);
-    sbox *= vec2(1., map(uDotSize, 0., 1., .5, 1.25));
-    sbox *= vec2(1., map(uContrast, 0., 1., 1.25, .5));
-    float roundness = .1/uQuantity;
 
+    float f = aspect > 1. ? grid.y : grid.x;
+
+    vec2 diff = (grid - floor(grid)) * .5;
+
+    float ascl = aspect < 1. ? 1./aspect : aspect;
+    // float sboxx = .5/grid.x;
+    // vec2 sbox = vec2(.5/grid.x, .125/grid.y * .5);
+    float sboxx = .5/f;
+    ${mode === 1 ? "sboxx *= 1.43;" : ""}
+    // if (uGrid == 1.) sboxx = length(vec2(0.) - vec2(1.));
+    vec2 sbox = vec2(sboxx, .125/f * .666);
+    sbox *= vec2(1., map(uDotSize, 0., 1., .5, 1.25));
+    // sbox *= vec2(1., map(uContrast, 0., 1., 1.25, .5));
+    float roundness = .1/grid.x;
+
+    float miny = (floor(0. * grid.y) + 0.500) / grid.y;
+    float maxy = (floor(1. * grid.y) + 0.500 - 1.) / grid.y;
+    float r0 = 1./f*.25 * 1. * map(uDotSize, 0., 1., .5, 1.75);
+    float h = (grid.y-1.)/grid.y;
+
+
+    // vec2 uResolution = vec2(1000.);
+    // float uLogo = 1.;
+    vec2 pad = vec2(1. / 34.);
+    pad.y *= uViewport.z;
+    // float padX = pad;
+    float grid_ = 4.;
+    float colw = (1. - pad.x * 2. - (grid_ - 1.) * (pad.x * 0.5)) / grid_;
+    float spanx = 1.;
+    float wtotal = colw * spanx + (max(0., spanx - 1.) * pad.x) / 2.;
+    if (uLogo == 2.) wtotal /= 4.; // if emblem reduce to 1/6th column width
+    // float scl = (wtotal * uResolution.x);
+    float scl = (wtotal * 1.) * 1.;
+    vec4 logop = vec4(1.-scl - pad.x - pad.x / 2. - r0, pad.y, 0., 0.);
+    logop.z = logop.x + scl + pad.x / 2. + r0;
+    if (uLogo == 1.) scl *= 31./237.; 
+    logop.w = logop.y + scl * uViewport.z + r0 * 1. * uViewport.z;
 
     vec2 edge = vec2(1./34.) / af;
+    h += r0 * 2.;
+    // h += 1./diff.y;
+    // h += edge.x * 2.;
     vec2 uv = vUv;
     uv.y = 1. - uv.y;
     uv -= .5;
     uv *= 1. + edge * map(uQuantity, 0., uMaxCount, 1., 2.);
+    // uv *= 1. - (aspect > 1. ? 1./diff.x : 1./diff.y);
+    // uv *= 1.-1./((1.-2./34.) -h);
+    // uv *= 1.+((1.-diff.y*2.) /(1.-2./34.));
+    // uv *= 1.-1./((2./34.)/(1.-h));
+    // uv /= 1./h;
+    // uv *= 1. + edge * 1.;
+    // uv *= 1. + .5/grid;
     uv += .5;
     // uv -= vec2(.5)/grid;
 
@@ -394,16 +350,37 @@ vec4 getBrightness(vec2 p) {
         vec2 id = floor(uv * grid) + vec2(i, j);
 
         float odd = mod(id.y, 2.) * uGrid;
-        vec2 off = odd * vec2(.5, 0.);
+        vec2 off = odd * vec2(0., 0.);
+
+        // if (uGrid == 1. && mod(id.x, 2.) == 1.) continue;
+
+        off += diff;
 
         // Circle
         vec2 p0 = (floor(uv * grid) + vec2(i, j) + off + 0.500) / grid;
+
+
+
+
         // vec2 p0a = (floor((uv - vec2(.5)/grid) * grid) + vec2(i, j) + vec2(.5, 0.)) / grid;
         float sf0 = 1.;
-        if (id.x < 0. || id.y < 0. || id.x >= grid || id.y >= grid) sf0 = 0.;
-        if (uGrid == 1. && id.x >= grid - 1. && odd == 1.) sf0 = 0.;
-        if (uGrid == 1. && id.x >= grid && odd == 0.) sf0 = 0.;
-        if (uGrid == 1. && id.y >= grid) sf0 = 0.;
+        if (id.x < 0. || id.y < 0. || id.x >= floor(grid.x) || id.y >= floor(grid.y)) sf0 = 0.;
+        if (uLogo > 0. && (p0.x >= logop.x && p0.y < logop.w)) sf0 = 0.;
+        
+        ${
+          mode == 1
+            ? /* glsl */ `
+          
+        if (uGrid == 1. && odd == 0. && mod(id.x, 2.) == 1.) sf0 = 0.;
+        if (uGrid == 1. && odd == 1. && mod(id.x, 2.) == 0.) sf0 = 0.;
+        // if (uGrid == 1. && id.x >= floor(grid.x) - 1. && odd == 1.) sf0 = 0.;
+        if (uGrid == 1. && id.x >= floor(grid.x) && odd == 0.) sf0 = 0.;
+        if (uGrid == 1. && id.y >= floor(grid.y)) sf0 = 0.;
+          
+          `
+            : ""
+        }
+
         vec2 p0b = (floor(uv * grid) + vec2(i, j) + off + 0.500) / grid;
         vec4 b0 = getBrightness(p0b);
         if (i == 0. && j == 0.) color = b0.rgb;
@@ -415,17 +392,25 @@ vec4 getBrightness(vec2 p) {
         p0 -= .5;
         p0 *= af;
         p0 += .5;
-        float r = 1./grid*.25 * b0f * map(uDotSize, 0., 1., .5, 1.75);
-        d0 = mix(d0, smoothUnionSDF(d0, sdCircle(uv0 - p0, r), .015 * mix(1., .5, uQuantity/uMaxCount)), step(threshold, b0f) * sf0);
+        float r = 1./f*.25 * b0f * map(uDotSize, 0., 1., .5, 1.75);
+        // d0 = mix(d0, smoothUnionSDF(d0, sdCircle(uv0 - p0, r), .015 * mix(1., .5, uQuantity/uMaxCount)), step(threshold, b0f) * sf0);
+        d0 = mix(d0, smoothUnionSDF(d0, sdCircle(uv0 - p0, r), .015 * .75), step(threshold, b0f) * sf0);
         // d0 = min(d0, sdCircle(uv0 - p0, r));
 
         // // Square grid lines
-        if (id.x >= 0. && id.x < grid - 1. && uGrid == 0. && uConnectors.x == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.5, .0) + 0.500, af, false, sbox, roundness, threshold, d1, b0.w); // horizontal
-        if (id.y >= 0. && id.y < grid - 1. && uGrid == 0. && uConnectors.y == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.0, .5) + 0.5, af, true, sbox, roundness, threshold, d1, b0.w); // vertical
-
-        // // Isometric grid lines
-        if (uGrid == 1. && uConnectors.x == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, true, roundness, threshold, d1, b0.w);
-        if (uGrid == 1. && uConnectors.y == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, false, roundness, threshold, d1, b0.w);
+        // #SQUARE
+        ${
+          mode === 0
+            ? /* glsl */ `
+            if (id.x >= 0. && id.x < floor(grid.x) - 1. && uConnectors.x == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.5, .0) + 0.500 + diff, af, false, sbox, roundness, threshold, d1, b0.w, grid, logop); // horizontal
+            if (id.y >= 0. && id.y < floor(grid.y) - 1. && uConnectors.y == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.0, .5) + 0.5 + diff, af, true, sbox, roundness, threshold, d1, b0.w, grid, logop); // vertical
+          `
+            : /* glsl */ `
+            // Isometric grid lines
+            if (uConnectors.x == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, true, roundness, threshold, d1, b0.w, grid, diff, logop, vec2(1., 0.));
+            if (uConnectors.y == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, false, roundness, threshold, d1, b0.w, grid, diff, logop, vec2(0., 1.));
+          `
+        }
       }
     }
 
@@ -480,7 +465,9 @@ vec4 getBrightness(vec2 p) {
 
 
 
-
+    // vec2 uvl = vUv;
+    // uvl.y = 1. - uvl.y;
+    // if (uvl.x >= logop.x && uvl.x < logop.z && uvl.y >= logop.y && uvl.y < logop.w) col += vec4(1., 0., 0., .25);
 
     gl_FragColor = col;
     // gl_FragColor = vec4(1., 0., 0., 1.);

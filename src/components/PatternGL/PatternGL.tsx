@@ -1,6 +1,8 @@
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import vertexShader from "./shaders/vertex";
-import fragmentShader from "./shaders/fragment2";
+// import fragmentShader from "./shaders/fragment3";
+// import fragmentShaderIso from "./shaders/fragment3iso";
+import fragmentShader4 from "./shaders/fragment4";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Color,
@@ -26,6 +28,7 @@ import {
   Uniform,
   Vector2,
   Vector3,
+  VideoTexture,
 } from "three";
 import { palette, gridSettings, patternSettings } from "../../store/options";
 import useStore from "../../store/store";
@@ -35,7 +38,7 @@ import {
   // OrthographicCamera,
   // useFBO,
   useTexture,
-  useVideoTexture,
+  // useVideoTexture,
 } from "@react-three/drei";
 
 const PatternGL = () => {
@@ -47,13 +50,85 @@ const PatternGL = () => {
 
   // const backgroundColor = useStore((state) => state.backgroundColor);
   // const nodeColor = useStore((state) => state.nodeColor);
-  // const grid = useStore((state) => state.grid);
-  const displayRef = useStore((state) => state.displayRef);
+  const grid = useStore((state) => state.grid);
+  const backgroundRef = useStore((state) => state.backgroundRef);
+  const videoRef = useStore((state) => state.videoRef);
   const setValue = useStore((state) => state.setValue);
+  // const exportSettings = useStore((state) => state.exportSettings);
 
   const img = useTexture("/img.jpg");
-  const video = useVideoTexture("/footage.mp4");
+  // const video = useVideoTexture("/footage.mp4");
   // const imgtest = useTexture("/color2.png");
+
+  const video = useMemo(() => {
+    if (!videoRef) return;
+    const texture = new VideoTexture(videoRef);
+    texture.generateMipmaps = false;
+    // texture.update();
+
+    // console.log(texture);
+    const duration = texture.image.duration;
+    if (!isNaN(duration) && duration > 0) {
+      setValue("videoDuration", duration);
+    }
+
+    videoRef.play();
+
+    return texture;
+  }, [videoRef, setValue]);
+  // setValue("videoUpload", upload);
+
+  //   if (videoRef.current) {
+  //     const texture = new VideoTexture(videoRef.current);
+  //     videoRef.current.src = upload.url;
+  //     videoRef.current.play();
+  //     console.log(texture);
+  //     texture.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
+  //     // texture.needsUpdate = true;
+  //     texture.update();
+
+  //     setInitial({ ...initial, video: false });
+
+  //     if (patternRef) {
+  //       if (patternRef.uniforms.uVideo.value) {
+  //         patternRef.uniforms.uVideo.value.dispose();
+  //       }
+  //       patternRef.uniforms.uVideo.value = texture;
+  //     }
+
+  //     if (backgroundRef) {
+  //       if (backgroundRef.uniforms.uVideo.value) {
+  //         backgroundRef.uniforms.uVideo.value.dispose();
+  //       }
+  //       backgroundRef.uniforms.uVideo.value = texture;
+  //     }
+
+  //     // Video width/height available once metadata has loaded
+  //     (texture.image as HTMLVideoElement).addEventListener(
+  //       "loadedmetadata",
+  //       () => {
+  //         const { videoWidth, videoHeight, duration } = texture.image;
+
+  //         if (videoWidth > 0 && videoHeight > 0) {
+  //           const aspect = videoWidth / videoHeight;
+  //           if (patternRef) patternRef.uniforms.uInputAspect.value.y = aspect;
+  //           if (backgroundRef)
+  //             backgroundRef.uniforms.uInputAspect.value.y = aspect;
+  //         } else {
+  //           console.warn(
+  //             "Unable to access video width and height or have zero value"
+  //           );
+  //         }
+
+  //         if (!isNaN(duration) && duration > 0) {
+  //           setValue("videoDuration", duration);
+  //         } else {
+  //           console.warn("Unable to access video duration or has zero value");
+  //         }
+  //       }
+  //     );
+  //   }
+  // }
 
   const uniforms = useMemo(() => {
     return {
@@ -65,9 +140,12 @@ const PatternGL = () => {
       uAlpha: new Uniform(1),
       uImage: new Uniform(null),
       // uColor: new Uniform(null),
+      uExport: new Uniform(null),
+      uExporting: new Uniform(0),
       uVideo: new Uniform(null),
       uCamera: new Uniform(null),
       uText: new Uniform(null),
+      uLogo: new Uniform(0),
       // uData: new Uniform(null),
       uDPR: new Uniform(Math.min(window.devicePixelRatio, 2)),
       uGrid: new Uniform(gridSettings.gridType),
@@ -77,7 +155,7 @@ const PatternGL = () => {
           gridSettings.gridConnectors[1] === true ? 1 : 0
         )
       ),
-      uEffect: new Uniform(new Vector2(0, 0)),
+      // uEffect: new Uniform(new Vector2(0, 0)),
       uQuantity: new Uniform(gridSettings.gridQuantity),
       uDotSize: new Uniform(patternSettings.patternDotSize),
       uContrast: new Uniform(patternSettings.patternContrast),
@@ -93,7 +171,7 @@ const PatternGL = () => {
       // uImageSize: new Uniform(new Vector3(1, 1, 1)),
       // uVideoSize: new Uniform(new Vector3(1, 1, 1)),
       uInputAspect: new Uniform(new Vector3(1, 1, 1)),
-      uInputBackground: new Uniform(0),
+      // uInputBackground: new Uniform(0),
     };
   }, []);
 
@@ -158,12 +236,12 @@ const PatternGL = () => {
         matRef.current.uniforms.uImage.value = img;
         matRef.current.uniforms.uInputAspect.value.x = aspect;
       }
-      if (displayRef) {
-        displayRef.uniforms.uImage.value = img;
-        displayRef.uniforms.uInputAspect.value.x = aspect;
+      if (backgroundRef) {
+        backgroundRef.uniforms.uImage.value = img;
+        backgroundRef.uniforms.uInputAspect.value.x = aspect;
       }
     }
-  }, [img, displayRef]);
+  }, [img, backgroundRef]);
 
   // useEffect(() => {
   //   // console.log(img);
@@ -190,13 +268,23 @@ const PatternGL = () => {
     }
   }, [matRef, setValue]);
 
+  // useEffect(() => {
+  //   if (matRef.current) {
+  //     matRef.current.uniforms.uExporting.value = exportSettings.exporting
+  //       ? 1
+  //       : 0;
+  //     // const material = ref.current.material as ShaderMaterial;
+  //     // material.uniforms.uDotSize.value = patternDotSize;
+  //   }
+  // }, [matRef, exportSettings]);
+
   useEffect(() => {
     if (video) {
-      video.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
-      // imgtest.wrapS = RepeatWrapping;
-      // imgtest.wrapT = RepeatWrapping;
-      // imgtest.flipY = false;
-      video.needsUpdate = true;
+      // video.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
+      // // imgtest.wrapS = RepeatWrapping;
+      // // imgtest.wrapT = RepeatWrapping;
+      // // imgtest.flipY = false;
+      // video.needsUpdate = true;
 
       // video.image.play();
 
@@ -222,12 +310,12 @@ const PatternGL = () => {
         matRef.current.uniforms.uInputAspect.value.y = aspect;
       }
 
-      if (displayRef) {
-        displayRef.uniforms.uVideo.value = video;
-        displayRef.uniforms.uInputAspect.value.y = aspect;
+      if (backgroundRef) {
+        backgroundRef.uniforms.uVideo.value = video;
+        backgroundRef.uniforms.uInputAspect.value.y = aspect;
       }
     }
-  }, [video, displayRef]);
+  }, [video, backgroundRef]);
 
   useEffect(() => {
     if (matRef.current) {
@@ -253,22 +341,24 @@ const PatternGL = () => {
   //   }
   // }, [nodeColor]);
 
-  // useEffect(() => {
-  //   if (ref.current) {
-  //     const material = ref.current.material as ShaderMaterial;
-  //     material.uniforms.uGrid.value = grid;
-  //   }
-  // }, [grid]);
-
-  useFrame((_state, delta) => {
+  useEffect(() => {
     if (matRef.current) {
-      matRef.current.uniforms.uTime.value += delta;
-      // video.image.pause();
-      // video.source.data.currentTime =
-      //   _state.clock.elapsedTime % video.source.data.duration;
-      // video.needsUpdate = true;
+      matRef.current.fragmentShader = fragmentShader4(grid.value);
+      // grid.value === 0 ? fragmentShader : fragmentShaderIso;
+      matRef.current.needsUpdate = true;
+      // console.log(grid, matRef.current);
     }
-  });
+  }, [grid, matRef]);
+
+  // useFrame((_state, delta) => {
+  //   if (matRef.current) {
+  //     matRef.current.uniforms.uTime.value += delta;
+  //     // video.image.pause();
+  //     // video.source.data.currentTime =
+  //     //   _state.clock.elapsedTime % video.source.data.duration;
+  //     // video.needsUpdate = true;
+  //   }
+  // });
 
   return (
     <>
@@ -290,10 +380,12 @@ const PatternGL = () => {
         <planeGeometry args={[1, 1]} />
         <shaderMaterial
           vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
+          fragmentShader={fragmentShader4(0)}
           uniforms={uniforms}
           transparent={true}
           ref={matRef}
+          // onUpdate={(s) => console.log("UPDATE", s)}
+          // onBeforeCompile={(s) => console.log(s)}
         />
       </mesh>
     </>

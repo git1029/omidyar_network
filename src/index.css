@@ -5,7 +5,7 @@
 @layer base {
   @font-face {
     font-family: F37LinecaMedium;
-    src: url("/F37Lineca-Medium.ttf") format("truetype");
+    src: url("/F37Lineca-Medium.otf") format("opentype");
   }
 
   @font-face {
@@ -19,7 +19,7 @@
   }
 
   html {
-    @apply text-sm 2xl:text-base bg-background h-full min-w-[1280px] min-h-[600px] font-sans box-border antialiased leading-normal;
+    @apply text-sm 2xl:text-base bg-background h-full min-h-[600px] font-sans box-border antialiased leading-normal;
   }
 
   body {
@@ -36,24 +36,24 @@
 
   input[type="text"],
   input[type="number"] {
-    @apply border border-foreground px-2 min-w-24 h-8 rounded-md bg-transparent;
+    @apply border border-contrast px-2 min-w-24 h-8 rounded-md bg-transparent;
   }
 
   input[type="range"] {
     @apply appearance-none h-6 bg-transparent z-10 rounded-sm overflow-hidden cursor-pointer
     [&::-webkit-slider-thumb]:appearance-none 
-    [&::-webkit-slider-thumb]:bg-foreground
+    [&::-webkit-slider-thumb]:bg-contrast
     [&::-webkit-slider-thumb]:w-2
     [&::-webkit-slider-thumb]:h-2 
     [&::-webkit-slider-thumb]:rounded-full
     [&::moz-range-thumb]:w-2 
     [&::moz-range-thumb]:h-2 
-    [&::moz-range-thumb]:bg-foreground
+    [&::moz-range-thumb]:bg-contrast
     [&::moz-range-thumb]:rounded-full;
   }
 
   select {
-    @apply border border-foreground bg-transparent p-1 w-[300px] h-8 rounded-md uppercase;
+    @apply border border-contrast bg-transparent p-1 w-[300px] h-8 rounded-md uppercase;
   }
 
   /* button {
@@ -61,7 +61,7 @@
   } */
 
   button {
-    @apply relative px-2 uppercase border border-foreground bg-transparent text-foreground h-8 rounded-md w-fit disabled:opacity-50 [&:not(:disabled)]:active:top-0.5;
+    @apply relative px-2 uppercase border border-contrast bg-transparent text-contrast h-8 rounded-md w-fit disabled:opacity-50 [&:not(:disabled)]:active:top-0.5;
   }
 
   label {
@@ -69,7 +69,7 @@
   }
 
   textarea {
-    @apply min-h-8 border border-foreground rounded-md bg-transparent py-1 px-2 w-[300px] font-serif;
+    @apply min-h-8 border border-contrast rounded-md bg-transparent py-1 px-2 w-[300px] font-serif;
   }
 }
 

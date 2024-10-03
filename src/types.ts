@@ -42,6 +42,8 @@ export interface Upload {
   name: string;
   url: string;
   type: string;
+  width?: number;
+  height?: number;
 }
 
 export interface LogoOption {
@@ -54,25 +56,39 @@ export interface ExportFormat {
   type: string;
   ext: string;
   typeRoot: string;
+  modes?: number[];
+  sequence?: boolean;
 }
 
 export interface ExportSettings {
-  ffmpegLoaded: boolean;
+  // ffmpegLoaded: boolean;
   format: ExportFormat;
   exporting: boolean;
+  enabled: boolean;
   // duration: number;
 }
 
 export type TextAlign = "center" | "left" | "right" | "justify" | undefined;
 
-type ModalType = "message" | "warning" | "error";
+// type ModalType = "message" | "warning" | "error";
 
 export interface Modal {
   title: string;
-  progress?: {
-    value?: number;
-    status?: string;
+  description: string;
+  progress?: number;
+  status?: string;
+  closeLabel?: string;
+  closeOnClick?: () => void;
+}
+
+export interface EffectSettings {
+  mode: {
+    label: string;
+    value: number;
   };
-  description?: string;
-  type: ModalType;
+  style: {
+    label: string;
+    value: number;
+  };
+  animating: boolean;
 }

@@ -1,12 +1,16 @@
 import { Color } from "three";
 import {
   ColorInfo,
+  ExportFormat,
   InputMode,
   Layout,
   LogoOption,
   TextLayout,
   TextSettings,
 } from "../types";
+
+import DefaultImage from "/img.jpg";
+import DefaultVideo from "/footage.mp4";
 
 import IconArrowX from "/icon_arrow_x.svg";
 import IconArrowY from "/icon_arrow_y.svg";
@@ -250,13 +254,28 @@ export const textSettings: TextSettings = {
   animationScale: 0,
 };
 
-export const exportFormats = [
+export const exportFormats: ExportFormat[] = [
   { label: "PNG", type: "image/png", ext: "png", typeRoot: "image" },
-  { label: "MP4", type: "video/mp4", ext: "mp4", typeRoot: "video" },
+  {
+    label: "PNG Sequence",
+    type: "image/png",
+    ext: "png",
+    sequence: true,
+    typeRoot: "image",
+    modes: [1, 2],
+  },
+  {
+    label: "MP4",
+    type: "video/mp4",
+    ext: "mp4",
+    typeRoot: "video",
+    modes: [1, 2],
+  },
 ];
 
 export const exportSettings = {
-  ffmpegLoaded: false,
+  // ffmpegLoaded: false,
+  enabled: true,
   format: exportFormats[0],
   exporting: false,
 };
@@ -268,8 +287,8 @@ export const logoOptions: LogoOption[] = [
 ];
 
 export const inputBackgroundOptions = [
-  { label: "Off", value: false },
-  { label: "On", value: true },
+  { label: "Off", value: 0 },
+  { label: "On", value: 1 },
 ];
 
 export const invertOptions = [
@@ -294,7 +313,7 @@ export const connectorOptions = [
 ];
 
 export const patternEffectOptions = {
-  enabled: [
+  modes: [
     { label: "Off", value: 0 },
     { label: "On", value: 1 },
   ],
@@ -302,7 +321,21 @@ export const patternEffectOptions = {
     { label: "Style 1", value: 0 },
     { label: "Style 2", value: 1 },
     { label: "Style 3", value: 2 },
+    { label: "Style 4", value: 3 },
   ],
+};
+
+export const defaultUpload = {
+  image: {
+    name: "img.jpg",
+    url: DefaultImage,
+    type: "image/jpg",
+  },
+  video: {
+    name: "footage.mp4",
+    url: DefaultVideo,
+    type: "video/mp4",
+  },
 };
 
 // const maxWidthAspect = Math.max(

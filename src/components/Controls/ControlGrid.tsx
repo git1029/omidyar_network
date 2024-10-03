@@ -15,15 +15,20 @@ import Control from "../Core/Control";
 const ControlGrid = () => {
   // const setGrid = useStore((state) => state.setGrid);
 
+  const grid = useStore((state) => state.grid);
   const patternRef = useStore((state) => state.patternRef);
+  const setValue = useStore((state) => state.setValue);
 
-  const [grid, setGridOption] = useState(gridOptions[0]);
+  // const [grid, setGridOption] = useState(gridOptions[0]);
+
   const [gridConnectors, setGridConnectors] = useState([true, false]);
 
   const handleGridTypeChange = <T,>(value: T) => {
+    if (value === grid) return;
     const match = gridOptions.find((o) => o === value);
     if (match) {
-      setGridOption(match);
+      // setGridOption(match);
+      setValue("grid", match);
 
       if (patternRef) {
         patternRef.uniforms.uGrid.value = match.value;
@@ -71,7 +76,7 @@ const ControlGrid = () => {
     {
       label: "Quantity",
       defaultValue: gridSettings.gridQuantity,
-      min: 1,
+      min: 4,
       max: 30,
       normalized: false,
       onChange: (value: number) => {
@@ -151,8 +156,8 @@ const ControlGrid = () => {
               key={o.label}
               className={`w-8 h-8 border rounded-md cursor-pointer ${
                 gridConnectors[i]
-                  ? "bg-foreground/5 border-foreground"
-                  : "border-foreground/50"
+                  ? "bg-contrast/5 border-contrast"
+                  : "border-contrast/50"
               }`}
               onClick={() => handleConnectorChange(i)}
             >

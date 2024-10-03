@@ -60,7 +60,7 @@ const Slider = ({
   return (
     <div className="flex flex-col gap-y-1">
       <label>{label}</label>
-      <div className="flex items-center gap-x-2 border border-foreground h-6 px-2 rounded-md w-fit">
+      <div className="flex items-center gap-x-2 border border-contrast h-6 px-2 rounded-md w-fit">
         <div className="relative h-6 flex w-[200px]">
           <input
             type="range"
@@ -71,10 +71,10 @@ const Slider = ({
             onChange={(e) => handleChange(e.target.value)}
             className="z-10 w-full"
           />
-          <div className="absolute events-none left-0 top-1/2 h-px right-0 z-1 -translate-y-1/2 bg-foreground/50" />
+          <div className="absolute events-none left-0 top-1/2 h-px right-0 z-1 -translate-y-1/2 bg-contrast/50" />
           <div
             ref={sliderProgress}
-            className="absolute events-none left-0 top-1/2 h-px bg-foreground z-1 -translate-y-1/2"
+            className="absolute events-none left-0 top-1/2 h-px bg-contrast z-1 -translate-y-1/2"
             style={{ width: `${map(value, min, max, 1, 99)}%` }}
           />
         </div>

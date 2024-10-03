@@ -3,13 +3,13 @@ import useStore from "../../store/store";
 import { palette } from "../../store/options";
 import { ColorInfo } from "../../types";
 
-import ControlGroup from "./ControlGroup";
+import ControlGroup from "../Core/ControlGroup";
 import ColorIcon from "./ColorIcon";
 
 import TransparentPattern from "/transparent.png";
 // import TransparentPattern2 from "/transparent2.png";
 
-const Color = () => {
+const ControlColor = () => {
   // const [backgroundColor, setBackgroundColor] = useState(palette[0]);
   // const [foregroundColor, setNodeColor] = useState(palette[1]);
 
@@ -39,10 +39,17 @@ const Color = () => {
       backgroundColor.rgb.join(" ")
     );
     document.documentElement.style.setProperty(
-      "--foreground-color",
+      "--contrast-color",
       backgroundColor.rgbContrast.join(" ")
     );
   }, [backgroundColor]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--foreground-color",
+      foregroundColor.rgb.join(" ")
+    );
+  }, [foregroundColor]);
 
   useEffect(() => {
     if (canvasRef) {
@@ -73,7 +80,7 @@ const Color = () => {
       }
 
       // document.documentElement.style.setProperty(
-      //   "--foreground-color",
+      //   "--contrast-color",
       //   foregroundColor.rgbContrast.join(" ")
       // );
     }
@@ -160,7 +167,7 @@ const Color = () => {
       {optionsFiltered.map((color) => (
         <div key={color.label} className="flex flex-col gap-y-1">
           <label>{color.label}</label>
-          <div className="flex gap-x-0.5 p-1 border border-foreground/50 rounded-md w-fit">
+          <div className="flex gap-x-0.5 p-1 border border-contrast/50 rounded-md w-fit">
             {palette.map((c) => {
               if (
                 color.label === "Foreground" &&
@@ -196,4 +203,4 @@ const Color = () => {
   );
 };
 
-export default Color;
+export default ControlColor;

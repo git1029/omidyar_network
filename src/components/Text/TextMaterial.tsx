@@ -7,7 +7,7 @@ import {
   Vector3,
   Vector4,
 } from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import useStore from "../../store/store";
 import textVertexShader from "./shaders/textVertexShader";
 import textFragmentShader from "./shaders/textFragmentShader";
@@ -80,14 +80,14 @@ const TextMaterial = ({
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.uniforms.uTime.value = 0;
+      // ref.current.uniforms.uTime.value = 0;
       ref.current.uniforms.uSpeed.value = animationSpeed;
     }
   }, [animationSpeed]);
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.uniforms.uTime.value = 0;
+      // ref.current.uniforms.uTime.value = 0;
       ref.current.uniforms.uScale.value = animationScale;
     }
   }, [animationScale]);
@@ -120,11 +120,11 @@ const TextMaterial = ({
     }
   }, [viewport]);
 
-  useFrame((_state, delta) => {
-    if (ref.current) {
-      if (animating) ref.current.uniforms.uTime.value += delta;
-    }
-  });
+  // useFrame((_state, delta) => {
+  //   if (ref.current) {
+  //     if (animating) ref.current.uniforms.uTime.value += delta;
+  //   }
+  // });
 
   return (
     <shaderMaterial

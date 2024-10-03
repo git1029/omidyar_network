@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { SRGBColorSpace, VideoTexture } from "three";
 import useStore from "../store/store";
 
-const constraints = {
+export const constraints = {
   video: { width: 910, height: 512, facingMode: "user" },
 };
 
@@ -13,14 +13,15 @@ const useCamera = () => {
 
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
-  const displayRef = useStore((state) => state.displayRef);
+  const backgroundRef = useStore((state) => state.backgroundRef);
   const cameraRef = useStore((state) => state.cameraRef);
+  // const canvasRef = useStore((state) => state.canvasRef);
   const setValue = useStore((state) => state.setValue);
 
   const [stream, setStream] = useState<MediaStream | null>(null);
 
   const initializeVideo = () => {
-    console.log("initializing");
+    console.log("Initializing camera/webcam");
     // const video = cameraRef;
 
     // console.log(video);
@@ -50,9 +51,9 @@ const useCamera = () => {
             patternRef.uniforms.uInputAspect.value.z =
               constraints.video.width / constraints.video.height;
           }
-          if (displayRef) {
-            displayRef.uniforms.uCamera.value = tex;
-            displayRef.uniforms.uInputAspect.value.z =
+          if (backgroundRef) {
+            backgroundRef.uniforms.uCamera.value = tex;
+            backgroundRef.uniforms.uInputAspect.value.z =
               constraints.video.width / constraints.video.height;
           }
         })

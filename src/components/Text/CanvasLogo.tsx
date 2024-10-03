@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CanvasTexture } from "three";
 import { useThree } from "@react-three/fiber";
 import useStore from "../../store/store";
@@ -11,17 +11,33 @@ const CanvasLogo = () => {
   const { size } = useThree();
 
   const logo = useStore((state) => state.logo);
+  const fullscreen = useStore((state) => state.fullscreen);
+  // const layout = useStore((state) => state.layout);
   const { color } = useStore((state) => state.text);
   const setValue = useStore((state) => state.setValue);
 
-  const [offscreen] = useState(new OffscreenCanvas(1000, 1000));
-  const [glo] = useState(offscreen.getContext("2d"));
+  const [offscreen, glo, imageFull, imageEmblem] = useMemo(() => {
+    const offscreen = new OffscreenCanvas(1000, 1000);
+    const glo = offscreen.getContext("2d");
+    // const tex = new CanvasTexture(offscreen)
+    const imageFull = new Image();
+    const imageEmblem = new Image();
+    return [offscreen, glo, imageFull, imageEmblem];
+  }, []);
+
+  // const [offscreen] = useState(new OffscreenCanvas(1000, 1000));
+  // const [glo] = useState(offscreen.getContext("2d"));
   const [tex, setTex] = useState(new CanvasTexture(offscreen));
-  const [imageFull] = useState(new Image());
-  const [imageEmblem] = useState(new Image());
+  // const [imageFull] = useState(new Image());
+  // const [imageEmblem] = useState(new Image());
 
   useEffect(() => {
-    setValue("canvasSize", { width: size.width, height: size.height });
+    setValue("canvasSize", {
+      // width: size.width * Math.min(window.devicePixelRatio, 2),
+      // height: size.height * Math.min(window.devicePixelRatio, 2),
+      width: size.width,
+      height: size.height,
+    });
   }, [size, setValue]);
 
   const [logoSrc, setLogoSrc] = useState(LogoFull);
@@ -104,11 +120,13 @@ const CanvasLogo = () => {
   // };
 
   const drawLogo = useCallback(() => {
-    if (glo) {
-      glo.clearRect(0, 0, offscreen.width, offscreen.height);
-    }
-    offscreen.width = size.width;
-    offscreen.height = size.height;
+    // if (glo) {
+    //   glo.clearRect(0, 0, offscreen.width, offscreen.height);
+    // }
+    // Setting canvas width will auto clear it
+    const dpr = Math.min(window.devicePixelRatio, 2);
+    offscreen.width = size.width * dpr;
+    offscreen.height = size.height * dpr;
 
     const image = logo.value === 2 ? imageEmblem : imageFull;
 
@@ -119,16 +137,20 @@ const CanvasLogo = () => {
     const colw = (1 - padX * 2 - (grid - 1) * (padX * 0.5)) / grid;
     const spanx = 1;
     let wtotal = colw * spanx + (Math.max(0, spanx - 1) * padX) / 2;
-    if (logo.value === 2) wtotal /= 6; // if emblem reduce to 1/6th column width
+    if (logo.value === 2) wtotal /= 4; // if emblem reduce to 1/6th column width
     const scl = (wtotal * size.width) / image.width;
+    // const r = size.width / useStore.getState().layout.size.width
 
     if (glo) {
       glo.drawImage(
         image,
-        Math.floor(size.width - image.width * scl - padX * size.width),
-        Math.floor(padX * size.width - (image.height * scl) / 2.1),
-        Math.floor(image.width * scl),
-        Math.floor(image.height * scl)
+        Math.floor(
+          offscreen.width - image.width * scl * dpr - padX * offscreen.width
+        ),
+        // Math.floor(padX * size.width - (image.height * scl) / 2.1),
+        Math.floor(padX * offscreen.width),
+        Math.floor(image.width * scl * dpr),
+        Math.floor(image.height * scl * dpr)
       );
 
       tex.dispose();
@@ -158,7 +180,7 @@ const CanvasLogo = () => {
   }, [size, drawLogo]);
 
   return (
-    <mesh visible={logo.value > 0}>
+    <mesh visible={logo.value > 0 && !fullscreen}>
       <planeGeometry args={[1, 1]} />
       <meshBasicMaterial transparent={true} map={tex} toneMapped={false} />
     </mesh>

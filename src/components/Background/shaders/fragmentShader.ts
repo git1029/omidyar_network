@@ -1,9 +1,12 @@
-const backgroundFragmentShader = /*glsl*/ `
+const fragmentShader = /*glsl*/ `
   uniform sampler2D uImage;
+  uniform float uCapture;
   uniform sampler2D uVideo;
   uniform sampler2D uCamera;
   uniform vec3 uColor;
   uniform float uInputBackground;
+  uniform sampler2D uExport;
+  uniform float uExporting;
   uniform vec3 uViewport;
   uniform vec3 uInputAspect;
   uniform float uAlpha;
@@ -14,7 +17,7 @@ const backgroundFragmentShader = /*glsl*/ `
     // vec4 color = vec4(0.);
     vec3 backgroundColor = uColor;
 
-    if (uInputBackground == 1. && uMode < 3.) {
+    if ((uInputBackground == 1. && uMode < 3.) || uCapture == 1.) {
       float inputAspect = uMode == 0. ? uInputAspect.x : uMode == 1. ? uInputAspect.y : uMode == 2. ? uInputAspect.z : 1.;
       vec2 imgUv = vUv;
 
@@ -34,18 +37,22 @@ const backgroundFragmentShader = /*glsl*/ `
       }
       imgUv += .5;
   
-      if (uMode == 0.) backgroundColor = texture(uImage, imgUv).rgb;
-      else if (uMode == 1.) backgroundColor = texture(uVideo, imgUv).rgb;
-      else if (uMode == 2.) backgroundColor = texture(uCamera, imgUv).rgb;
+      if (uCapture == 1. || uMode == 2.) backgroundColor = texture(uCamera, imgUv).rgb;
+      else if (uMode == 0.) backgroundColor = texture(uImage, imgUv).rgb;
+      else if (uMode == 1.) {
+        if (uExporting == 1.) backgroundColor = texture(uExport, imgUv).rgb;
+        else backgroundColor = texture(uVideo, imgUv).rgb;
+      }
 
       // backgroundColor = sRGBTransferOETF(vec4(backgroundColor, 1.)).rgb;
       backgroundColor = pow(backgroundColor, vec3(2.2));
     }
     
     gl_FragColor = vec4(backgroundColor, uAlpha);
+    // gl_FragColor = texture(uCapture, vUv);
     // #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
 `;
 
-export default backgroundFragmentShader;
+export default fragmentShader;

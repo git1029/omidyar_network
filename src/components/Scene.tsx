@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
-import TextInput from "./Text/TextInput";
-import TextLayer from "./Text/TextLayer";
+// import TextInput from "./Text/TextInput";
+// import TextLayer from "./Text/TextLayer";
 import useStore from "../store/store";
 import {
   MutableRefObject,
@@ -19,7 +19,10 @@ import useResize, {
   scaleCanvasScreen,
 } from "../helpers/useResize";
 import Modal from "./Modal";
-import Pattern from "./Pattern/Pattern";
+// import Pattern from "./Pattern/Pattern";
+// import Background from "./Background/Background";
+// import TextCaption from "./Text/TextCaption";
+// import CanvasLogo from "./Text/CanvasLogo";
 // import { clamp } from "three/src/math/MathUtils.js";
 // import PatternSVG from "./PatternSVG/PatternSVG3b";
 
@@ -57,6 +60,7 @@ const Scene = ({
   const [canvasLoaded, setCanvasLoaded] = useState(false);
 
   const fullscreen = useStore((state) => state.fullscreen);
+  const exportSettings = useStore((state) => state.exportSettings);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
@@ -77,6 +81,7 @@ const Scene = ({
     if (fullscreen) {
       scaleCanvasScreen();
     } else {
+      // console.log("scaling canvas");
       scaleCanvas(layout);
     }
   }, [fullscreen, layout]);
@@ -171,16 +176,12 @@ const Scene = ({
             gl={{ preserveDrawingBuffer: true }}
           >
             <Progress setAssetsLoaded={setAssetsLoaded} />
-            <TextInput />
-            <Pattern />
-            {/* <PatternSVG /> */}
-            <TextLayer />
-            {debug && <Perf />}
             <Renderer ffmpeg={ffmpeg} />
+            {debug && <Perf />}
           </Canvas>
           <div
-            className={`top-0 left-0 w-full h-full absolute z-50 pointer-events-none border border-foreground/50 ${
-              fullscreen ? "border-0" : "border"
+            className={`top-0 left-0 w-full h-full absolute z-50 pointer-events-none border border-contrast/50 ${
+              fullscreen || exportSettings.exporting ? "border-0" : "border"
             }`}
           ></div>
           <Grid debug={debug} />
@@ -192,7 +193,7 @@ const Scene = ({
 
 const Grid = ({ debug }: { debug: boolean }) => {
   const canvasSize = useStore((state) => state.canvasSize);
-  const logo = useStore((state) => state.logo);
+  // const logo = useStore((state) => state.logo);
   const caption = useStore((state) => state.caption);
 
   const w = canvasSize.width / 34;
@@ -200,7 +201,8 @@ const Grid = ({ debug }: { debug: boolean }) => {
   // console.log("WIDTH", canvasContainerRef?.current?.offsetWidth);
 
   const gridStyle = {
-    paddingTop: logo.value > 0 ? w * 2 : w,
+    // paddingTop: logo.value > 0 ? w * 2 : w,
+    paddingTop: w,
     paddingBottom: caption.length > 0 ? w * 2 : w,
     paddingLeft: w,
     paddingRight: w,

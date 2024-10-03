@@ -130,9 +130,10 @@ export const scaleCanvas = (
   exportFormat = "image"
 ) => {
   const br = 1;
-  const padX = 32;
-  const padY = 32;
-  const panelWidth = 630;
+  const padX = window.innerWidth < 1024 ? 16 : 32;
+  const padY = window.innerWidth < 1024 ? 16 : 32;
+  const panelWidth =
+    window.innerWidth < 1024 ? 0 : window.innerWidth < 1536 ? 430 : 630;
 
   // const minWidth = 1280;
   // const minHeight = 600;
@@ -145,11 +146,14 @@ export const scaleCanvas = (
   const canvasRef = useStore.getState().canvasRef;
   const canvasContainerRef = useStore.getState().canvasContainerRef;
   const fullscreen = useStore.getState().fullscreen;
+  // const mobileAgent = useStore.getState().mobileAgent;
+
+  // console.log(mobileAgent);
 
   if (fullscreen) return;
 
   let availableWidth =
-    clamp(window.innerWidth, 1280, 2560) - panelWidth - padX * 2 - br * 2;
+    clamp(window.innerWidth, 320, 2560) - panelWidth - padX * 2 - br * 2;
   let availableHeight =
     clamp(window.innerHeight, 600, 2560) - padY * 2 - br * 2;
 
@@ -180,6 +184,12 @@ export const scaleCanvas = (
       }
       if (height % 2 === 1) {
         height = height + 1;
+      }
+
+      // Halve video export (4k -> 1080p)
+      if (layout.label !== "Custom") {
+        width /= 2;
+        height /= 2;
       }
     }
   }

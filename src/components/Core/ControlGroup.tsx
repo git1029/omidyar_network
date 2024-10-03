@@ -15,7 +15,7 @@ const ControlGroup = ({
 
   return (
     <div
-      className={`flex flex-col border border-foreground/50 rounded-lg ${
+      className={`flex flex-col border border-contrast/50 rounded-lg ${
         visible ? "" : "border-opacity-50"
       } ?${className}`}
     >

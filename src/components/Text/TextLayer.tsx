@@ -8,17 +8,22 @@ import { TextAlign } from "../../types";
 import TextMaterial from "./TextMaterial";
 
 import FeijoaMedium from "/Feijoa-Medium.otf";
-import F37LinecaMedium from "/F37Lineca-Medium.ttf";
-import CanvasLogo from "./CanvasLogo";
+// import CanvasLogo from "./CanvasLogo";
 
 const TextLayer = () => {
   const { mode, title, layout, animationScale } = useStore(
     (state) => state.text
   );
-  const caption = useStore((state) => state.caption);
   const fullscreen = useStore((state) => state.fullscreen);
+  const setValue = useStore((state) => state.setValue);
 
   const textGroup = useRef<Group>(null);
+
+  useEffect(() => {
+    if (textGroup.current) {
+      setValue("textRef", textGroup.current);
+    }
+  }, [textGroup, setValue]);
 
   type TText = Text & {
     textRenderInfo: { visibleBounds: number[] };
@@ -120,42 +125,21 @@ const TextLayer = () => {
     onSync,
   };
 
-  const captionSettings = {
-    font: F37LinecaMedium,
-    fontSize: 0.1,
-    textAlign: "left" as TextAlign,
-    onSync,
-  };
-
   return (
     <>
-      <group visible={!fullscreen}>
-        <CanvasLogo />
-
-        <Text
-          {...captionSettings}
-          anchorX="left"
-          anchorY="top"
-          visible={caption.trim().length > 0}
-        >
-          {caption.trim().toUpperCase()}
-          <TextMaterial isCaption={true} />
-        </Text>
-
-        <group ref={textGroup} visible={mode.value > 0}>
-          {textLayers.map((_l, i) => (
-            <Text
-              key={`text_layer_${i}`}
-              {...textSettings}
-              anchorX="left"
-              anchorY="top"
-              visible={isVisible(i)}
-            >
-              {title.trim()}
-              <TextMaterial id={i} />
-            </Text>
-          ))}
-        </group>
+      <group ref={textGroup} visible={mode.value > 0 && !fullscreen}>
+        {textLayers.map((_l, i) => (
+          <Text
+            key={`text_layer_${i}`}
+            {...textSettings}
+            anchorX="left"
+            anchorY="top"
+            visible={isVisible(i)}
+          >
+            {title.trim()}
+            <TextMaterial id={i} />
+          </Text>
+        ))}
       </group>
     </>
   );

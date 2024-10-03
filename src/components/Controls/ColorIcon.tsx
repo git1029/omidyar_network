@@ -18,8 +18,8 @@ const ColorIcon = ({
 
   return (
     <div
-      className={`w-5 h-4 border border-foreground cursor-pointer relative ${
-        selected ? "border-foreground" : "border-foreground/50"
+      className={`w-5 h-4 border border-contrast cursor-pointer relative ${
+        selected ? "border-contrast" : "border-contrast/50"
       }`}
       style={{
         backgroundColor: color.hex,
