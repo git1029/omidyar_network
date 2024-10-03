@@ -20,7 +20,7 @@ const ControlInputCamera = () => {
 
   return (
     <div
-      className={`border border-foreground/50 border w-[300px] overflow-hidden text-sm rounded-md p-2 ${
+      className={`border border-contrast/50 border w-[300px] overflow-hidden text-sm rounded-md p-2 ${
         inputMode.value === 2 ? "flex" : "hidden"
       }`}
     >

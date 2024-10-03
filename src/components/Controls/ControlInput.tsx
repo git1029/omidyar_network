@@ -83,7 +83,7 @@ const ControlInput = () => {
       //   patternRef.uniforms.uInputBackground.value = match.value ? 1 : 0;
       // }
       if (backgroundRef) {
-        backgroundRef.uniforms.uInputBackground.value = match.value ? 1 : 0;
+        backgroundRef.uniforms.uInputBackground.value = match.value;
       }
     }
   };

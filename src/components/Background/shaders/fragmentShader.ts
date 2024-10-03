@@ -5,6 +5,8 @@ const fragmentShader = /*glsl*/ `
   uniform sampler2D uCamera;
   uniform vec3 uColor;
   uniform float uInputBackground;
+  uniform sampler2D uExport;
+  uniform float uExporting;
   uniform vec3 uViewport;
   uniform vec3 uInputAspect;
   uniform float uAlpha;
@@ -37,7 +39,10 @@ const fragmentShader = /*glsl*/ `
   
       if (uCapture == 1. || uMode == 2.) backgroundColor = texture(uCamera, imgUv).rgb;
       else if (uMode == 0.) backgroundColor = texture(uImage, imgUv).rgb;
-      else if (uMode == 1.) backgroundColor = texture(uVideo, imgUv).rgb;
+      else if (uMode == 1.) {
+        if (uExporting == 1.) backgroundColor = texture(uExport, imgUv).rgb;
+        else backgroundColor = texture(uVideo, imgUv).rgb;
+      }
 
       // backgroundColor = sRGBTransferOETF(vec4(backgroundColor, 1.)).rgb;
       backgroundColor = pow(backgroundColor, vec3(2.2));

@@ -24,6 +24,8 @@ const Background = () => {
     return {
       uImage: new Uniform(null),
       uVideo: new Uniform(null),
+      uExport: new Uniform(null),
+      uExporting: new Uniform(0),
       uMode: new Uniform(0),
       uCamera: new Uniform(null),
       uCapture: new Uniform(0),

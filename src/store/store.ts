@@ -9,9 +9,10 @@ import {
   layouts,
   logoOptions,
   palette,
+  patternEffectOptions,
   textSettings,
 } from "./options";
-import { ShaderMaterial } from "three";
+import { Group, ShaderMaterial } from "three";
 import {
   Layout,
   TextSettings,
@@ -21,6 +22,7 @@ import {
   ColorInfo,
   LogoOption,
   Upload,
+  EffectSettings,
 } from "../types";
 
 interface State {
@@ -30,7 +32,7 @@ interface State {
   inputMode: InputMode;
   cameraStatus: number;
   textInput: string;
-  inputBackground: { label: string; value: boolean };
+  inputBackground: { label: string; value: number };
 
   canvasSize: { width: number; height: number };
 
@@ -42,24 +44,30 @@ interface State {
   backgroundColor: ColorInfo;
   foregroundColor: ColorInfo;
 
+  patternEffect: EffectSettings;
+
   text: TextSettings;
   logo: LogoOption;
   caption: string;
 
   exportSettings: ExportSettings;
   ffmpegLoaded: boolean;
-  videoDuration: number | null;
+  exportCancelled: boolean;
 
   imageUpload: Upload | null;
   videoUpload: Upload | null;
+  videoPaused: boolean;
+  videoDuration: number | null;
 
   loaded: boolean;
   fullscreen: boolean;
 
+  mobileAgent: boolean;
+
   patternRef: ShaderMaterial | null;
   effectRef: ShaderMaterial | null;
   backgroundRef: ShaderMaterial | null;
-  textRef: HTMLImageElement | null;
+  textRef: Group | null;
   cameraRef: HTMLVideoElement | null;
   videoRef: HTMLVideoElement | null;
   canvasContainerRef: HTMLDivElement | null;
@@ -86,18 +94,27 @@ const initalState = {
 
   canvasSize: { width: 1000, height: 1000 },
 
-  textRef: null,
   textInput: "Tech",
 
   text: textSettings,
   logo: logoOptions[0],
   caption: "",
 
+  patternEffect: {
+    mode: patternEffectOptions.modes[0],
+    style: patternEffectOptions.styles[0],
+    animating: true,
+  },
+
   imageUpload: defaultUpload.image,
   videoUpload: defaultUpload.video,
+  videoPaused: false,
 
   exportSettings: exportSettings,
+  exportCancelled: false,
   ffmpegLoaded: false,
+
+  mobileAgent: false,
 
   customLayout: customLayout,
   patternRef: null,
@@ -107,7 +124,8 @@ const initalState = {
   videoRef: null,
   canvasRef: null,
   canvasContainerRef: null,
-  videoDuration: 1,
+  textRef: null,
+  videoDuration: null,
   fullscreen: false,
 };
 

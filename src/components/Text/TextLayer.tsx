@@ -15,8 +15,15 @@ const TextLayer = () => {
     (state) => state.text
   );
   const fullscreen = useStore((state) => state.fullscreen);
+  const setValue = useStore((state) => state.setValue);
 
   const textGroup = useRef<Group>(null);
+
+  useEffect(() => {
+    if (textGroup.current) {
+      setValue("textRef", textGroup.current);
+    }
+  }, [textGroup, setValue]);
 
   type TText = Text & {
     textRenderInfo: { visibleBounds: number[] };
@@ -120,23 +127,19 @@ const TextLayer = () => {
 
   return (
     <>
-      <group visible={!fullscreen}>
-        {/* <CanvasLogo /> */}
-
-        <group ref={textGroup} visible={mode.value > 0}>
-          {textLayers.map((_l, i) => (
-            <Text
-              key={`text_layer_${i}`}
-              {...textSettings}
-              anchorX="left"
-              anchorY="top"
-              visible={isVisible(i)}
-            >
-              {title.trim()}
-              <TextMaterial id={i} />
-            </Text>
-          ))}
-        </group>
+      <group ref={textGroup} visible={mode.value > 0 && !fullscreen}>
+        {textLayers.map((_l, i) => (
+          <Text
+            key={`text_layer_${i}`}
+            {...textSettings}
+            anchorX="left"
+            anchorY="top"
+            visible={isVisible(i)}
+          >
+            {title.trim()}
+            <TextMaterial id={i} />
+          </Text>
+        ))}
       </group>
     </>
   );

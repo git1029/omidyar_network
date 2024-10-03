@@ -1,6 +1,7 @@
 import { Color } from "three";
 import {
   ColorInfo,
+  ExportFormat,
   InputMode,
   Layout,
   LogoOption,
@@ -192,7 +193,7 @@ export const customLayout: Layout = {
 };
 
 export const layouts: Layout[] = [
-  { label: "1:1", aspect: 1, size: { width: 3840, height: 3840 } },
+  { label: "1:1", aspect: 1, size: { width: 2160, height: 2160 } },
   { label: "4:5", aspect: 4 / 5, size: { width: 3072, height: 3840 } },
   { label: "5:4", aspect: 5 / 4, size: { width: 3840, height: 3072 } },
   { label: "9:16", aspect: 9 / 16, size: { width: 2160, height: 3840 } },
@@ -253,7 +254,7 @@ export const textSettings: TextSettings = {
   animationScale: 0,
 };
 
-export const exportFormats = [
+export const exportFormats: ExportFormat[] = [
   { label: "PNG", type: "image/png", ext: "png", typeRoot: "image" },
   {
     label: "PNG Sequence",
@@ -274,7 +275,7 @@ export const exportFormats = [
 
 export const exportSettings = {
   // ffmpegLoaded: false,
-  enabled: false,
+  enabled: true,
   format: exportFormats[0],
   exporting: false,
 };
@@ -286,8 +287,8 @@ export const logoOptions: LogoOption[] = [
 ];
 
 export const inputBackgroundOptions = [
-  { label: "Off", value: false },
-  { label: "On", value: true },
+  { label: "Off", value: 0 },
+  { label: "On", value: 1 },
 ];
 
 export const invertOptions = [
@@ -312,7 +313,7 @@ export const connectorOptions = [
 ];
 
 export const patternEffectOptions = {
-  enabled: [
+  modes: [
     { label: "Off", value: 0 },
     { label: "On", value: 1 },
   ],

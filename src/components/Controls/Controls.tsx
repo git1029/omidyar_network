@@ -1,13 +1,13 @@
 import ControlInput from "./ControlInput";
 import ControlLayout from "./ControlLayout";
 // import ControlGrid from "./ControlGrid";
-import Pattern from "./Pattern";
-import Color from "./Color";
+import ControlPattern from "./ControlPattern";
+import ControlColor from "./ControlColor";
 import ControlExport from "./ControlExport";
 import ControlText from "./ControlText";
 // import Logo from "/logo_light.svg";
 import { ExportObject } from "../Scene";
-import { MutableRefObject } from "react";
+import { MutableRefObject, useRef, useState } from "react";
 import useStore from "../../store/store";
 import Logo from "../Logo";
 import FullScreen from "../FullScreen";
@@ -35,11 +35,21 @@ const Gradient = ({ reverse = false }) => {
   );
 };
 
-const ControlsHeader = () => {
+const ControlsHeader = ({
+  setControlsOpen,
+}: {
+  setControlsOpen: () => void;
+}) => {
   return (
-    <div className="flex items-center gap-x-2 pb-6 relative">
+    <div className="flex items-center gap-x-2 px-4 lg:px-0 pb-6 relative bg-background">
       {/* <img src={Logo} className="w-14 h-14" /> */}
-      <h1>Omidyar Network</h1>
+      <div
+        className="flex items-center grow gap-x-2 justify-between cursor-pointer lg:cursor-auto"
+        onClick={setControlsOpen}
+      >
+        <h1 className="relative">Omidyar Network</h1>
+        <Logo size={40} className="lg:hidden" />
+      </div>
       <Gradient />
     </div>
   );
@@ -51,43 +61,64 @@ const Controls = ({
   ffmpeg: MutableRefObject<ExportObject | null>;
 }) => {
   const fullscreen = useStore((state) => state.fullscreen);
+  const mobileAgent = useStore((state) => state.mobileAgent);
+  const exportSettings = useStore((state) => state.exportSettings);
+
+  const [controlsOpen, setControlsOpen] = useState(false);
+
+  const controls = useRef<HTMLDivElement>(null);
 
   return (
     <div
-      className={`w-[430px] 2xl:w-[630px] flex transition-opacity duration-500 ease-in-out ${
+      className={`w-full h-full z-[100] absolute lg:relative lg:w-[430px] lg:min-w-[430px] 2xl:w-[630px] 2xl:min-w-[630px] flex transition-opacity duration-500 ease-in-out ${
         fullscreen ? "opacity-0 pointer-events-none" : ""
       }`}
     >
-      <div className="flex flex-col grow p-8">
-        <ControlsHeader />
+      <div className="flex flex-col grow pt-4 lg:p-8">
+        <ControlsHeader
+          setControlsOpen={() => {
+            setControlsOpen(!controlsOpen);
+          }}
+        />
         <div
-          className="overflow-y-scroll h-full flex flex-col gap-y-6 relative pt-[40px] pb-[40px]"
-          style={{ scrollbarColor: "rgb(var(--foreground-color)) transparent" }}
+          className={`overflow-y-scroll h-full flex flex-col gap-y-6 transition-opacity bg-background duration-500 ease-in-out relative px-4 lg:px-0 pt-[40px] pb-[40px] ${
+            controlsOpen
+              ? "opacity-100"
+              : "opacity-0 touch-none pointer-events-none"
+          } lg:opacity-100 lg:touch-auto lg:pointer-events-auto`}
+          style={{ scrollbarColor: "rgb(var(--contrast-color)) transparent" }}
+          ref={controls}
         >
           <p className="font-serif">
-            Design a pattern that reflects our shared identity. Upload media
-            that represents Omidyar Network, customize the design, and export a
-            creation for any need.
+            Design a pattern that reflects Omidyar Network's brand identity.
+            Upload media that represents our vision/mission, customize the
+            design, and export a creation for any need.
           </p>
-          <div className="flex flex-col gap-y-1">
+          <div
+            className={`flex flex-col gap-y-1 transition-opacity duration-250 ease-in-out ${
+              exportSettings.exporting ? "pointer-events-none opacity-50" : ""
+            }`}
+          >
             <ControlInput />
             <ControlLayout />
             {/* <ControlGrid /> */}
-            <Pattern />
-            <Color />
+            <ControlPattern />
+            <ControlColor />
             <ControlText />
             <ControlLogo />
-            <ControlExport ffmpeg={ffmpeg} />
+            {!mobileAgent && <ControlExport ffmpeg={ffmpeg} />}
           </div>
         </div>
-        <div className="relative pt-4">
-          <Gradient reverse={true} />
-          {/* <img src={Logo} width={50} height="auto" /> */}
-          <div className="flex items-center justify-between">
-            <Logo />
-            <FullScreen />
+        {!mobileAgent && (
+          <div className="hidden lg:block relative pt-4">
+            <Gradient reverse={true} />
+            {/* <img src={Logo} width={50} height="auto" /> */}
+            <div className="flex items-center justify-between">
+              <Logo />
+              <FullScreen />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

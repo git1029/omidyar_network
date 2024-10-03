@@ -1,9 +1,9 @@
 // SDF circle formula from https://iquilezles.org/articles/distfunctions2d/
 
 import getNodeIso from "./partials/getNodeIso";
-// import getNodeSquare from "./partials/getNodeSquare";
+import getNodeSquare from "./partials/getNodeSquare";
 
-const fragmentShader = /* glsl */ `
+const fragmentShader = (mode: number) => /* glsl */ `
   varying vec2 vUv;
   uniform float uTime;
   uniform float PI;
@@ -13,6 +13,8 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uForegroundColor;
   // uniform vec3 uBackgroundColor;
   uniform sampler2D uImage;
+  uniform sampler2D uExport;
+  uniform float uExporting;
   // uniform vec2 uEffect;
   // uniform sampler2D uColor;
   uniform sampler2D uVideo;
@@ -253,7 +255,10 @@ vec4 getBrightness(vec2 p) {
 
 
   if (uMode == 0.) return brightness(texture(uImage, iUv).rgb);
-  else if (uMode == 1.) return brightness(texture(uVideo, iUv).rgb);
+  else if (uMode == 1.) {
+    if (uExporting == 1.) return brightness(texture(uExport, iUv).rgb);
+    else return brightness(texture(uVideo, iUv).rgb);
+  }
   else if (uMode == 2.) return brightness(texture(uCamera, iUv).rgb);
   else if (uMode == 3.) return brightness(texture(uText, iUv).rgb);
   else return vec4(1.);
@@ -263,7 +268,7 @@ vec4 getBrightness(vec2 p) {
 }
 
 
-${getNodeIso}
+  ${mode === 1 ? getNodeIso : getNodeSquare}
 
   void main() {
 
@@ -292,7 +297,7 @@ ${getNodeIso}
     // float sboxx = .5/grid.x;
     // vec2 sbox = vec2(.5/grid.x, .125/grid.y * .5);
     float sboxx = .5/f;
-    sboxx *= 1.43;
+    ${mode === 1 ? "sboxx *= 1.43;" : ""}
     // if (uGrid == 1.) sboxx = length(vec2(0.) - vec2(1.));
     vec2 sbox = vec2(sboxx, .125/f * .666);
     sbox *= vec2(1., map(uDotSize, 0., 1., .5, 1.25));
@@ -361,11 +366,21 @@ ${getNodeIso}
         float sf0 = 1.;
         if (id.x < 0. || id.y < 0. || id.x >= floor(grid.x) || id.y >= floor(grid.y)) sf0 = 0.;
         if (uLogo > 0. && (p0.x >= logop.x && p0.y < logop.w)) sf0 = 0.;
+        
+        ${
+          mode == 1
+            ? /* glsl */ `
+          
         if (uGrid == 1. && odd == 0. && mod(id.x, 2.) == 1.) sf0 = 0.;
         if (uGrid == 1. && odd == 1. && mod(id.x, 2.) == 0.) sf0 = 0.;
         // if (uGrid == 1. && id.x >= floor(grid.x) - 1. && odd == 1.) sf0 = 0.;
         if (uGrid == 1. && id.x >= floor(grid.x) && odd == 0.) sf0 = 0.;
         if (uGrid == 1. && id.y >= floor(grid.y)) sf0 = 0.;
+          
+          `
+            : ""
+        }
+
         vec2 p0b = (floor(uv * grid) + vec2(i, j) + off + 0.500) / grid;
         vec4 b0 = getBrightness(p0b);
         if (i == 0. && j == 0.) color = b0.rgb;
@@ -382,15 +397,20 @@ ${getNodeIso}
         d0 = mix(d0, smoothUnionSDF(d0, sdCircle(uv0 - p0, r), .015 * .75), step(threshold, b0f) * sf0);
         // d0 = min(d0, sdCircle(uv0 - p0, r));
 
-        // // // Square grid lines
-        // // #SQUARE
-        // if (id.x >= 0. && id.x < floor(grid.x) - 1. && uGrid == 0. && uConnectors.x == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.5, .0) + 0.500 + diff, af, false, sbox, roundness, threshold, d1, b0.w, grid, logop); // horizontal
-        // if (id.y >= 0. && id.y < floor(grid.y) - 1. && uGrid == 0. && uConnectors.y == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.0, .5) + 0.5 + diff, af, true, sbox, roundness, threshold, d1, b0.w, grid, logop); // vertical
-
-        // // Isometric grid lines
-        // #ISOMETRIC
-        if (uConnectors.x == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, true, roundness, threshold, d1, b0.w, grid, diff, logop, vec2(1., 0.));
-        if (uConnectors.y == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, false, roundness, threshold, d1, b0.w, grid, diff, logop, vec2(0., 1.));
+        // // Square grid lines
+        // #SQUARE
+        ${
+          mode === 0
+            ? /* glsl */ `
+            if (id.x >= 0. && id.x < floor(grid.x) - 1. && uConnectors.x == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.5, .0) + 0.500 + diff, af, false, sbox, roundness, threshold, d1, b0.w, grid, logop); // horizontal
+            if (id.y >= 0. && id.y < floor(grid.y) - 1. && uConnectors.y == 1.) d1 = getNodeSquare(uv, vec2(i, j) + vec2(.0, .5) + 0.5 + diff, af, true, sbox, roundness, threshold, d1, b0.w, grid, logop); // vertical
+          `
+            : /* glsl */ `
+            // Isometric grid lines
+            if (uConnectors.x == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, true, roundness, threshold, d1, b0.w, grid, diff, logop, vec2(1., 0.));
+            if (uConnectors.y == 1.) d1 = getNodeIso(uv, i, j, id, sbox, af, ascl, false, roundness, threshold, d1, b0.w, grid, diff, logop, vec2(0., 1.));
+          `
+        }
       }
     }
 
@@ -450,6 +470,16 @@ ${getNodeIso}
     // if (uvl.x >= logop.x && uvl.x < logop.z && uvl.y >= logop.y && uvl.y < logop.w) col += vec4(1., 0., 0., .25);
 
     gl_FragColor = col;
+    // gl_FragColor = vec4(1., 0., 0., 1.);
+    
+    // vec2 imgUv = uv;
+    // imgUv.y = 1. - imgUv.y;
+    // imgUv -= .5;
+    // imgUv.x /= uImageSize.z;
+    // imgUv.x *= uViewport.z;
+    // imgUv += .5;
+    // gl_FragColor = texture(uImage, imgUv);
+
 
     // #include <tonemapping_fragment>
     #include <colorspace_fragment>

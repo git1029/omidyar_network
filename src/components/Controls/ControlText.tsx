@@ -45,17 +45,17 @@ const ControlText = () => {
   };
 
   const layoutIcons = [
-    <div className="w-[22px] h-[22px] bg-foreground/15 flex flex-col rounded-sm p-1 justify-end">
-      <div className="bg-foreground w-3 rounded-sm h-0.5"></div>
+    <div className="w-[22px] h-[22px] bg-contrast/15 flex flex-col rounded-sm p-1 justify-end">
+      <div className="bg-contrast w-3 rounded-sm h-0.5"></div>
     </div>,
-    <div className="w-[22px] h-[22px] bg-foreground/15 flex flex-col rounded-sm p-1 justify-between">
-      <div className="bg-foreground w-3 rounded-sm h-0.5"></div>
-      <div className="bg-foreground w-3 rounded-sm h-0.5 self-end"></div>
-      <div className="bg-foreground w-3 rounded-sm h-0.5"></div>
-      <div className="bg-foreground w-3 rounded-sm h-0.5 self-end"></div>
+    <div className="w-[22px] h-[22px] bg-contrast/15 flex flex-col rounded-sm p-1 justify-between">
+      <div className="bg-contrast w-3 rounded-sm h-0.5"></div>
+      <div className="bg-contrast w-3 rounded-sm h-0.5 self-end"></div>
+      <div className="bg-contrast w-3 rounded-sm h-0.5"></div>
+      <div className="bg-contrast w-3 rounded-sm h-0.5 self-end"></div>
     </div>,
-    <div className="w-[22px] h-[22px] bg-foreground/15 flex flex-col rounded-sm items-end p-1">
-      <div className="bg-foreground w-3 rounded-sm h-0.5"></div>
+    <div className="w-[22px] h-[22px] bg-contrast/15 flex flex-col rounded-sm items-end p-1">
+      <div className="bg-contrast w-3 rounded-sm h-0.5"></div>
     </div>,
   ];
 
@@ -165,7 +165,7 @@ const ControlText = () => {
       </div>
 
       <Control label="Color">
-        <div className="flex gap-x-0.5 p-1 border border-foreground/50 rounded-md w-fit">
+        <div className="flex gap-x-0.5 p-1 border border-contrast/50 rounded-md w-fit">
           {textPaletteFiltered.map((c) => {
             // const selected = isSelected(color.label, c.label);
             // const onClick = () => handleColorSelect(color.label, c);

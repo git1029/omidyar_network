@@ -1,34 +1,35 @@
-import { Text, useFBO } from "@react-three/drei";
-import { createPortal, useFrame, useThree } from "@react-three/fiber";
-import { useState } from "react";
-import { Scene, Vector3 } from "three";
+import { Text } from "@react-three/drei";
+// import { createPortal, useThree } from "@react-three/fiber";
+// import { useState } from "react";
+import { Vector3 } from "three";
 import useStore from "../../store/store";
 import FeijoaMedium from "/Feijoa-Medium.otf";
 // import TextMaterial from "./TextMaterial";
 import { TextAlign } from "../../types";
 
+// const TextInput = () => {
+//   const [scene] = useState(() => new Scene());
+
+//   const inputMode = useStore((state) => state.inputMode);
+
+//   // if (inputMode.value !== 3) return null;
+
+//   return (
+//     <group visible={inputMode.value === 3}>
+//       {createPortal(<TextScene scene={scene} />, scene)}
+//     </group>
+//   );
+// };
+
 const TextInput = () => {
-  const [scene] = useState(() => new Scene());
+  // const inputMode = useStore((state) => state.inputMode);
+  // const { camera } = useThree();
+
+  // const target = useFBO(512, 512);
 
   const inputMode = useStore((state) => state.inputMode);
-
-  // if (inputMode.value !== 3) return null;
-
-  return (
-    <group visible={inputMode.value === 3}>
-      {createPortal(<TextScene scene={scene} />, scene)}
-    </group>
-  );
-};
-
-const TextScene = ({ scene }: { scene: Scene }) => {
-  const inputMode = useStore((state) => state.inputMode);
-  const { camera } = useThree();
-
-  const target = useFBO(512, 512);
-
   const textInput = useStore((state) => state.textInput);
-  const patternRef = useStore((state) => state.patternRef);
+  // const patternRef = useStore((state) => state.patternRef);
 
   // useEffect(() => {
   //   // console.log("target");
@@ -39,7 +40,7 @@ const TextScene = ({ scene }: { scene: Scene }) => {
 
   const textSettings = {
     font: FeijoaMedium,
-    fontSize: 2,
+    fontSize: 0.4,
     position: new Vector3(0, 0, 0),
     maxWidth: 1,
     lineHeight: 1.05,
@@ -53,21 +54,21 @@ const TextScene = ({ scene }: { scene: Scene }) => {
     // },
   };
 
-  useFrame(({ gl }) => {
-    if (inputMode.value !== 3) return;
+  // useFrame(({ gl }) => {
+  //   if (inputMode.value !== 3) return;
 
-    gl.setRenderTarget(target);
-    gl.render(scene, camera);
+  //   gl.setRenderTarget(target);
+  //   gl.render(scene, camera);
 
-    if (patternRef && patternRef.uniforms.uText.value === null) {
-      patternRef.uniforms.uText.value = target.texture;
-    }
+  //   if (patternRef && patternRef.uniforms.uText.value === null) {
+  //     patternRef.uniforms.uText.value = target.texture;
+  //   }
 
-    gl.setRenderTarget(null);
-  });
+  //   gl.setRenderTarget(null);
+  // });
 
   return (
-    <group>
+    <group visible={inputMode.value === 3}>
       <mesh scale={[1, 1, 1]}>
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial color={0x000000} />

@@ -313,7 +313,7 @@ ${getNodeSquare}
     float colw = (1. - pad.x * 2. - (grid_ - 1.) * (pad.x * 0.5)) / grid_;
     float spanx = 1.;
     float wtotal = colw * spanx + (max(0., spanx - 1.) * pad.x) / 2.;
-    if (uLogo == 2.) wtotal /= 6.; // if emblem reduce to 1/6th column width
+    if (uLogo == 2.) wtotal /= 4.; // if emblem reduce to 1/6th column width
     // float scl = (wtotal * uResolution.x);
     float scl = (wtotal * 1.) * 1.;
     vec4 logop = vec4(1.-scl - pad.x - pad.x / 2. - r0, pad.y, 0., 0.);

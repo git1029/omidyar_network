@@ -161,7 +161,7 @@ const ControlLayout = () => {
               </button>
             </div>
             {isOutsideLimit() && (
-              <div className="text-foreground text-sm">
+              <div className="text-contrast text-sm">
                 Min: {limit.min}px / Max: {limit.max}px
               </div>
             )}

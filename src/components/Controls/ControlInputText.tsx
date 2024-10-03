@@ -20,7 +20,7 @@ const ControlInputText = () => {
 
   return (
     <div
-      className={`border border-foreground/50 border w-[300px] rounded-md p-2 flex ${
+      className={`border border-contrast/50 border w-[300px] rounded-md p-2 flex ${
         inputMode.value === 3 ? "flex" : "hidden"
       }`}
     >

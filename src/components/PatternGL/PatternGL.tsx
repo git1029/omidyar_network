@@ -1,7 +1,8 @@
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import vertexShader from "./shaders/vertex";
-import fragmentShader from "./shaders/fragment3";
-import fragmentShaderIso from "./shaders/fragment3iso";
+// import fragmentShader from "./shaders/fragment3";
+// import fragmentShaderIso from "./shaders/fragment3iso";
+import fragmentShader4 from "./shaders/fragment4";
 import { useEffect, useMemo, useRef } from "react";
 import {
   Color,
@@ -53,6 +54,7 @@ const PatternGL = () => {
   const backgroundRef = useStore((state) => state.backgroundRef);
   const videoRef = useStore((state) => state.videoRef);
   const setValue = useStore((state) => state.setValue);
+  // const exportSettings = useStore((state) => state.exportSettings);
 
   const img = useTexture("/img.jpg");
   // const video = useVideoTexture("/footage.mp4");
@@ -63,10 +65,17 @@ const PatternGL = () => {
     const texture = new VideoTexture(videoRef);
     texture.generateMipmaps = false;
     // texture.update();
+
+    // console.log(texture);
+    const duration = texture.image.duration;
+    if (!isNaN(duration) && duration > 0) {
+      setValue("videoDuration", duration);
+    }
+
     videoRef.play();
 
     return texture;
-  }, [videoRef]);
+  }, [videoRef, setValue]);
   // setValue("videoUpload", upload);
 
   //   if (videoRef.current) {
@@ -131,6 +140,8 @@ const PatternGL = () => {
       uAlpha: new Uniform(1),
       uImage: new Uniform(null),
       // uColor: new Uniform(null),
+      uExport: new Uniform(null),
+      uExporting: new Uniform(0),
       uVideo: new Uniform(null),
       uCamera: new Uniform(null),
       uText: new Uniform(null),
@@ -257,6 +268,16 @@ const PatternGL = () => {
     }
   }, [matRef, setValue]);
 
+  // useEffect(() => {
+  //   if (matRef.current) {
+  //     matRef.current.uniforms.uExporting.value = exportSettings.exporting
+  //       ? 1
+  //       : 0;
+  //     // const material = ref.current.material as ShaderMaterial;
+  //     // material.uniforms.uDotSize.value = patternDotSize;
+  //   }
+  // }, [matRef, exportSettings]);
+
   useEffect(() => {
     if (video) {
       // video.generateMipmaps = false; // fixes fragment color lookup artifacts around grid cell edges
@@ -322,22 +343,22 @@ const PatternGL = () => {
 
   useEffect(() => {
     if (matRef.current) {
-      matRef.current.fragmentShader =
-        grid.value === 0 ? fragmentShader : fragmentShaderIso;
+      matRef.current.fragmentShader = fragmentShader4(grid.value);
+      // grid.value === 0 ? fragmentShader : fragmentShaderIso;
       matRef.current.needsUpdate = true;
       // console.log(grid, matRef.current);
     }
   }, [grid, matRef]);
 
-  useFrame((_state, delta) => {
-    if (matRef.current) {
-      matRef.current.uniforms.uTime.value += delta;
-      // video.image.pause();
-      // video.source.data.currentTime =
-      //   _state.clock.elapsedTime % video.source.data.duration;
-      // video.needsUpdate = true;
-    }
-  });
+  // useFrame((_state, delta) => {
+  //   if (matRef.current) {
+  //     matRef.current.uniforms.uTime.value += delta;
+  //     // video.image.pause();
+  //     // video.source.data.currentTime =
+  //     //   _state.clock.elapsedTime % video.source.data.duration;
+  //     // video.needsUpdate = true;
+  //   }
+  // });
 
   return (
     <>
@@ -359,7 +380,7 @@ const PatternGL = () => {
         <planeGeometry args={[1, 1]} />
         <shaderMaterial
           vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
+          fragmentShader={fragmentShader4(0)}
           uniforms={uniforms}
           transparent={true}
           ref={matRef}

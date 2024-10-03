@@ -1,6 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
-import TextInput from "./Text/TextInput";
+// import TextInput from "./Text/TextInput";
 // import TextLayer from "./Text/TextLayer";
 import useStore from "../store/store";
 import {
@@ -11,7 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { OrthographicCamera, useProgress } from "@react-three/drei";
+import { useProgress } from "@react-three/drei";
 // import Logo from "/logo_light.svg";
 import Renderer from "./Renderer/Renderer";
 import useResize, {
@@ -19,10 +19,10 @@ import useResize, {
   scaleCanvasScreen,
 } from "../helpers/useResize";
 import Modal from "./Modal";
-import Pattern from "./Pattern/Pattern";
-import Background from "./Background/Background";
-import TextCaption from "./Text/TextCaption";
-import CanvasLogo from "./Text/CanvasLogo";
+// import Pattern from "./Pattern/Pattern";
+// import Background from "./Background/Background";
+// import TextCaption from "./Text/TextCaption";
+// import CanvasLogo from "./Text/CanvasLogo";
 // import { clamp } from "three/src/math/MathUtils.js";
 // import PatternSVG from "./PatternSVG/PatternSVG3b";
 
@@ -60,6 +60,7 @@ const Scene = ({
   const [canvasLoaded, setCanvasLoaded] = useState(false);
 
   const fullscreen = useStore((state) => state.fullscreen);
+  const exportSettings = useStore((state) => state.exportSettings);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
@@ -80,6 +81,7 @@ const Scene = ({
     if (fullscreen) {
       scaleCanvasScreen();
     } else {
+      // console.log("scaling canvas");
       scaleCanvas(layout);
     }
   }, [fullscreen, layout]);
@@ -173,31 +175,13 @@ const Scene = ({
             // }}
             gl={{ preserveDrawingBuffer: true }}
           >
-            <OrthographicCamera
-              near={-1}
-              far={1}
-              left={-0.5}
-              right={0.5}
-              top={0.5}
-              bottom={-0.5}
-              manual
-              makeDefault
-            />
-
             <Progress setAssetsLoaded={setAssetsLoaded} />
-            <TextInput />
-            <Background />
-            {/* <PatternSVG /> */}
-            <Pattern />
-            <TextCaption />
-            <CanvasLogo />
-            {/* <TextLayer /> */}
-            {debug && <Perf />}
             <Renderer ffmpeg={ffmpeg} />
+            {debug && <Perf />}
           </Canvas>
           <div
-            className={`top-0 left-0 w-full h-full absolute z-50 pointer-events-none border border-foreground/50 ${
-              fullscreen ? "border-0" : "border"
+            className={`top-0 left-0 w-full h-full absolute z-50 pointer-events-none border border-contrast/50 ${
+              fullscreen || exportSettings.exporting ? "border-0" : "border"
             }`}
           ></div>
           <Grid debug={debug} />

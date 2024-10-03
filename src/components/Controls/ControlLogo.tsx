@@ -45,7 +45,7 @@ const ControlLogo = () => {
           rows={1}
           className="font-sans"
           value={caption}
-          onChange={(e) => setValue("caption", e.target.value)}
+          onChange={(e) => setValue("caption", e.target.value.toUpperCase())}
         ></textarea>
       </Control>
     </ControlGroup>

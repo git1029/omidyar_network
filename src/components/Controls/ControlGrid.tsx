@@ -156,8 +156,8 @@ const ControlGrid = () => {
               key={o.label}
               className={`w-8 h-8 border rounded-md cursor-pointer ${
                 gridConnectors[i]
-                  ? "bg-foreground/5 border-foreground"
-                  : "border-foreground/50"
+                  ? "bg-contrast/5 border-contrast"
+                  : "border-contrast/50"
               }`}
               onClick={() => handleConnectorChange(i)}
             >

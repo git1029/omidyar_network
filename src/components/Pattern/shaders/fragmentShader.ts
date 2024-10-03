@@ -1,15 +1,15 @@
 const fragmentShader = /*glsl*/ `
-  uniform sampler2D uTex;
-  uniform sampler2D uTex2;
+  uniform sampler2D uPattern;
+  uniform sampler2D uText;
   uniform vec3 uColor;
   uniform vec3 uColorText;
   // uniform float uAlpha;
-  uniform vec2 uEffect;
+  uniform vec3 uEffect;
   uniform float uTime;
   uniform float uBlendText;
   uniform float uCapture;
   uniform float PI;
-  uniform float uText;
+  uniform float uTextEnabled;
   varying vec2 vUv;
   varying vec3 vPos;
   varying float y;
@@ -358,6 +358,7 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
       // vec4 c = texture(uTex, u0.xy * 4. + .5);
 
       vec2 uv = vUv;
+      float t_ = 0.;
 
       if(uEffect.x == 1.) {
         if (uEffect.y == 0.) {
@@ -365,7 +366,7 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
           float ld = 1.;
           float off = 0.;
           off *= (ld/1.);
-          float dmax = ld * steps + 0.;
+          float dmax = ld * steps + 0. * ld/1.;
           vec4 time = getTime(steps, ld, off, dmax);
           float t = time.y;
           float s = time.z;
@@ -389,7 +390,7 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
           float ld = 1.5;
           float off = i/uCount * .5;
           off *= (ld/1.5);
-          float dmax = ld * steps + .5;
+          float dmax = ld * steps + .5 * ld/1.5;
           vec4 time = getTime(steps, ld, off, dmax);
           float t = time.y;
           float s = time.z;
@@ -480,13 +481,20 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
           else if (s == 2.) uv *= mix(scl, 1., t);
           else if (s == 3.) uv *= 1.;
           uv += .5;
+
+          if (s == 0.) t_ = t;
+          else if (s == 1.) t_ = 1.;
+          else if (s == 2.) t_ = 1. - t;
+          else if (s == 3.) t_ = 0.;
+
+          // t_ = t;
         }
       }
 
   
 
 
-      vec4 c = texture(uTex, uv);
+      vec4 c = texture(uPattern, uv);
       vec4 cc = vec4(uColor, c.a);
 
       // color = max(color, cc);
@@ -500,13 +508,23 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
         // } else {
         //   c.a *= 0.65;
         // }
+
+        // Smooth pixelation on effect 4 zoom
+        if (uEffect.y == 3.) {
+          c.a = mix(c.a, smoothstep(.5, 1., c.a), t_ * .5 + .5);
+        }
+
         c.a *= 0.65;
         float alpha = (c.a + color.a * (1. - c.a));
         vec3 col = (uColor * c.a + uColor * color.a * (1. - c.a)) / alpha;
         color = vec4(col, alpha);
+
       }
 
 
+      // if (uEffect.y == 3.) {
+      //   color.a = smoothstep(.0, 1., color.a);
+      // }
       // color = vec4(vec3(map(vvv2.z, -.5, .5, 0., 1.)), 1.);
       // color = c;
     }
@@ -520,8 +538,8 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
       // if (uv.y > 1.) discard;
       // if (uv.x < 0.) discard;
       // if (uv.y < 0.) discard;
-      if (uText == 1.) {
-        vec4 text = texture(uTex2, vUv);
+      if (uTextEnabled == 1.) {
+        vec4 text = texture(uText, vUv);
         // text.rgb = mix(text.rgb, mix(text.rgb, color.rgb, .4), color.a);
         vec3 textColor = mix(uColorText, mix(uColorText, uColor, .4), color.a * uBlendText);
         color.rgb = mix(color.rgb, textColor, text.a);

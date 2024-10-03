@@ -32,7 +32,7 @@ const ControlInputMedia = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [initial, setInitial] = useState({ image: true, video: true });
-  const [videoPaused, setVideoPaused] = useState(false);
+  // const [videoPaused, setVideoPaused] = useState(false);
 
   // const [imageUpload, setImageUpload] = useState<Upload | null>(
   //   defaultUpload.image
@@ -41,6 +41,7 @@ const ControlInputMedia = () => {
   //   defaultUpload.video
   // );
 
+  const videoPaused = useStore((state) => state.videoPaused);
   const inputMode = useStore((state) => state.inputMode);
   const imageUpload = useStore((state) => state.imageUpload);
   const videoUpload = useStore((state) => state.videoUpload);
@@ -57,16 +58,18 @@ const ControlInputMedia = () => {
     }
   }, [videoRef, setValue]);
 
-  const handleVideoPlayback = () => {
+  useEffect(() => {
     if (videoRef.current) {
-      console.log(videoRef.current.currentTime);
-      // videoRef.current.currentTime = 0;
-      if (videoPaused) {
-        videoRef.current.play();
-      } else videoRef.current.pause();
-
-      setVideoPaused(!videoPaused);
+      // console.log(videoRef.current.currentTime);
+      // videoRef.current.pause();
+      // videoRef.current.currentTime += 0.1;
+      if (videoPaused) videoRef.current.pause();
+      else videoRef.current.play();
     }
+  }, [videoPaused, videoRef]);
+
+  const handleVideoPlayback = () => {
+    setValue("videoPaused", !videoPaused);
   };
 
   const uploadFile = (file: File, dataUrl: string) => {
@@ -110,6 +113,7 @@ const ControlInputMedia = () => {
       });
     } else if (inputMode.value === 1) {
       setValue("videoUpload", upload);
+      // console.log(upload);
 
       if (videoRef.current) {
         const texture = new VideoTexture(videoRef.current);
@@ -154,6 +158,7 @@ const ControlInputMedia = () => {
             }
 
             if (!isNaN(duration) && duration > 0) {
+              console.log(duration);
               setValue("videoDuration", duration);
             } else {
               console.warn("Unable to access video duration or has zero value");
@@ -226,7 +231,7 @@ const ControlInputMedia = () => {
     <>
       <div className="flex flex-col gap-y-2">
         <div
-          className={`border border-foreground/50 border flex flex-col gap-y-2 h-fit w-[300px] text-sm rounded-md p-2 ${
+          className={`border border-contrast/50 border flex flex-col gap-y-2 h-fit w-[300px] text-sm rounded-md p-2 ${
             currentUpload ? "" : "cursor-pointer"
           } ${inputMode.value < 2 ? "flex" : "hidden"}`}
           // tabIndex={0}
@@ -238,7 +243,7 @@ const ControlInputMedia = () => {
               currentUpload ? "flex" : "hidden"
             }`}
           >
-            <div className="h-[100px] max-h-[100px] w-1/2 border border-foreground/50 rounded-sm">
+            <div className="h-[100px] max-h-[100px] w-1/2 border border-contrast/50 rounded-sm">
               <div
                 // className={`w-full h-full bg-contain bg-no-repeat bg-center ${
                 //   inverted ? "filter invert" : ""
@@ -293,10 +298,10 @@ const ControlInputMedia = () => {
                   <div className="line-clamp-2 break-all uppercase">
                     {currentUpload.name}
                   </div>
-                  {inputMode.value === 1 && (
+                  {inputMode.value === 1 && videoDuration !== null && (
                     <div className="normal-case">
                       <span className="uppercase">Duration:</span>{" "}
-                      {videoDuration}s
+                      {videoDuration.toFixed(1)}s
                     </div>
                   )}
                 </div>

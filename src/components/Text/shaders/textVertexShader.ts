@@ -194,13 +194,17 @@ const textVertexShader = /* glsl */ `
         float off = (1.-xy.x) * .0 + (1.-xy.y)*.0;
         // off *= ld * steps;
         // off = xy.y * 1.6 + (3.-xy.x) * .25;
-        off = (3.-xy.y) * 1.6 + (xy.x) * .25;
+        // off = (3.-xy.y) * 1.6 + (xy.x) * .25;
+        off = (xy.y) * 1.6 + (xy.x) * .25;
+        // off = xy.x * .25 + (xy.y) * 1.6;
         off *= (ld/1.5);
 
         // off += (ld * (steps + 1.)) / 2.;
         // off = 0.;
 
-        float offm = (3. * 1.6 + (3.-2.) * .25) * ld/1.5;
+        // float offm = (3. * 1.6 + (3.-2.) * .25) * ld/1.5;
+        float offm = (3. * 1.6 + (2.) * .25) * ld/1.5;
+        // offm = 2. * .25 + 3. * 1.6;
 
         // max duration for complete animation
         // max offset 
@@ -378,11 +382,13 @@ const textVertexShader = /* glsl */ `
         off = (1.-mod(xy.y, 2.)) * 1.5;
         off *= (ld/1.5);
 
-        float offm = 3. * 1.5 * ld/1.5;
+        // float offm = 3. * 1.5 * ld/1.5;
+        float offm = 1. * 1.5 * ld/1.5;
 
         // max duration for complete animation
         // max offset 
-        float dmax = (offm + (steps - 2.) * ld);
+        // float dmax = (offm + (steps - 2.) * ld);
+        float dmax = (offm + (steps) * ld);
         float time = mod(uTime, nearestHalfUp(dmax));
 
         float tmax = time / dmax;
