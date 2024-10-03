@@ -33,7 +33,7 @@ const Entry = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full h-full bg-background z-50 transition-opacity duration-500 delay-0 ease-in-out flex flex-col gap-y-2 items-center justify-between p-10 ${
+      className={`fixed top-0 left-0 w-full h-full bg-background z-[100] transition-opacity duration-500 delay-0 ease-in-out flex flex-col gap-y-2 items-center justify-between p-10 ${
         launched ? "opacity-0" : "opacity-1"
       }`}
       ref={fade}

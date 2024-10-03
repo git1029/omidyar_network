@@ -180,7 +180,7 @@ const Scene = ({
             {debug && <Perf />}
           </Canvas>
           <div
-            className={`top-0 left-0 w-full h-full absolute z-50 pointer-events-none border border-contrast/50 ${
+            className={`top-0 left-0 w-full h-full absolute z-[40] pointer-events-none border border-contrast/50 ${
               fullscreen || exportSettings.exporting ? "border-0" : "border"
             }`}
           ></div>
