@@ -35,17 +35,18 @@ const Gradient = ({ reverse = false }) => {
   );
 };
 
-const ControlsHeader = ({
-  setControlsOpen,
-}: {
-  setControlsOpen: () => void;
-}) => {
+// const ControlsHeader = ({
+//   setControlsOpen,
+// }: {
+//   setControlsOpen: () => void;
+// }) => {
+const ControlsHeader = () => {
   return (
     <div className="flex items-center gap-x-2 px-4 lg:px-0 pb-6 relative bg-background">
       {/* <img src={Logo} className="w-14 h-14" /> */}
       <div
-        className="flex items-center grow gap-x-2 justify-between cursor-pointer lg:cursor-auto"
-        onClick={setControlsOpen}
+        className="flex items-center grow gap-x-2 justify-between"
+        // onClick={setControlsOpen}
       >
         <h1 className="relative">Omidyar Network</h1>
         <Logo size={40} className="lg:hidden" />
@@ -70,15 +71,15 @@ const Controls = ({
 
   return (
     <div
-      className={`w-full h-full z-[100] absolute lg:relative lg:w-[430px] lg:min-w-[430px] 2xl:w-[630px] 2xl:min-w-[630px] flex transition-opacity duration-500 ease-in-out ${
+      className={`w-full h-full z-50 absolute lg:relative lg:w-[430px] lg:min-w-[430px] 2xl:w-[630px] 2xl:min-w-[630px] flex transition-opacity duration-500 ease-in-out ${
         fullscreen ? "opacity-0 pointer-events-none" : ""
       }`}
     >
       <div className="flex flex-col grow pt-4 lg:p-8">
         <ControlsHeader
-          setControlsOpen={() => {
-            setControlsOpen(!controlsOpen);
-          }}
+        // setControlsOpen={() => {
+        //   setControlsOpen(!controlsOpen);
+        // }}
         />
         <div
           className={`overflow-y-scroll h-full flex flex-col gap-y-6 transition-opacity bg-background duration-500 ease-in-out relative px-4 lg:px-0 pt-[40px] pb-[40px] ${
@@ -119,6 +120,17 @@ const Controls = ({
             </div>
           </div>
         )}
+        <div className="p-4 lg:hidden relative">
+          <div className={`flex flex-col border border-contrast/50 rounded-lg`}>
+            <Gradient reverse={true} />
+            <div
+              className="cursor-pointer px-3 py-2"
+              onClick={() => setControlsOpen(!controlsOpen)}
+            >
+              <h2>{controlsOpen ? "Hide Controls" : "Controls"}</h2>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
