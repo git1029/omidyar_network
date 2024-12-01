@@ -90,7 +90,6 @@ const textVertexShader = /* glsl */ `
 
     // Add margin if logo to calculate correct y position
     float marginY3 = 0.;
-    // if (uLogo == 1.) marginY3 += marginY;
 
     float cWidth = (1.- margin.x * 2. - (grid - 1.) * gap.x) / grid;
     float rHeight = (1. - margin.y * 2. - (grid - 1.) * gap.y - marginY2) / grid;
@@ -121,17 +120,6 @@ const textVertexShader = /* glsl */ `
   }
  
   void main() {
-    // vec3 pos = position;
-    // float ld = 1.5;
-    // float off = (1.-uId.x) * .5 + (1.-uId.y)*.125;
-    // float t = mod(uTime + off, ld) / ld;
-    // t = quarticInOut(t);
-    // float t = 0.;
-    // // pos.x += t * 2.;
-    // float offy = (floor((uTime + off) / ld) + t) * 1.5;
-    // // offy = mod(offy, uViewport.y / .85) - uViewport.y / 1.5; 
-    // pos.y += offy - uViewport.y/1.5 - uId.y * 1.5;
-
     float speed = map(uSpeed, 0., 1., 0.5, 2.);
 
     vec2 xy = vec2(0.);
@@ -198,28 +186,16 @@ const textVertexShader = /* glsl */ `
         float steps = 5.;
         float ld = 1.5 / speed;
         float off = (1.-xy.x) * .0 + (1.-xy.y)*.0;
-        // off *= ld * steps;
-        // off = xy.y * 1.6 + (3.-xy.x) * .25;
-        // off = (3.-xy.y) * 1.6 + (xy.x) * .25;
         off = (xy.y) * 1.6 + (xy.x) * .25;
-        // off = xy.x * .25 + (xy.y) * 1.6;
         off *= (ld/1.5);
 
-        // off += (ld * (steps + 1.)) / 2.;
-        // off = 0.;
-
-        // float offm = (3. * 1.6 + (3.-2.) * .25) * ld/1.5;
         float offm = (3. * 1.6 + (2.) * .25) * ld/1.5;
-        // offm = 2. * .25 + 3. * 1.6;
-
-        // max duration for complete animation
-        // max offset 
+        
         float dmax = (offm + steps * ld);
         float time = mod(uTime, nearestHalfUp(dmax));
 
         float tmax = time / dmax;
         
-
         float ts = off;
         float te = ts + ld;
 
@@ -233,18 +209,8 @@ const textVertexShader = /* glsl */ `
         else if (time < ts + ld * steps) t2 = map(time, ts, ts + ld * steps, 0., 1.);
         else t2 = 1.;
 
-        // float t = mod(uTime + off, ld) / ld;
-        // t = pow(quarticInOut(t), 1.);
         t = mod(t2 * steps, 1.);
         t = pow(quarticInOut(t), 2.);
-
-        // float t = mod(uTime + off, ld) / ld;
-        // t = pow(quarticInOut(t), 1.);
-
-
-        // float t2 = mod(uTime + off, ld * steps) / (ld * steps);
-
-        // float offy = (floor(t2 * steps) + t * 1.) * g.size.y;
 
         float s = floor((t2) * steps);
         float startY = g.pos.y;
@@ -270,64 +236,32 @@ const textVertexShader = /* glsl */ `
       }
 
       if (uLayout == 1.) {
-        // float steps = 4.;
-        // float ld = 1.5;
-        // float off = (1.-xy.x) * .0 + (1.-xy.y)*.0;
-        // // off *= ld * steps;
-        // // off = xy.y * 1.6 + (3.-xy.x) * .25;
-        // off = (3.-xy.y) * .25;
-        // off *= (ld/1.5);
-
-        // // float delay = (ld * (steps + 1.)) / 2.;
-        // // off += delay;
-        // // off = 0.;
-
-        // float t = mod(uTime + off, ld) / ld;
-        // t = pow(quarticInOut(t), 1.);
-
-
-        // float t2 = mod(uTime + off, ld * steps) / (ld * steps);
-
+    
         float steps = 7.;
         float ld = 1.5 / speed;
         float off = (1.-xy.x) * .0 + (1.-xy.y)*.0;
-        // off *= ld * steps;
-        // off = xy.y * 1.6 + (3.-xy.x) * .25;
         off = (xy.y) * .25;
         off *= (ld/1.5);
 
-        // off += (ld * (steps + 1.)) / 2.;
-        // off = 0.;
 
         float offm = (3. * .25) * ld/1.5;
 
         // max duration for complete animation
-        // max offset 
         float dmax = (offm + steps * ld);
         float time = mod(uTime, nearestHalfUp(dmax));
 
         float tmax = time / dmax;
         
-
         float ts = off;
         float te = ts + ld;
-
-        // float t = 0.;
-        // if (time < ts) t = 0.;
-        // else if (time < te) t = map(time, ts, te, 0., 1.);
-        // else t = 1.;
 
         float t2 = 0.;
         if (time < ts) t2 = 0.;
         else if (time < ts + ld * steps) t2 = map(time, ts, ts + ld * steps, 0., 1.);
         else t2 = 1.;
 
-        // float t = mod(uTime + off, ld) / ld;
-        // t = pow(quarticInOut(t), 1.);
         float t = mod(t2 * steps, 1.);
         t = pow(quarticInOut(t), 1.);
-
-        // float offy = (floor(t2 * steps) + t * 1.) * g.size.y;
 
         float s = floor((t2) * steps);
         float startX = g.pos.x;
@@ -355,18 +289,9 @@ const textVertexShader = /* glsl */ `
 
         if (s == 6.) startX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
         if (s == 6.) endX = getPos(vec2(xy.x + 3., xy.y)).pos.x - g.pos.x;
-        // if (s == 4.) startX = getPos(vec2(xy.x, 0.)).pos.y;
-        // if (s > 4.) startX = .5 + g.scl.y * g.textSize.y;
-
-
-        // if (s == 4.) endX = .5 + g.scl.y * g.textSize.y;
-        // if (s > 4.) endX = .5 + g.scl.y * g.textSize.y;
-
 
         float offx = mix(startX, endX, t);
 
-
-        // offset.x = mix(-w, 0., t);
         offset.x = offx;
         offset.x -= 1.;
         if (uId > 3.) offset.x -= 1.;
@@ -383,27 +308,18 @@ const textVertexShader = /* glsl */ `
         float steps = 4.;
         float ld = 1.5 / speed;
         float off = (1.-xy.x) * .0 + (1.-xy.y)*.0;
-        // off *= ld * steps;
-        // off = xy.y * 1.6 + (3.-xy.x) * .25;
         off = (1.-mod(xy.y, 2.)) * 1.5;
         off *= (ld/1.5);
 
-        // float offm = 3. * 1.5 * ld/1.5;
         float offm = 1. * 1.5 * ld/1.5;
 
         // max duration for complete animation
-        // max offset 
-        // float dmax = (offm + (steps - 2.) * ld);
         float dmax = (offm + (steps) * ld);
         float time = mod(uTime, nearestHalfUp(dmax));
 
         float tmax = time / dmax;
-        
-
 
         float delay = (ld * (steps + 1.)) / 2.;
-        // off += delay;
-        // off = 0.;
 
         float ts = off;
         float te = ts + ld;
@@ -418,18 +334,8 @@ const textVertexShader = /* glsl */ `
         else if (time < ts + ld * steps) t2 = map(time, ts, ts + ld * steps, 0., 1.);
         else t2 = 1.;
 
-        // float t = mod(uTime + off, ld) / ld;
-        // t = pow(quarticInOut(t), 1.);
         t = mod(t2 * steps, 1.);
         t = pow(quarticInOut(t), 2.);
-        
-        
-
-        // float t2 = mod(uTime + off, ld * steps) / (ld * steps);
-
-        
-
-        // float offy = (floor(t2 * steps) + t * 1.) * g.size.y;
 
         float s = floor((t2) * steps);
         float startX = g.pos.x;
@@ -441,73 +347,38 @@ const textVertexShader = /* glsl */ `
         if (s == 1.) startX = 0.;
         if (s == 2.) startX = -w;
         if (s == 3.) startX = 0.;
-        // if (s >= 2.) startX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
-        // if (s == 3.) startX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
-        // if (s == 4.) startX = getPos(vec2(xy.x, 0.)).pos.y;
-        // if (s > 4.) startX = .5 + g.scl.y * g.textSize.y;
-
 
         if (s == 0.) endX = 0.;
         if (s == 1.) endX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
         if (s == 2.) endX = 0.;
         if (s == 3.) endX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
-        // if (s >= 2.) endX = getPos(vec2(xy.x + 2., xy.y)).pos.x - g.pos.x;
-        // if (s == 3.) endX = getPos(vec2(xy.x + 3., xy.y)).pos.x - g.pos.x;
-        // if (s == 4.) endX = .5 + g.scl.y * g.textSize.y;
-        // if (s > 4.) endX = .5 + g.scl.y * g.textSize.y;
-
 
         float offx = mix(startX, endX, t);
-
-        // float dur = 
-
-
-        // float t3 = map(t2, 0., 1., .0, .8);
+        
         tmax = linearstep(0., .8666, tmax);
-        // float t3 = t2 < 0.8 ? map(t2, 0., .8, 0., 1.) : 1.;
-        // float t3 = mod(uTime + delay, ld * steps) / (ld * steps);
-        // if (t3 < .8) t3 = map(t3, 0., .8, 0., 1.);
-        // else t3 = 1.;
-        // offset.x = mix(-w, 0., t);
+        
         offset.x = offx;
         offset.y += tmax * 1.;
 
-
         if (uId < 4.) offset.y += .15 * 0.;
         else offset.y -= 1.;
-
 
         if (s == 0.) a.x = 1.-t;
         else if (s == 1.) a.x = t;
         if (s == 2.) a.x = 1.-t;
         else if (s == 3.) a.x = t;
-        // else a.x = 0.;
         a.y = s;
-        // offset.y += offy;
       }
     }
-
 
     pos.xy *= g.scl;
     pos.xy += g.pos;
     pos.xy += offset;
 
-    // float scale = mix(1., map(uScale, 0., 1., 1., 2.), 1.);
-    // // // scale = 1.;
-    // pos.xy -= .5;
-    // pos.xy *= scale;
-    // pos.xy += .5;
-    
-
-    // pos.x += 1. / 2. * uAnimating;
-
-    // pos.x += mix(-1., 1., uId.x) * 1.75;
-
     vec4 modelPosition = modelMatrix * vec4(pos, 1.0);
     vec4 viewPosition = viewMatrix * modelPosition;
     vec4 projectedPosition = projectionMatrix * viewPosition;
     gl_Position = projectedPosition;
-    // vT = t;
     vUv = uv;
     vP = pos;
     vA = a;

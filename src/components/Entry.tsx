@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-// import Logo from "/logo_light.svg";
 import useStore from "../store/store";
 import Logo from "./Logo";
 
@@ -11,11 +10,6 @@ const Entry = () => {
   const [preLaunched] = useState(storage && JSON.parse(storage).launched);
   const [launched, setLaunched] = useState(false);
   const loaded = useStore((state) => state.loaded);
-
-  // useEffect(() => {
-  //   const storage = window.localStorage.getItem("omidyar-settings");
-  //   if (storage && JSON.parse(storage).launched) setLaunched(true);
-  // }, []);
 
   const handleLaunch = () => {
     // Update storage
@@ -57,23 +51,8 @@ const Entry = () => {
         >
           Start
         </p>
-        {/* <img
-          src={Logo}
-          width={50}
-          height={50}
-          onTransitionEnd={(e) => e.stopPropagation()}
-          // className={`transition-transform duration-500 delay-500 ease-in-out ${
-          //   loaded ? "scale-150" : "scale-100"
-          // }`}
-        /> */}
         <Logo />
       </div>
-      {/* <div
-      onTransitionEnd={(e) => e.stopPropagation()}
-      className={`h-0.5 bg-black-100 w-[125px] transition-transform duration-500 delay-250 ease-in-out origin-bottom-left ${
-        loaded ? "scale-x-100" : "scale-x-0"
-      }`}
-    ></div> */}
     </div>
   );
 };

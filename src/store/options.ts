@@ -205,23 +205,6 @@ export const textPalette: ColorInfo[] = [
   ...palette.filter((c) => c.type === "neutral" && c.label !== "Transparent"),
 ];
 
-// {
-//   label: "White",
-//   hex: "#ffffff",
-//   contrast: "#3a3a3a",
-//   rgb: [255, 255, 255],
-//   rgbContrast: [58, 58, 58],
-//   pair: "Black",
-// },
-// {
-//   label: "Black",
-//   hex: "#3a3a3a",
-//   contrast: "#ffffff",
-//   rgb: [58, 58, 58],
-//   rgbContrast: [255, 255, 255],
-//   pair: "White",
-// },
-
 export const textLayoutOptions: TextLayout[] = [
   {
     label: "Layout 1",
@@ -343,19 +326,3 @@ export const defaultUpload = {
     type: "video/mp4",
   },
 };
-
-// const maxWidthAspect = Math.max(
-//   ...layouts.map((l) => l.size.width / l.size.height)
-// );
-
-// const layoutDefault = layouts.find(
-//   (l) => l.size.width / l.size.height === maxWidthAspect
-// );
-
-// const cameraSettings = {
-//   fov: 45,
-//   near: 0.01,
-//   far: 100,
-//   position: [0, 0, 20],
-//   aspect: layoutDefault.size.width / layoutDefault.size.height,
-// };

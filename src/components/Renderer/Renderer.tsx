@@ -18,13 +18,6 @@ const Renderer = ({
 }: {
   ffmpeg: MutableRefObject<ExportObject | null>;
 }) => {
-  // console.log(ffmpeg.current.ffmpegLoaded);
-
-  // useEffect(() => {
-  //   console.log("RENDERER");
-  // }, []);
-
-  // const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
   const effectRef = useStore((state) => state.effectRef);
   const textRef = useStore((state) => state.textRef);
@@ -93,44 +86,16 @@ const Renderer = ({
   };
 
   const renderScene = () => {
-    // console.log("RENDERING SCENE", render.current.exportPrep);
-
     renderTextInput();
     renderText();
     renderPattern();
 
-    // if (!exportSettings.exporting) {
     gl.setRenderTarget(null);
-    // }
   };
-
-  // const setTime = (time: number) => {
-  //   if (textRef && text.animating) {
-  //     textRef.children.forEach(
-  //       (child) =>
-  //         (((child as Mesh).material as ShaderMaterial).uniforms.uTime.value =
-  //           time)
-  //     );
-  //   }
-
-  //   if (patternRef) {
-  //     patternRef.uniforms.uTime.value = time;
-  //   }
-
-  //   if (effectRef && effectRef.uniforms.uEffect.value.z === 1) {
-  //     effectRef.uniforms.uTime.value = time;
-  //   }
-  // };
 
   ffmpeg.current = useExport({ render: render.current, renderScene });
 
   useFrame((_state, delta) => {
-    // const time = exportSettings.exporting
-    //   ? render.current.frameCount
-    //   : render.current.deltaTime;
-
-    // setTime(time);
-
     if (!exporting) {
       if (textRef && text.animating) {
         textRef.children.forEach((child) => {
@@ -152,9 +117,6 @@ const Renderer = ({
     if (!exporting || render.current.exportPrep) {
       renderScene();
     }
-
-    // render.current.deltaTime += delta;
-    // render.current.frameCount++;
   });
 
   return (

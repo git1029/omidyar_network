@@ -63,16 +63,12 @@ export interface ExportFormat {
 }
 
 export interface ExportSettings {
-  // ffmpegLoaded: boolean;
   format: ExportFormat;
   exporting: boolean;
   enabled: boolean;
-  // duration: number;
 }
 
 export type TextAlign = "center" | "left" | "right" | "justify" | undefined;
-
-// type ModalType = "message" | "warning" | "error";
 
 export interface Modal {
   title: string;

@@ -6,19 +6,12 @@ import Slider from "../Core/Slider";
 import Toggle from "../Core/Toggle";
 import Control from "../Core/Control";
 import { ChangeEvent } from "react";
-// import Control from "../Core/Control";
 
 const ControlPattern = () => {
   const patternRef = useStore((state) => state.patternRef);
   const effectRef = useStore((state) => state.effectRef);
   const patternEffect = useStore((state) => state.patternEffect);
   const setValue = useStore((state) => state.setValue);
-
-  // const [effectPaused, setEffectPaused] = useState(false);
-  // const [effectMode, setEffectMode] = useState(patternEffectOptions.enabled[0]);
-  // const [effectStyle, setEffectStyle] = useState(
-  //   patternEffectOptions.styles[0]
-  // );
 
   const patternSliders = [
     {
@@ -65,9 +58,6 @@ const ControlPattern = () => {
       ...patternEffect,
       animating: !patternEffect.animating,
     });
-    // if (effectRef) {
-    //   effectRef.uniforms.uEffect.value.z = !effectPaused ? 0 : 1;
-    // }
   };
 
   const handleEffectStyleChange = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -81,11 +71,9 @@ const ControlPattern = () => {
         style: match,
         animating: true,
       });
-      // setEffectStyle(match);
-      // setEffectPaused(false);
+
       if (effectRef) {
         effectRef.uniforms.uEffect.value.y = match.value;
-        // effectRef.uniforms.uEffect.value.z = 1;
         effectRef.uniforms.uTime.value = 0;
       }
     }

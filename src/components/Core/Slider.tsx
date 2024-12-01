@@ -85,7 +85,6 @@ const Slider = ({
             style={{ width: `${map(val, min, max, 1, 99)}%` }}
           />
         </div>
-        {/* <div className="text-sm w-[30px] text-center">{Math.floor(value)}</div> */}
         <div className="text-sm w-[30px] text-center">
           {val.toFixed(countDecimals(step))}
         </div>

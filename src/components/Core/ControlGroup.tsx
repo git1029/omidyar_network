@@ -2,12 +2,10 @@ import { ReactNode, useState } from "react";
 
 const ControlGroup = ({
   title,
-  // border = true,
   className = "",
   children,
 }: {
   title: string;
-  border?: boolean;
   className?: string;
   children: ReactNode;
 }) => {

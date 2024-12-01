@@ -11,16 +11,6 @@ const ControlLayout = () => {
   const customLayout = useStore((state) => state.customLayout);
   const setValue = useStore((state) => state.setValue);
 
-  // const handleLayoutChange = (e: ChangeEvent<HTMLSelectElement>) => {
-  //   if (e.target.value === "Custom") setLayout(customLayout);
-  //   else {
-  //     const match = layouts.find((l) => l.label === e.target.value);
-  //     if (match) {
-  //       setLayout(match);
-  //     }
-  //   }
-  // };
-
   const handleLayoutChange = <T,>(value: T) => {
     if (value === layout) return;
     const match = layouts.find((l) => l === value);
@@ -80,23 +70,13 @@ const ControlLayout = () => {
   };
 
   const handleWidthBlur = () => {
-    if (customWidth < limit.min) {
-      // setCustomWidth(limit.min);
-    } else if (customWidth > limit.max) {
-      // setCustomWidth(limit.max);
-    } else {
-      setCustomWidth(Math.floor(customWidth));
-    }
+    if (customWidth < limit.min || customWidth > limit.max) return;
+    setCustomWidth(Math.floor(customWidth));
   };
 
   const handleHeightBlur = () => {
-    if (customHeight < limit.min) {
-      // setCustomHeight(limit.min);
-    } else if (customHeight > limit.max) {
-      // setCustomHeight(limit.max);
-    } else {
-      setCustomHeight(Math.floor(customHeight));
-    }
+    if (customHeight < limit.min || customHeight > limit.max) return;
+    setCustomHeight(Math.floor(customHeight));
   };
 
   const layoutToggle = {
@@ -108,22 +88,10 @@ const ControlLayout = () => {
 
   return (
     <ControlGroup title="Layout">
-      {/* <div className="flex items-center">
-        <label>Aspect Ratio</label>
-        <select onChange={handleLayoutChange} value={layout.label}>
-          {layouts.map((layout) => (
-            <option key={layout.label} value={layout.label}>
-              {layout.label}
-            </option>
-          ))}
-        </select>
-      </div> */}
-
       <Toggle<Layout> {...layoutToggle} />
 
       {layout.label === "Custom" && (
         <div className="flex items-center">
-          {/* <label></label> */}
           <div className="flex flex-col gap-y-1">
             <div className="flex gap-x-2 items-center w-[300px]">
               <div className="flex items-center gap-x-1 grow">
@@ -138,8 +106,6 @@ const ControlLayout = () => {
                   value={customWidth}
                   onChange={handleWidthChange}
                   onBlur={handleWidthBlur}
-                  // pattern="[0-9]"
-                  // step={1}
                 />
                 x
                 <input

@@ -23,13 +23,10 @@ const fragmentShader = /*glsl*/ `
 
     if ((uInputBackground == 1. && uMode < 3.) || uCapture == 1.) {
       backgroundColor = getImage(vUv, true).rgb;
-  
-      // backgroundColor = sRGBTransferOETF(vec4(backgroundColor, 1.)).rgb;
-      // backgroundColor = pow(backgroundColor, vec3(2.2));
     }
     
     gl_FragColor = vec4(backgroundColor, uAlpha);
-    // gl_FragColor = texture(uCapture, vUv);
+
     // #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }

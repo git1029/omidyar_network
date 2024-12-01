@@ -2,17 +2,11 @@ import { useEffect } from "react";
 import useStore from "../../store/store";
 import { palette } from "../../store/options";
 import { ColorInfo } from "../../types";
-
 import ControlGroup from "../Core/ControlGroup";
 import ColorIcon from "./ColorIcon";
-
 import TransparentPattern from "/transparent.png";
-// import TransparentPattern2 from "/transparent2.png";
 
 const ControlColor = () => {
-  // const [backgroundColor, setBackgroundColor] = useState(palette[0]);
-  // const [foregroundColor, setNodeColor] = useState(palette[1]);
-
   const backgroundColor = useStore((state) => state.backgroundColor);
   const foregroundColor = useStore((state) => state.foregroundColor);
   const patternRef = useStore((state) => state.patternRef);
@@ -54,11 +48,6 @@ const ControlColor = () => {
   useEffect(() => {
     if (canvasRef) {
       if (backgroundColor.label === "Transparent") {
-        // canvasRef.style.background = `url(${
-        //   foregroundColor.label === "Black"
-        //     ? TransparentPattern
-        //     : TransparentPattern2
-        // }) repeat center`;
         canvasRef.style.background = `url(${TransparentPattern}) repeat center`;
       } else {
         canvasRef.style.removeProperty("background");
@@ -69,7 +58,6 @@ const ControlColor = () => {
   useEffect(() => {
     if (inputBackground.value) {
       const bg = palette.find((p) => p.label === foregroundColor.pair);
-      // console.log(bg, foregroundColor.pair);
       if (bg) {
         document.documentElement.style.setProperty(
           "--background-color",
@@ -78,11 +66,6 @@ const ControlColor = () => {
 
         setValue("backgroundColor", bg);
       }
-
-      // document.documentElement.style.setProperty(
-      //   "--contrast-color",
-      //   foregroundColor.rgbContrast.join(" ")
-      // );
     }
   }, [foregroundColor, inputBackground, setValue]);
 
@@ -95,17 +78,9 @@ const ControlColor = () => {
       }
     }
 
-    if (mode === "Foreground" && foregroundColor !== color)
+    if (mode === "Foreground" && foregroundColor !== color) {
       setValue("foregroundColor", color);
-
-    // if (canvasContainerRef) {
-    //   if (mode === "Background")
-    //     if (color.label === "Transparent" || color.label === "Gray") {
-    //       canvasContainerRef.style.borderColor = "#3a3a3a";
-    //     } else {
-    //       canvasContainerRef.style.borderColor = "transparent";
-    //     }
-    // }
+    }
   };
 
   useEffect(() => {
@@ -137,10 +112,6 @@ const ControlColor = () => {
 
     return false;
   };
-
-  // const transparent = () => {
-  //   return <
-  // }
 
   const optionsFiltered = options.filter(
     (o) => !(inputBackground.value && o.label === "Background")

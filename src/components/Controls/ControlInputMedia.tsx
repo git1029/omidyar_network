@@ -3,43 +3,11 @@ import useStore from "../../store/store";
 import useUpload from "../../helpers/useUpload";
 import { TextureLoader, VideoTexture } from "three";
 
-// VideoTexture.prototype.update = function () {
-//   const video = this.image;
-//   const paused = video.paused;
-
-//   // Don't transfer textures from paused videos.
-//   if (paused) return;
-
-//   if (video.readyState >= video.HAVE_CURRENT_DATA) {
-//     // if (paused) {
-//     //   this.wasPaused = true;
-//     // } else if (this.wasPaused) {
-//     //   this.wasPaused = false;
-//     // }
-
-//     this.needsUpdate = true;
-//   }
-// };
-
-// console.log(VideoTexture);
-
-// import { Upload } from "../../types";
-// import { defaultUpload } from "../../store/options";
-
-// const ControlInputMedia = ({ inverted }: { inverted: boolean }) => {
 const ControlInputMedia = () => {
   const fileUploadInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [initial, setInitial] = useState({ image: true, video: true });
-  // const [videoPaused, setVideoPaused] = useState(false);
-
-  // const [imageUpload, setImageUpload] = useState<Upload | null>(
-  //   defaultUpload.image
-  // );
-  // const [videoUpload, setVideoUpload] = useState<Upload | null>(
-  //   defaultUpload.video
-  // );
 
   const videoPaused = useStore((state) => state.videoPaused);
   const inputMode = useStore((state) => state.inputMode);
@@ -61,9 +29,6 @@ const ControlInputMedia = () => {
 
   useEffect(() => {
     if (videoRef.current) {
-      // console.log(videoRef.current.currentTime);
-      // videoRef.current.pause();
-      // videoRef.current.currentTime += 0.1;
       if (videoPaused) videoRef.current.pause();
       else videoRef.current.play();
     }
@@ -101,25 +66,21 @@ const ControlInputMedia = () => {
         const aspect = width > 0 && height > 0 ? width / height : 1;
 
         if (patternRef) {
-          // console.log(width, height);
           patternRef.uniforms.uImage.value = texture;
           patternRef.uniforms.uInputAspect.value.x = aspect;
         }
 
         if (backgroundRef) {
-          // console.log(width, height);
           backgroundRef.uniforms.uImage.value = texture;
           backgroundRef.uniforms.uInputAspect.value.x = aspect;
         }
         if (effectRef) {
-          // console.log(width, height);
           effectRef.uniforms.uImage.value = texture;
           effectRef.uniforms.uInputAspect.value.x = aspect;
         }
       });
     } else if (inputMode.value === 1) {
       setValue("videoUpload", upload);
-      // console.log(upload);
 
       if (videoRef.current) {
         const texture = new VideoTexture(videoRef.current);
@@ -185,7 +146,6 @@ const ControlInputMedia = () => {
   };
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    // console.log(e.target.value);
     loadFile(e, uploadFile);
   };
 
@@ -197,18 +157,10 @@ const ControlInputMedia = () => {
       : null;
 
   const handleFileUploadClick = () => {
-    // if (fileUploadInputRef.current && !currentUpload) {
     if (fileUploadInputRef.current) {
       fileUploadInputRef.current.click();
     }
   };
-
-  // const handleFileUploadKeydown = (code: string) => {
-  //   // if (fileUploadInputRef.current && !currentUpload && code === "Enter") {
-  //   if (fileUploadInputRef.current && code === "Enter") {
-  //     fileUploadInputRef.current.click();
-  //   }
-  // };
 
   const handleMediaClear = () => {
     if (inputMode.value === 0 && imageUpload) {
@@ -267,7 +219,6 @@ const ControlInputMedia = () => {
       if (inputMode.value === 0) effectRef.uniforms.uImage.value = null;
       else if (inputMode.value === 1) effectRef.uniforms.uVideo.value = null;
     }
-    // setInitial(false);
   };
 
   return (
@@ -277,9 +228,6 @@ const ControlInputMedia = () => {
           className={`border border-contrast/50 border flex flex-col gap-y-2 h-fit w-[300px] text-sm rounded-md p-2 ${
             currentUpload ? "" : "cursor-pointer"
           } ${inputMode.value < 2 ? "flex" : "hidden"}`}
-          // tabIndex={0}
-          // onClick={handleFileUploadClick}
-          // onKeyDown={(e) => handleFileUploadKeydown(e.code)}
         >
           <div
             className={`gap-x-2 items-start ${
@@ -288,20 +236,9 @@ const ControlInputMedia = () => {
           >
             <div className="h-[100px] max-h-[100px] w-1/2 border border-contrast/50 rounded-sm">
               <div
-                // className={`w-full h-full bg-contain bg-no-repeat bg-center ${
-                //   inverted ? "filter invert" : ""
-                // } ${inputMode.value === 0 ? "flex" : "hidden"}`}
                 className={`w-full h-full bg-contain bg-no-repeat bg-center ${
                   inputMode.value === 0 ? "flex" : "hidden"
                 }`}
-                style={
-                  {
-                    // backgroundImage: imageUpload
-                    //   ? `url(${imageUpload.url})`
-                    //   : "none",
-                    // backgroundColor: "rgba(0, 0, 0, .05)",
-                  }
-                }
               >
                 <img
                   src={imageUpload?.url}
@@ -322,10 +259,6 @@ const ControlInputMedia = () => {
                   muted={true}
                   loop={true}
                   playsInline={true}
-                  // onSeeked={}
-                  // className={`max-h-[100px] ${
-                  //   inverted ? "filter invert" : ""
-                  // } object-contain`}
                   className={`max-h-[100px] object-contain`}
                   ref={videoRef}
                 >
@@ -359,11 +292,6 @@ const ControlInputMedia = () => {
               )}
             </div>
           </div>
-
-          {/* <div className={currentUpload ? "hidden" : "none"}>
-            Click here to upload {inputMode.value === 0 ? "an" : "a"}{" "}
-            {inputMode.label.toLowerCase()}
-          </div> */}
         </div>
 
         {currentUpload && inputMode.value < 2 && (

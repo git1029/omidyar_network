@@ -1,48 +1,29 @@
-// import { useEffect, useRef, useState } from "react";
 import ControlGroup from "../Core/ControlGroup";
-// import { TextureLoader } from "three";
 import {
   backgroundEffectOptions,
-  // gridSettingsDefault,
   inputBackgroundOptions,
   inputModes,
   invertOptions,
 } from "../../store/options";
 import useStore from "../../store/store";
-// import useCamera from "../../helpers/useCamera";
 import ControlInputText from "./ControlInputText";
 import ControlInputMedia from "./ControlInputMedia";
 import ControlInputCamera from "./ControlInputCamera";
 import { useEffect, useState } from "react";
 import { BackgroundEffectSetting, InputMode } from "../../types";
 import Toggle from "../Core/Toggle";
-// import { Texture } from "three";
 import Capture from "./Capture";
 
 const ControlInput = () => {
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
-  // const effectRef = useStore((state) => state.effectRef);
   const backgroundRef = useStore((state) => state.backgroundRef);
   const effectRef = useStore((state) => state.effectRef);
-  // const canvasRef = useStore((state) => state.canvasRef);
-
-  const [inverted, setInverted] = useState(invertOptions[0]);
-
   const inputBackground = useStore((state) => state.inputBackground);
   const setValue = useStore((state) => state.setValue);
   const backgroundEffect = useStore((state) => state.backgroundEffect);
 
-  // const handleInputModeChange = (mode: number) => {
-  //   const match = inputModes.find((m) => m.value === mode);
-  //   if (match) {
-  //     setInputMode(match);
-
-  //     if (patternRef) {
-  //       patternRef.uniforms.uMode.value = match.value;
-  //     }
-  //   }
-  // };
+  const [inverted, setInverted] = useState(invertOptions[0]);
 
   useEffect(() => {
     if (patternRef) {
@@ -61,12 +42,6 @@ const ControlInput = () => {
     const match = inputModes.find((m) => m === value);
     if (match) {
       setValue("inputMode", match);
-      // if (patternRef) {
-      //   patternRef.uniforms.uMode.value = match.value;
-      // }
-      // if (backgroundRef) {
-      //   backgroundRef.uniforms.uMode.value = match.value;
-      // }
     }
   };
 
@@ -103,13 +78,9 @@ const ControlInput = () => {
     const match = backgroundEffectOptions.find((o) => o === value);
     if (match) {
       setValue("backgroundEffect", match);
-      // if (patternRef) {
-      //   patternRef.uniforms.uInputBackground.value = match.value ? 1 : 0;
-      // }
       if (effectRef) {
         effectRef.uniforms.uBackgroundEffect.value = match.value;
       }
-
       if (patternRef) {
         patternRef.uniforms.uBackgroundEffect.value = match.value;
       }
@@ -128,7 +99,6 @@ const ControlInput = () => {
     options: invertOptions,
     value: inverted,
     onChange: handleInvert,
-    // isSelected: (label: string) => inverted === label,
   };
 
   const inputBackgroundToggle = {
@@ -147,24 +117,15 @@ const ControlInput = () => {
 
   return (
     <>
-      <ControlGroup title="Upload" border={false}>
+      <ControlGroup title="Upload">
         <Toggle<InputMode> {...inputToggle} />
 
         <div className="flex flex-col gap-y-1">
           <label>{inputMode.label} Input</label>
           <div className="flex flex-col">
-            {/* <ControlInputCamera inverted={inverted.label === "On"} />
-            <ControlInputText inverted={inverted.label === "On"} />
-            <ControlInputMedia inverted={inverted.label === "On"} /> */}
             <ControlInputCamera />
             <ControlInputText />
             <ControlInputMedia />
-
-            {/* <div className="flex items-center mt-2">
-              <div className="flex items-center grow gap-x-2"> */}
-            {/* <button onClick={handleInvert}>Invert Color</button> */}
-            {/* </div>
-            </div> */}
           </div>
         </div>
 

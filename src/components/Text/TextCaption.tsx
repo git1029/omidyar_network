@@ -1,10 +1,7 @@
 import { Text } from "@react-three/drei";
-
 import useStore from "../../store/store";
 import { TextAlign, TroikaText } from "../../types";
-
 import TextMaterial from "./TextMaterial";
-
 import F37LinecaMedium from "/F37Lineca-Medium.otf";
 
 type TText = Text & TroikaText;
