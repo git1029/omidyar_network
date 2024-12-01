@@ -30,7 +30,11 @@ import {
   Vector3,
   VideoTexture,
 } from "three";
-import { palette, gridSettings, patternSettings } from "../../store/options";
+import {
+  palette,
+  gridSettingsDefault,
+  patternSettings,
+} from "../../store/options";
 import useStore from "../../store/store";
 import {
   // Instance,
@@ -52,6 +56,7 @@ const PatternGL = () => {
   // const nodeColor = useStore((state) => state.nodeColor);
   const grid = useStore((state) => state.grid);
   const backgroundRef = useStore((state) => state.backgroundRef);
+  const effectRef = useStore((state) => state.effectRef);
   const videoRef = useStore((state) => state.videoRef);
   const setValue = useStore((state) => state.setValue);
   // const exportSettings = useStore((state) => state.exportSettings);
@@ -148,15 +153,15 @@ const PatternGL = () => {
       uLogo: new Uniform(0),
       // uData: new Uniform(null),
       uDPR: new Uniform(Math.min(window.devicePixelRatio, 2)),
-      uGrid: new Uniform(gridSettings.gridType),
+      uGrid: new Uniform(gridSettingsDefault.gridType),
       uConnectors: new Uniform(
         new Vector2().set(
-          gridSettings.gridConnectors[0] === true ? 1 : 0,
-          gridSettings.gridConnectors[1] === true ? 1 : 0
+          gridSettingsDefault.gridConnectors[0] === true ? 1 : 0,
+          gridSettingsDefault.gridConnectors[1] === true ? 1 : 0
         )
       ),
       // uEffect: new Uniform(new Vector2(0, 0)),
-      uQuantity: new Uniform(gridSettings.gridQuantity),
+      uQuantity: new Uniform(gridSettingsDefault.gridQuantity),
       uDotSize: new Uniform(patternSettings.patternDotSize),
       uContrast: new Uniform(patternSettings.patternContrast),
       uInputContrast: new Uniform(0.5),
@@ -171,7 +176,8 @@ const PatternGL = () => {
       // uImageSize: new Uniform(new Vector3(1, 1, 1)),
       // uVideoSize: new Uniform(new Vector3(1, 1, 1)),
       uInputAspect: new Uniform(new Vector3(1, 1, 1)),
-      // uInputBackground: new Uniform(0),
+      uInputBackground: new Uniform(0),
+      uBackgroundEffect: new Uniform(0),
     };
   }, []);
 
@@ -240,8 +246,12 @@ const PatternGL = () => {
         backgroundRef.uniforms.uImage.value = img;
         backgroundRef.uniforms.uInputAspect.value.x = aspect;
       }
+      if (effectRef) {
+        effectRef.uniforms.uImage.value = img;
+        effectRef.uniforms.uInputAspect.value.x = aspect;
+      }
     }
-  }, [img, backgroundRef]);
+  }, [img, backgroundRef, effectRef]);
 
   // useEffect(() => {
   //   // console.log(img);
@@ -314,8 +324,13 @@ const PatternGL = () => {
         backgroundRef.uniforms.uVideo.value = video;
         backgroundRef.uniforms.uInputAspect.value.y = aspect;
       }
+
+      if (effectRef) {
+        effectRef.uniforms.uVideo.value = video;
+        effectRef.uniforms.uInputAspect.value.y = aspect;
+      }
     }
-  }, [video, backgroundRef]);
+  }, [video, backgroundRef, effectRef]);
 
   useEffect(() => {
     if (matRef.current) {

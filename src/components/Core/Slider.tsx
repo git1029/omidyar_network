@@ -3,6 +3,8 @@ import { MathUtils } from "three";
 
 interface SliderProps {
   label: string;
+  value?: number;
+  setValue?: (value: number) => void;
   defaultValue?: number;
   min?: number;
   max?: number;
@@ -13,6 +15,8 @@ interface SliderProps {
 
 const Slider = ({
   label,
+  value,
+  setValue,
   defaultValue,
   min = 0,
   max = 100,
@@ -26,7 +30,7 @@ const Slider = ({
     [min, max]
   );
 
-  const [value, setValue] = useState(
+  const [value_, setValue_] = useState(
     defaultValue !== undefined
       ? normalized
         ? map(defaultValue, 0, 1, min, max)
@@ -34,17 +38,20 @@ const Slider = ({
       : 50
   );
 
+  const val = value !== undefined ? value : value_;
+  const setVal = setValue !== undefined ? setValue : setValue_;
+
   const sliderProgress = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (sliderProgress.current) {
-      const s = map(value, min, max, 1, 99);
+      const s = map(val, min, max, 1, 99);
       sliderProgress.current.style.width = `${s}%)`;
     }
-  }, [value, map, min, max]);
+  }, [val, map, min, max]);
 
   const handleChange = (value: string) => {
-    setValue(Number(value));
+    setVal(Number(value));
     if (onChange) {
       onChange(normalized ? map(Number(value)) : Number(value));
     }
@@ -66,7 +73,7 @@ const Slider = ({
             type="range"
             min={min}
             max={max}
-            value={value}
+            value={val}
             step={step}
             onChange={(e) => handleChange(e.target.value)}
             className="z-10 w-full"
@@ -75,12 +82,12 @@ const Slider = ({
           <div
             ref={sliderProgress}
             className="absolute events-none left-0 top-1/2 h-px bg-contrast z-1 -translate-y-1/2"
-            style={{ width: `${map(value, min, max, 1, 99)}%` }}
+            style={{ width: `${map(val, min, max, 1, 99)}%` }}
           />
         </div>
         {/* <div className="text-sm w-[30px] text-center">{Math.floor(value)}</div> */}
         <div className="text-sm w-[30px] text-center">
-          {value.toFixed(countDecimals(step))}
+          {val.toFixed(countDecimals(step))}
         </div>
       </div>
     </div>

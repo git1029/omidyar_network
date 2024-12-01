@@ -48,6 +48,7 @@ const ControlInputMedia = () => {
   const videoDuration = useStore((state) => state.videoDuration);
   const patternRef = useStore((state) => state.patternRef);
   const backgroundRef = useStore((state) => state.backgroundRef);
+  const effectRef = useStore((state) => state.effectRef);
   const setValue = useStore((state) => state.setValue);
 
   const { loadFile } = useUpload();
@@ -110,6 +111,11 @@ const ControlInputMedia = () => {
           backgroundRef.uniforms.uImage.value = texture;
           backgroundRef.uniforms.uInputAspect.value.x = aspect;
         }
+        if (effectRef) {
+          // console.log(width, height);
+          effectRef.uniforms.uImage.value = texture;
+          effectRef.uniforms.uInputAspect.value.x = aspect;
+        }
       });
     } else if (inputMode.value === 1) {
       setValue("videoUpload", upload);
@@ -140,6 +146,13 @@ const ControlInputMedia = () => {
           backgroundRef.uniforms.uVideo.value = texture;
         }
 
+        if (effectRef) {
+          if (effectRef.uniforms.uVideo.value) {
+            effectRef.uniforms.uVideo.value.dispose();
+          }
+          effectRef.uniforms.uVideo.value = texture;
+        }
+
         // Video width/height available once metadata has loaded
         (texture.image as HTMLVideoElement).addEventListener(
           "loadedmetadata",
@@ -151,6 +164,7 @@ const ControlInputMedia = () => {
               if (patternRef) patternRef.uniforms.uInputAspect.value.y = aspect;
               if (backgroundRef)
                 backgroundRef.uniforms.uInputAspect.value.y = aspect;
+              if (effectRef) effectRef.uniforms.uInputAspect.value.y = aspect;
             } else {
               console.warn(
                 "Unable to access video width and height or have zero value"
@@ -204,6 +218,14 @@ const ControlInputMedia = () => {
         patternRef.uniforms.uImage.value = null;
         patternRef.uniforms.uInputAspect.value.x = 1;
       }
+      if (backgroundRef && backgroundRef.uniforms.uImage.value) {
+        backgroundRef.uniforms.uImage.value = null;
+        backgroundRef.uniforms.uInputAspect.value.x = 1;
+      }
+      if (effectRef && effectRef.uniforms.uImage.value) {
+        effectRef.uniforms.uImage.value = null;
+        effectRef.uniforms.uInputAspect.value.x = 1;
+      }
     } else if (inputMode.value === 1 && videoUpload) {
       setValue("videoUpload", null);
       if (videoRef.current) {
@@ -214,6 +236,16 @@ const ControlInputMedia = () => {
         patternRef.uniforms.uVideo.value = null;
         patternRef.uniforms.uInputAspect.value.y = 1;
       }
+      if (backgroundRef && backgroundRef.uniforms.uVideo.value) {
+        backgroundRef.uniforms.uVideo.value.dispose();
+        backgroundRef.uniforms.uVideo.value = null;
+        backgroundRef.uniforms.uInputAspect.value.y = 1;
+      }
+      if (effectRef && effectRef.uniforms.uVideo.value) {
+        effectRef.uniforms.uVideo.value.dispose();
+        effectRef.uniforms.uVideo.value = null;
+        effectRef.uniforms.uInputAspect.value.y = 1;
+      }
     }
 
     if (fileUploadInputRef.current) {
@@ -223,6 +255,17 @@ const ControlInputMedia = () => {
     if (patternRef) {
       if (inputMode.value === 0) patternRef.uniforms.uImage.value = null;
       else if (inputMode.value === 1) patternRef.uniforms.uVideo.value = null;
+    }
+
+    if (backgroundRef) {
+      if (inputMode.value === 0) backgroundRef.uniforms.uImage.value = null;
+      else if (inputMode.value === 1)
+        backgroundRef.uniforms.uVideo.value = null;
+    }
+
+    if (effectRef) {
+      if (inputMode.value === 0) effectRef.uniforms.uImage.value = null;
+      else if (inputMode.value === 1) effectRef.uniforms.uVideo.value = null;
     }
     // setInitial(false);
   };

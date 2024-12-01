@@ -25,6 +25,7 @@ const ControlText = () => {
 
   const backgroundColor = useStore((state) => state.backgroundColor);
   const foregroundColor = useStore((state) => state.foregroundColor);
+  const backgroundEffect = useStore((state) => state.backgroundEffect);
   // const logo = useStore((state) => state.logo);
 
   // const backgroundColor = useStore((state) => state.bac);
@@ -124,13 +125,21 @@ const ControlText = () => {
   };
 
   const textPaletteFiltered = textPalette.filter(
-    (c) => c !== backgroundColor && c !== foregroundColor
+    (c) =>
+      c !== backgroundColor &&
+      c !== foregroundColor &&
+      !(
+        backgroundColor.label.includes("Yellow") &&
+        ["White", "Gray"].includes(c.label)
+      )
   );
 
   useEffect(() => {
     if (
       (textPaletteFiltered.length > 0 && text.color === backgroundColor) ||
-      text.color === foregroundColor
+      text.color === foregroundColor ||
+      (backgroundColor.label.includes("Yellow") &&
+        ["White", "Gray"].includes(text.color.label))
     ) {
       setValue("text", { ...text, color: textPaletteFiltered[0] });
     }
@@ -183,7 +192,9 @@ const ControlText = () => {
         </div>
       </Control>
 
-      {text.mode.value > 0 && <Toggle {...textBlendToggle} />}
+      {text.mode.value > 0 && backgroundEffect.value === 0 && (
+        <Toggle {...textBlendToggle} />
+      )}
 
       {text.mode.value === 2 && (
         <>

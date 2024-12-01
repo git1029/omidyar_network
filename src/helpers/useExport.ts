@@ -473,19 +473,19 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
         "video/video.mp4",
         "-vf",
         `fps=${exportFps}`,
-        "video/frames/%0d.jpg",
+        "video/frames/%0d.png",
       ]);
       const vfs = await ffmpeg.listDir("video/frames");
       videoFrameCount = vfs.filter((vf) => !vf.isDir).length;
       console.log("Video frames:", videoFrameCount);
-      const data = await ffmpeg.readFile("video/frames/1.jpg");
+      const data = await ffmpeg.readFile("video/frames/1.png");
       if (typeof data !== "string") {
         // const f = Float32Array.from(data)
         // const blob = new Blob([data.buffer], { type: "image/jpeg" });
         // const buffer = new Uint8Array(await blob.arrayBuffer());
         // const test = new TextureLoader().parse( data )
         const url = URL.createObjectURL(
-          new Blob([data], { type: "image/jpeg" })
+          new Blob([data], { type: "image/png" })
         );
         texture.current = await new TextureLoader().loadAsync(url);
         // console.log(url);
@@ -685,10 +685,10 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
           //   // Update pattern input texture
           // texture.set()
           const frame = (j + 1) % videoFrameCount;
-          const data = await ff.current.readFile(`video/frames/${frame}.jpg`);
+          const data = await ff.current.readFile(`video/frames/${frame}.png`);
           if (typeof data !== "string") {
             const url = URL.createObjectURL(
-              new Blob([data], { type: "image/jpeg" })
+              new Blob([data], { type: "image/png" })
             );
             texture.dispose();
             texture = await new TextureLoader().loadAsync(url);

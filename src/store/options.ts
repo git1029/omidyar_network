@@ -157,7 +157,7 @@ export const patternSettings = {
   patternDensityY: 0.5,
 };
 
-export const gridSettings = {
+export const gridSettingsDefault = {
   gridType: 0,
   gridConnectors: [true, false],
   gridQuantity: 9,
@@ -324,6 +324,12 @@ export const patternEffectOptions = {
     { label: "Style 4", value: 3 },
   ],
 };
+
+export const backgroundEffectOptions = [
+  { label: "Off", value: 0 },
+  { label: "Displacement", value: 1 },
+  { label: "Blur", value: 2 },
+];
 
 export const defaultUpload = {
   image: {

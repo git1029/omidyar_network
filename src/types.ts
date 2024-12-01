@@ -1,3 +1,5 @@
+import { BufferGeometry, Object3D, ShaderMaterial } from "three";
+
 export interface Layout {
   label: string;
   aspect: number;
@@ -92,3 +94,21 @@ export interface EffectSettings {
   };
   animating: boolean;
 }
+
+export interface BackgroundEffectSetting {
+  label: string;
+  value: number;
+}
+
+interface TText {
+  textRenderInfo: { visibleBounds: number[] };
+  geometry: BufferGeometry;
+  material: ShaderMaterial;
+  visible: boolean;
+  userData: {
+    id?: number;
+    pos?: { [key: number]: number[] };
+  };
+}
+
+export type TroikaText = TText & Object3D;

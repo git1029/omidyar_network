@@ -9,6 +9,7 @@ const Capture = () => {
   const patternRef = useStore((state) => state.patternRef);
   const backgroundRef = useStore((state) => state.backgroundRef);
   const cameraRef = useStore((state) => state.cameraRef);
+  const effectRef = useStore((state) => state.effectRef);
   // const imageUpload = useStore((state) => state.imageUpload);
   const cameraStatus = useStore((state) => state.cameraStatus);
   const inputMode = useStore((state) => state.inputMode);
@@ -60,6 +61,9 @@ const Capture = () => {
       }
       if (backgroundRef) {
         backgroundRef.uniforms.uInputAspect.value.x = aspect;
+      }
+      if (effectRef) {
+        effectRef.uniforms.uInputAspect.value.x = aspect;
       }
 
       // await new Promise((resolve) => setTimeout(resolve, 100));

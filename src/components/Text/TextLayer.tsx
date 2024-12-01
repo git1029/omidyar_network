@@ -1,9 +1,11 @@
 import { Text } from "@react-three/drei";
 import { useEffect, useRef } from "react";
-import { BufferGeometry, Group, ShaderMaterial } from "three";
+import { Group } from "three";
 
 import useStore from "../../store/store";
-import { TextAlign } from "../../types";
+import { TextAlign, TroikaText } from "../../types";
+
+type TText = Text & TroikaText;
 
 import TextMaterial from "./TextMaterial";
 
@@ -24,17 +26,6 @@ const TextLayer = () => {
       setValue("textRef", textGroup.current);
     }
   }, [textGroup, setValue]);
-
-  type TText = Text & {
-    textRenderInfo: { visibleBounds: number[] };
-    geometry: BufferGeometry;
-    material: ShaderMaterial;
-    visible: boolean;
-    userData: {
-      id?: number;
-      pos?: { [key: number]: number[] };
-    };
-  };
 
   const textLayers = [...Array(12).keys()];
 

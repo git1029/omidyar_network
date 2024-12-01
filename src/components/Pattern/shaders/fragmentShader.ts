@@ -1,3 +1,5 @@
+import getImage from "../../Background/shaders/partials/getImage";
+
 const fragmentShader = /*glsl*/ `
   uniform sampler2D uPattern;
   uniform sampler2D uText;
@@ -14,6 +16,20 @@ const fragmentShader = /*glsl*/ `
   varying vec3 vPos;
   varying float y;
   varying float id;
+
+  uniform sampler2D uImage;
+  uniform sampler2D uVideo;
+  uniform sampler2D uCamera;
+  uniform float uMode;
+  uniform sampler2D uExport;
+  uniform float uExporting;
+  uniform vec3 uViewport;
+  uniform vec2 uResolution;
+  uniform vec3 uInputAspect;
+  uniform float uInputBackground;
+  uniform float uBackgroundEffect;
+
+  ${getImage}
 
   mat4 rotation3d(vec3 axis, float angle) {
     axis = normalize(axis);
@@ -236,8 +252,9 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
   return vec4(t2, t, s, tmax);
 }
 
-  void main() {
+  void main() {    
     vec4 color = vec4(uColor, 0.);
+    float edge = 0.;
     float uCount = mix(1., 10., uEffect.x);
     for (float i = 0.; i < uCount; i++) {
       // vec2 uvv = vUv;
@@ -495,7 +512,10 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
 
 
       vec4 c = texture(uPattern, uv);
+      edge = max(edge, c.r);
       vec4 cc = vec4(uColor, c.a);
+
+
 
       // color = max(color, cc);
       // color = vec4(c.rgb * al + (1.-al) * color.rgb, max(c.a, color.a));
@@ -514,7 +534,7 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
           c.a = mix(c.a, smoothstep(.5, 1., c.a), t_ * .5 + .5);
         }
 
-        c.a *= 0.65;
+        c.a *= mix(0.65, 1., uBackgroundEffect > 0. ? 1. : 0.);
         float alpha = (c.a + color.a * (1. - c.a));
         vec3 col = (uColor * c.a + uColor * color.a * (1. - c.a)) / alpha;
         color = vec4(col, alpha);
@@ -533,6 +553,53 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
     // vec2 uv = vUv;
     // uv -= .5;
     // uv.y *= fy;
+
+    if (uMode != 3. && uInputBackground == 1. && uBackgroundEffect > 0.) {
+      float off = smoothstep(.1, .2, color.a) * length(vUv - .5) * .1;
+      // vec2 off = smoothstep(.1, .2, color.a) * length(vUv - .5) * .1 * normalize(vUv - .5);
+      vec4 ic0 = getImage(vUv, true);
+      if (uBackgroundEffect == 1.) {
+
+        vec4 ic = getImage(vUv + off + edge * .01, true);
+        // ic.a *= color.a;
+        color = mix(ic0, ic, color.a);
+      }
+      else if (uBackgroundEffect == 2.) {
+          float Pi = 6.28318530718; // Pi*2
+
+          // off *= 1.;
+          
+          // GAUSSIAN BLUR SETTINGS {{{
+          float Directions = 16.0; // BLUR DIRECTIONS (Default 16.0 - More is better but slower)
+          float Quality = 4.0; // BLUR QUALITY (Default 4.0 - More is better but slower)
+          float Size = 8.0; // BLUR SIZE (Radius)
+          // GAUSSIAN BLUR SETTINGS }}}
+        
+          vec2 Radius = Size/uResolution;
+          
+          // Normalized pixel coordinates (from 0 to 1)
+          vec2 uv = vUv;
+          // Pixel colour
+          // vec4 Color = texture(iChannel0, uv);
+          vec4 Color = getImage( uv+off, true);		
+          
+          // Blur calculations
+          for( float d=0.0; d<Pi; d+=Pi/Directions)
+          {
+          for(float i=1.0/Quality; i<=1.001; i+=1.0/Quality)
+              {
+            // Color += texture( iChannel0, uv+vec2(cos(d),sin(d))*Radius*i);		
+            Color += getImage( uv+vec2(cos(d),sin(d))*Radius*i+off, true);		
+              }
+          }
+          
+          // Output to screen
+          Color /= Quality * Directions + 1.;
+          color = mix(ic0, Color, color.a);
+      }
+      
+    }
+
     // uv += .5;
           // if (uv.x > 1.) discard;
       // if (uv.y > 1.) discard;
@@ -541,8 +608,11 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
       if (uTextEnabled == 1.) {
         vec4 text = texture(uText, vUv);
         // text.rgb = mix(text.rgb, mix(text.rgb, color.rgb, .4), color.a);
-        vec3 textColor = mix(uColorText, mix(uColorText, uColor, .4), color.a * uBlendText);
-        color.rgb = mix(color.rgb, textColor, text.a);
+      vec4 ic0 = getImage(vUv, true);
+        // float texta = mix(color.a * uBlendText, 0., uInputBackground == 1. && uBackgroundEffect > 0. ? 1. : 0.);
+        float texta = color.a * mix(uBlendText, 0., uBackgroundEffect > 0. ? 1.: 0.);
+        vec3 textColor = mix(uColorText, mix(uColorText, uColor, .4), texta);
+        color.rgb = mix(mix(color.rgb, ic0.rgb, 1.-color.a), textColor, text.a);
         color.a = max(color.a, text.a);
       }
 
@@ -554,6 +624,8 @@ vec4 getTime(float steps, float ld, float off, float dmax) {
     // gl_FragColor = vec4(1., 0., 0., 1.);
     if (uCapture == 1.) color.a *= 0.;
     // color.a *= .4;
+
+
 
     
     gl_FragColor = color;

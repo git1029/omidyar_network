@@ -1,27 +1,17 @@
 import { Text } from "@react-three/drei";
-import { BufferGeometry, ShaderMaterial } from "three";
 
 import useStore from "../../store/store";
-import { TextAlign } from "../../types";
+import { TextAlign, TroikaText } from "../../types";
 
 import TextMaterial from "./TextMaterial";
 
 import F37LinecaMedium from "/F37Lineca-Medium.otf";
 
+type TText = Text & TroikaText;
+
 const TextCaption = () => {
   const caption = useStore((state) => state.caption);
   const fullscreen = useStore((state) => state.fullscreen);
-
-  type TText = Text & {
-    textRenderInfo: { visibleBounds: number[] };
-    geometry: BufferGeometry;
-    material: ShaderMaterial;
-    visible: boolean;
-    userData: {
-      id?: number;
-      pos?: { [key: number]: number[] };
-    };
-  };
 
   const onSync = (text: TText) => {
     if (text.geometry.boundingBox && text.textRenderInfo) {

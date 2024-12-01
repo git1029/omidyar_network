@@ -104,12 +104,18 @@ const textVertexShader = /* glsl */ `
     float width = cWidth * cSpan + max(0., cSpan - 1.) * gap.x;
     float height = rHeight * rSpan + max(0., rSpan - 1.) * gap.y;
 
-    float limit = 1.5;
+    // float limit = 1.5;
 
-    float scl = uViewport.z > limit ? height / h : width / w;
+    // float scl = uViewport.z > limit ? height / h : width / w;
 
-    float sclX = uViewport.z > limit ? scl / uViewport.z : scl;
-    float sclY = uViewport.z > limit ? scl : scl * uViewport.z;
+    float scl2 = min((width / w), (height / h) / uViewport.z);
+
+    // float sclX = uViewport.z > limit ? scl2 / uViewport.z : scl2;
+    // float sclY = uViewport.z > limit ? scl2 : scl2 * uViewport.z;
+
+    float sclX = scl2;
+    float sclY = scl2 * uViewport.z;
+
 
     return Data(vec2(posX, posY), vec2(sclX, sclY), vec2(cWidth, rHeight), vec2(w, h));
   }

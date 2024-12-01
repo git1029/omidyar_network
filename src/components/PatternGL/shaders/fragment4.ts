@@ -33,7 +33,8 @@ const fragmentShader = (mode: number) => /* glsl */ `
   // uniform vec3 uImageSize;
   uniform vec3 uInputAspect;
   uniform float uInputContrast;
-  // uniform float uInputBackground;
+  uniform float uInputBackground;
+  uniform float uBackgroundEffect;
 
 
   float sdCircle(vec2 p, float r) {
@@ -296,17 +297,19 @@ vec4 getBrightness(vec2 p) {
     float ascl = aspect < 1. ? 1./aspect : aspect;
     // float sboxx = .5/grid.x;
     // vec2 sbox = vec2(.5/grid.x, .125/grid.y * .5);
+    float blur = uInputBackground == 1. && uBackgroundEffect == 2. ? 1. : 0.;
+
     float sboxx = .5/f;
     ${mode === 1 ? "sboxx *= 1.43;" : ""}
     // if (uGrid == 1.) sboxx = length(vec2(0.) - vec2(1.));
-    vec2 sbox = vec2(sboxx, .125/f * .666);
+    vec2 sbox = vec2(sboxx, .125/f * mix(.666, .333, blur));
     sbox *= vec2(1., map(uDotSize, 0., 1., .5, 1.25));
     // sbox *= vec2(1., map(uContrast, 0., 1., 1.25, .5));
     float roundness = .1/grid.x;
 
     float miny = (floor(0. * grid.y) + 0.500) / grid.y;
     float maxy = (floor(1. * grid.y) + 0.500 - 1.) / grid.y;
-    float r0 = 1./f*.25 * 1. * map(uDotSize, 0., 1., .5, 1.75);
+    float r0 = 1./f*.25 * 1. * map(uDotSize, 0., 1., .5, 1.75) * mix(1., .333, blur);
     float h = (grid.y-1.)/grid.y;
 
 
@@ -414,9 +417,10 @@ vec4 getBrightness(vec2 p) {
       }
     }
 
-    float d = smoothUnionSDF(d0, d1, .01 * mix(1., .5, uQuantity/uMaxCount));
+    float d = smoothUnionSDF(d0, d1, .01 * mix(1., .5, uQuantity/uMaxCount) * mix(1., 1.5, blur));
     // float d = d0;
-    d = smoothstep(0., .002, d);
+    float d2 = d;
+    d = smoothstep(0., mix(.002, .01, blur), d);
 
     // float alpha = 1.;
     // if (vUv.x < edge.x || vUv.x > 1.-edge.x || vUv.y < edge.y || vUv.y > 1.-edge.y) alpha = 0.;
@@ -459,7 +463,7 @@ vec4 getBrightness(vec2 p) {
     // c = mix(uForegroundColor, c, d); // mix with distance to nodes/circles
     // c = mix(uBackgroundColor, c, alpha);
     // vec4 col = vec4(c, mix(1.-d, 1., uAlpha) * mix(alpha, 1., uAlpha));
-    vec4 col = vec4(uForegroundColor, 1.-d);
+    vec4 col = vec4(mix(vec3(0.), vec3(1.), smoothstep(-.002, .001, d2)), 1.-d);
     // gl_FragColor = vec4(max(color, vec3(1.-d)), 1.);
     // gl_FragColor = vec4(mix(color, vec3(1., 0., 0.) * (1.-d), 1.-d), 1.);
 

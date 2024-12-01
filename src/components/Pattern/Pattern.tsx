@@ -6,6 +6,7 @@ import {
   // Scene,
   ShaderMaterial,
   Uniform,
+  Vector2,
   Vector3,
 } from "three";
 import useStore from "../../store/store";
@@ -19,6 +20,7 @@ import useStore from "../../store/store";
 // import PatternGL from "../PatternGL/PatternGL";
 import vertexShader from "./shaders/vertexShader";
 import fragmentShader from "./shaders/fragmentShader";
+import { useThree } from "@react-three/fiber";
 // import TextLayer from "../Text/TextLayer";
 // import PatternSVG from "../PatternSVG/PatternSVG3b";
 
@@ -34,6 +36,8 @@ const Pattern = () => {
   } = useStore((state) => state.patternEffect);
   const { mode: textMode, color } = useStore((state) => state.text);
   const setValue = useStore((state) => state.setValue);
+
+  const { viewport, size } = useThree();
 
   // const { size } = useThree();
   // const scenePattern = useMemo(() => new Scene(), []);
@@ -55,6 +59,22 @@ const Pattern = () => {
       setValue("effectRef", effect.current);
     }
   }, [effect, setValue]);
+
+  useEffect(() => {
+    if (effect.current) {
+      effect.current.uniforms.uViewport.value.set(
+        viewport.width,
+        viewport.height,
+        viewport.aspect
+      );
+    }
+  }, [viewport]);
+
+  useEffect(() => {
+    if (effect.current) {
+      effect.current.uniforms.uResolution.value.set(size.width, size.height);
+    }
+  }, [size]);
 
   // useEffect(() => {
   //   if (mode.value === 1) {
@@ -90,6 +110,17 @@ const Pattern = () => {
       uEffect: new Uniform(new Vector3(0, 0, 1)),
       uTime: new Uniform(0),
       PI: new Uniform(Math.PI),
+
+      uMode: new Uniform(0),
+      uImage: new Uniform(null),
+      uVideo: new Uniform(null),
+      uExport: new Uniform(null),
+      uExporting: new Uniform(0),
+      uViewport: new Uniform(new Vector3(1, 1, 1)),
+      uResolution: new Uniform(new Vector2(1, 1)),
+      uInputAspect: new Uniform(new Vector3(1, 1, 1)),
+      uInputBackground: new Uniform(0),
+      uBackgroundEffect: new Uniform(0),
     };
   }, []);
 

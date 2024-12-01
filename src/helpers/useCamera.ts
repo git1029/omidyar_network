@@ -14,6 +14,7 @@ const useCamera = () => {
   const inputMode = useStore((state) => state.inputMode);
   const patternRef = useStore((state) => state.patternRef);
   const backgroundRef = useStore((state) => state.backgroundRef);
+  const effectRef = useStore((state) => state.effectRef);
   const cameraRef = useStore((state) => state.cameraRef);
   // const canvasRef = useStore((state) => state.canvasRef);
   const setValue = useStore((state) => state.setValue);
@@ -54,6 +55,11 @@ const useCamera = () => {
           if (backgroundRef) {
             backgroundRef.uniforms.uCamera.value = tex;
             backgroundRef.uniforms.uInputAspect.value.z =
+              constraints.video.width / constraints.video.height;
+          }
+          if (effectRef) {
+            effectRef.uniforms.uCamera.value = tex;
+            effectRef.uniforms.uInputAspect.value.z =
               constraints.video.width / constraints.video.height;
           }
         })

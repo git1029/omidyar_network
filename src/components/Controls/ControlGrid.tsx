@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   connectorOptions,
   gridOptions,
-  gridSettings,
+  gridSettingsDefault,
 } from "../../store/options";
 import useStore from "../../store/store";
 // import ControlGroup from "./ControlGroup";
@@ -15,13 +15,18 @@ import Control from "../Core/Control";
 const ControlGrid = () => {
   // const setGrid = useStore((state) => state.setGrid);
 
+  const inputMode = useStore((state) => state.inputMode);
   const grid = useStore((state) => state.grid);
   const patternRef = useStore((state) => state.patternRef);
   const setValue = useStore((state) => state.setValue);
 
   // const [grid, setGridOption] = useState(gridOptions[0]);
 
+  const quantityMin = inputMode.value === 3 ? 25 : 4;
+  const quantityMax = inputMode.value === 3 ? 50 : 30;
+
   const [gridConnectors, setGridConnectors] = useState([true, false]);
+  const [quantity, setQuantity] = useState(gridSettingsDefault.gridQuantity);
 
   const handleGridTypeChange = <T,>(value: T) => {
     if (value === grid) return;
@@ -35,6 +40,20 @@ const ControlGrid = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (quantity < quantityMin) {
+      setQuantity(quantityMin);
+      if (patternRef) {
+        patternRef.uniforms.uQuantity.value = quantityMin;
+      }
+    } else if (quantity > quantityMax) {
+      setQuantity(quantityMax);
+      if (patternRef) {
+        patternRef.uniforms.uQuantity.value = quantityMax;
+      }
+    }
+  }, [quantity, quantityMin, quantityMax, patternRef]);
 
   // const handleGridConnectorChange = (index: number) => {
   //   const connectors = [...gridConnectors];
@@ -75,9 +94,11 @@ const ControlGrid = () => {
   const gridSliders = [
     {
       label: "Quantity",
-      defaultValue: gridSettings.gridQuantity,
-      min: 4,
-      max: 30,
+      // defaultValue: quantity,
+      value: quantity,
+      setValue: setQuantity,
+      min: quantityMin,
+      max: quantityMax,
       normalized: false,
       onChange: (value: number) => {
         if (patternRef) {
