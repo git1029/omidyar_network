@@ -4,7 +4,6 @@ import useStore from "../../store/store";
 import { useThree } from "@react-three/fiber";
 import vertexShader from "./shaders/vertexShader";
 import fragmentShader from "./shaders/fragmentShader";
-// import PatternSVG from "../PatternSVG/PatternSVG3b";
 
 const Background = () => {
   const background = useRef<ShaderMaterial>(null);
@@ -65,8 +64,6 @@ const Background = () => {
           fragmentShader={fragmentShader}
           uniforms={backgroundUniforms}
           transparent={true}
-          // depthTest={false}
-          // depthWrite={false}
         />
       </mesh>
     </>

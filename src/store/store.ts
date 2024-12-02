@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import {
+  backgroundEffectOptions,
   customLayout,
   defaultUpload,
   exportSettings,
@@ -23,6 +24,7 @@ import {
   LogoOption,
   Upload,
   EffectSettings,
+  BackgroundEffectSetting,
 } from "../types";
 
 interface State {
@@ -45,6 +47,8 @@ interface State {
   foregroundColor: ColorInfo;
 
   patternEffect: EffectSettings;
+
+  backgroundEffect: BackgroundEffectSetting;
 
   text: TextSettings;
   logo: LogoOption;
@@ -105,6 +109,8 @@ const initalState = {
     style: patternEffectOptions.styles[0],
     animating: true,
   },
+
+  backgroundEffect: backgroundEffectOptions[0],
 
   imageUpload: defaultUpload.image,
   videoUpload: defaultUpload.video,

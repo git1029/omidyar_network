@@ -1,4 +1,3 @@
-// import { useState } from "react";
 import ControlGroup from "../Core/ControlGroup";
 import useStore from "../../store/store";
 import {
@@ -8,7 +7,6 @@ import {
   textSettings,
 } from "../../store/options";
 import ColorIcon from "./ColorIcon";
-// import Slider from "../Core/Slider";
 import { ColorInfo, TextLayout } from "../../types";
 import Control from "../Core/Control";
 import { useEffect, useState } from "react";
@@ -22,12 +20,9 @@ const textBlendOptions = [
 
 const ControlText = () => {
   const text = useStore((state) => state.text);
-
   const backgroundColor = useStore((state) => state.backgroundColor);
   const foregroundColor = useStore((state) => state.foregroundColor);
-  // const logo = useStore((state) => state.logo);
-
-  // const backgroundColor = useStore((state) => state.bac);
+  const backgroundEffect = useStore((state) => state.backgroundEffect);
   const setValue = useStore((state) => state.setValue);
 
   const [textBlend, setTextBlend] = useState(textBlendOptions[0]);
@@ -124,13 +119,21 @@ const ControlText = () => {
   };
 
   const textPaletteFiltered = textPalette.filter(
-    (c) => c !== backgroundColor && c !== foregroundColor
+    (c) =>
+      c !== backgroundColor &&
+      c !== foregroundColor &&
+      !(
+        backgroundColor.label.includes("Yellow") &&
+        ["White", "Gray"].includes(c.label)
+      )
   );
 
   useEffect(() => {
     if (
       (textPaletteFiltered.length > 0 && text.color === backgroundColor) ||
-      text.color === foregroundColor
+      text.color === foregroundColor ||
+      (backgroundColor.label.includes("Yellow") &&
+        ["White", "Gray"].includes(text.color.label))
     ) {
       setValue("text", { ...text, color: textPaletteFiltered[0] });
     }
@@ -138,11 +141,6 @@ const ControlText = () => {
 
   return (
     <ControlGroup title="Text">
-      {/* <Control label="Enabled">
-        <button onClick={handleEnableText}>
-          {text.enabled ? "Hide" : "Show"} Text
-        </button>
-      </Control> */}
       <Toggle {...modeToggleProps} />
 
       <div
@@ -150,7 +148,6 @@ const ControlText = () => {
           text.mode.value > 0 ? "flex" : "hidden"
         }`}
       >
-        {/* <div className={`flex-col gap-y-3 ${text.enabled ? "flex" : "hidden"}`}> */}
         <Toggle<TextLayout> {...layoutToggleProps} />
 
         <Control label="Title">
@@ -167,10 +164,6 @@ const ControlText = () => {
       <Control label="Color">
         <div className="flex gap-x-0.5 p-1 border border-contrast/50 rounded-md w-fit">
           {textPaletteFiltered.map((c) => {
-            // const selected = isSelected(color.label, c.label);
-            // const onClick = () => handleColorSelect(color.label, c);
-            // if (c === undefined) return null;
-
             return (
               <ColorIcon
                 key={`color-${c.label}`}
@@ -183,7 +176,9 @@ const ControlText = () => {
         </div>
       </Control>
 
-      {text.mode.value > 0 && <Toggle {...textBlendToggle} />}
+      {text.mode.value > 0 && backgroundEffect.value === 0 && (
+        <Toggle {...textBlendToggle} />
+      )}
 
       {text.mode.value === 2 && (
         <>

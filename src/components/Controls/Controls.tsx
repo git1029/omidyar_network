@@ -1,11 +1,9 @@
 import ControlInput from "./ControlInput";
 import ControlLayout from "./ControlLayout";
-// import ControlGrid from "./ControlGrid";
 import ControlPattern from "./ControlPattern";
 import ControlColor from "./ControlColor";
 import ControlExport from "./ControlExport";
 import ControlText from "./ControlText";
-// import Logo from "/logo_light.svg";
 import { ExportObject } from "../Scene";
 import { MutableRefObject, useRef, useState } from "react";
 import useStore from "../../store/store";
@@ -24,30 +22,15 @@ const Gradient = ({ reverse = false }) => {
         className={`w-full h-full from-background to-background/0 ${
           reverse ? "bg-gradient-to-t" : "bg-gradient-to-b"
         }`}
-        // style={{
-        //   // boxShadow: "0 0 30px 30px #90a7d6",
-        //   backgroundImage: `linear-gradient(${
-        //     reverse ? "to top" : "to bottom"
-        //   }, , rgba(144, 167, 214, 0))`,
-        // }}
       ></div>
     </div>
   );
 };
 
-// const ControlsHeader = ({
-//   setControlsOpen,
-// }: {
-//   setControlsOpen: () => void;
-// }) => {
 const ControlsHeader = () => {
   return (
     <div className="flex items-center gap-x-2 px-4 lg:px-0 pb-6 relative bg-background">
-      {/* <img src={Logo} className="w-14 h-14" /> */}
-      <div
-        className="flex items-center grow gap-x-2 justify-between"
-        // onClick={setControlsOpen}
-      >
+      <div className="flex items-center grow gap-x-2 justify-between">
         <h1 className="relative">Omidyar Network</h1>
         <Logo size={40} className="lg:hidden" />
       </div>
@@ -76,11 +59,7 @@ const Controls = ({
       }`}
     >
       <div className="flex flex-col grow pt-4 lg:p-8">
-        <ControlsHeader
-        // setControlsOpen={() => {
-        //   setControlsOpen(!controlsOpen);
-        // }}
-        />
+        <ControlsHeader />
         <div
           className={`overflow-y-scroll h-full flex flex-col gap-y-6 transition-opacity bg-background duration-500 ease-in-out relative px-4 lg:px-0 pt-[40px] pb-[40px] ${
             controlsOpen
@@ -102,7 +81,6 @@ const Controls = ({
           >
             <ControlInput />
             <ControlLayout />
-            {/* <ControlGrid /> */}
             <ControlPattern />
             <ControlColor />
             <ControlText />
@@ -113,7 +91,6 @@ const Controls = ({
         {!mobileAgent && (
           <div className="hidden lg:block relative pt-4">
             <Gradient reverse={true} />
-            {/* <img src={Logo} width={50} height="auto" /> */}
             <div className="flex items-center justify-between">
               <Logo />
               <FullScreen />

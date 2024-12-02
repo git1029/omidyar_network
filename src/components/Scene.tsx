@@ -1,30 +1,20 @@
 import { Canvas } from "@react-three/fiber";
 import { Perf } from "r3f-perf";
-// import TextInput from "./Text/TextInput";
-// import TextLayer from "./Text/TextLayer";
 import useStore from "../store/store";
 import {
   MutableRefObject,
-  // RefObject,
   SetStateAction,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { useProgress } from "@react-three/drei";
-// import Logo from "/logo_light.svg";
 import Renderer from "./Renderer/Renderer";
 import useResize, {
   scaleCanvas,
   scaleCanvasScreen,
 } from "../helpers/useResize";
 import Modal from "./Modal";
-// import Pattern from "./Pattern/Pattern";
-// import Background from "./Background/Background";
-// import TextCaption from "./Text/TextCaption";
-// import CanvasLogo from "./Text/CanvasLogo";
-// import { clamp } from "three/src/math/MathUtils.js";
-// import PatternSVG from "./PatternSVG/PatternSVG3b";
 
 const Progress = ({
   setAssetsLoaded,
@@ -32,7 +22,6 @@ const Progress = ({
   setAssetsLoaded: React.Dispatch<SetStateAction<boolean>>;
 }) => {
   const progress = useProgress();
-  // console.log(progress);
 
   useEffect(() => {
     if (progress.progress === 100) {
@@ -64,7 +53,6 @@ const Scene = ({
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
-  // const fade = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (assetsLoaded && canvasLoaded) setValue("loaded", true);
@@ -77,11 +65,9 @@ const Scene = ({
   }, [canvasContainerRef, setValue]);
 
   useEffect(() => {
-    // console.log(window.devicePixelRatio);
     if (fullscreen) {
       scaleCanvasScreen();
     } else {
-      // console.log("scaling canvas");
       scaleCanvas(layout);
     }
   }, [fullscreen, layout]);
@@ -91,49 +77,7 @@ const Scene = ({
       window.location.href.toLowerCase().includes("debug")
   );
 
-  // const loaded = canvasLoaded && assetsLoaded;
-  // const loaded = false;
-
-  // console.log(`aspect-[${layout.label.split(":").join("/")}]`);
-
-  // console.log(layout.label.split(":").join("/"));
-
-  // const [logo, setLogo] = useState(false);
-
   useResize();
-
-  // scl();
-
-  // const scl = () => {
-  //   const br = 1;
-  //   const padX = 32;
-  //   const padY = 32;
-  //   const panelWidth = 630;
-
-  //   // const minWidth = 1280;
-  //   // const minHeight = 600;
-
-  //   const limit = {
-  //     min: 320,
-  //     max: 1000,
-  //   };
-
-  //   let availableWidth =
-  //     clamp(window.innerWidth, 1280, 2560) - panelWidth - padX * 2 - br * 2;
-  //   let availableHeight =
-  //     clamp(window.innerHeight, 600, 2560) - padY * 2 - br * 2;
-
-  //   availableWidth = clamp(availableWidth, limit.min, limit.max);
-  //   availableHeight = clamp(availableHeight, limit.min, limit.max);
-
-  //   console.log(availableWidth / availableHeight, layout.aspect);
-  //   return availableWidth / availableHeight < layout.aspect;
-  // };
-
-  // const w = canvasContainerRef.current
-  //   ? (canvasContainerRef.current.offsetWidth * 1) / 34
-  //   : 0;
-  // console.log(gridStyle, "GRIDSTYLE");
 
   return (
     <>
@@ -145,9 +89,7 @@ const Scene = ({
         }`}
       >
         <Modal />
-        {/* <div className="h-full w-full"> */}
         <div
-          // className="w-full h-full"
           className={`relative transition-opacity duration-500 ease-in-out ${
             assetsLoaded && canvasLoaded ? "" : "opacity-0"
           }`}
@@ -159,20 +101,11 @@ const Scene = ({
             ref={canvasRef}
             resize={{ debounce: 50, scroll: false }}
             onCreated={() => {
-              // console.log("ready");
               setCanvasLoaded(true);
-
               if (canvasRef.current) {
                 setValue("canvasRef", canvasRef.current);
               }
-              // gl.setClearColor(0x000000);
             }}
-            // camera={{
-            //   fov: 45,
-            //   near: 0.01,
-            //   far: 100,
-            //   position: [0, 0, 5], // 20
-            // }}
             gl={{ preserveDrawingBuffer: true }}
           >
             <Progress setAssetsLoaded={setAssetsLoaded} />
@@ -193,15 +126,11 @@ const Scene = ({
 
 const Grid = ({ debug }: { debug: boolean }) => {
   const canvasSize = useStore((state) => state.canvasSize);
-  // const logo = useStore((state) => state.logo);
   const caption = useStore((state) => state.caption);
 
   const w = canvasSize.width / 34;
 
-  // console.log("WIDTH", canvasContainerRef?.current?.offsetWidth);
-
   const gridStyle = {
-    // paddingTop: logo.value > 0 ? w * 2 : w,
     paddingTop: w,
     paddingBottom: caption.length > 0 ? w * 2 : w,
     paddingLeft: w,

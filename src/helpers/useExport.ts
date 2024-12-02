@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback } from "react";
-// import { useThree } from '@react-three/fiber'
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useThree } from "@react-three/fiber";
@@ -8,19 +7,6 @@ import useStore from "../store/store";
 import { scaleCanvas } from "./useResize";
 import { MathUtils, Mesh, ShaderMaterial, Texture, TextureLoader } from "three";
 import JSZip from "jszip";
-// import JSZip from 'jszip'
-// import { useStore } from '../store/store.js'
-// import { scaleCanvas } from './utils'
-// import useProject from './useProject'
-// import useStore from "../store/store";
-
-// // import IconExport from '/icons/icon_export.svg'
-// const typedArrayToBuffer = (array: Uint8Array): ArrayBuffer => {
-//   return array.buffer.slice(
-//     array.byteOffset,
-//     array.byteLength + array.byteOffset
-//   );
-// };
 
 interface Props {
   render: {
@@ -38,13 +24,6 @@ const nearestHalfUp = (x: number) => {
 };
 
 const useExport = ({ render, renderScene }: Props): ExportObject => {
-  // const image = useStore((state) => state.background.image)
-  // const mode = useStore((state) => state.app.mode.primary)
-  // const bubbleCount = useStore((state) => state.bubbles.count)
-  // const animationDuration = useStore((state) => state.motion.duration)
-  // const exportFps = useStore((state) => state.export.fps)
-  // const exportSettings = useStore((state) => state.exportSettings);
-  // const setExportSettings = useStore((state) => state.setExportSettings);
   const setValue = useStore((state) => state.setValue);
   const exportSettings = useStore((state) => state.exportSettings);
   const ffmpegLoaded = useStore((state) => state.ffmpegLoaded);
@@ -61,61 +40,7 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
   const videoDuration = useStore((state) => state.videoDuration);
   const layout = useStore((state) => state.layout);
 
-  // const { signal, abort } = useMemo(() => {
-  //   const abortController = new AbortController();
-  //   const signal = abortController.signal;
-  //   const abort = () => abortController.abort();
-
-  //   return { signal, abort };
-  // }, []);
-
-  // const modalExport = {
-  //   title: 'Exporting assets',
-  //   progress: 0,
-  //   status: 'Preparing...',
-  //   description:
-  //     // eslint-disable-next-line quotes
-  //     "Please don't change, reload, or close this browser tab while export is in progress",
-  //   closeLabel: 'Cancel',
-  //   onClose: async () => {
-  //     setValue('export.cancelled', true)
-  //     await cancel()
-  //   },
-  //   className: 'modal-export',
-  //   icon: IconExport,
-  // }
-
-  // const test = () => {
-  //   const speed = MathUtils.mapLinear(text.animationSpeed, 0, 1, 0.5, 2);
-
-  //   const steps = 5;
-  //   const ld = 1.5 / speed;
-  //   const off = ((3 * 1.6 + 2 * 0.25) * ld) / 1.5;
-  //   const textDuration = nearestHalfUp(off + steps * ld);
-
-  //   const steps1 = 7;
-  //   const ld1 = 1.5 / speed;
-  //   const off1 = (3 * 0.25 * ld1) / 1.5;
-  //   const textDuration1 = nearestHalfUp(off1 + steps1 * ld);
-  //   const steps2 = 4;
-  //   const ld2 = 1.5 / speed;
-  //   const off2 = (1.5 * ld2) / 1.5;
-  //   const textDuration2 = nearestHalfUp(off2 + steps2 * ld);
-
-  //   console.log(textDuration, textDuration1, textDuration2);
-  // };
-
   const getDuration = () => {
-    // const exportDuration = Number((Math.round(videoDuration * 2) / 2).toFixed(1));
-    // console.log(exportDuration);
-    // if (format.typeRoot === "video" || format.sequence) {
-    //   if (videoDuration !== null && videoDuration > 0) {
-    //     frameCount = Math.min(
-    //       Math.floor(exportFps * videoDuration),
-    //       exportFps * videoDurationLimitSeconds
-    //     );
-    //   }
-
     const videoExport = format.typeRoot === "video" || format.sequence;
 
     if (!videoExport) return 0;
@@ -131,7 +56,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
     // Text animation
     let textDuration = 0;
     if (text.mode.value === 2 && text.animating) {
-      // console.log(text.animationSpeed);
       const speed = MathUtils.mapLinear(text.animationSpeed, 0, 1, 0.5, 2);
 
       if (text.layout.value === 0) {
@@ -178,7 +102,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
       }
     }
 
-    // console.log(vidDuration, textDuration, effectDuration);
     const duration = Math.min(
       Math.max(vidDuration, textDuration, effectDuration),
       durationLimit
@@ -205,51 +128,22 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
     },
   };
 
-  // const { getProject } = useProject()
-
-  // const zip = new JSZip()
-
   const stage = useRef(0);
 
   const ff = useRef<FFmpeg | null>(new FFmpeg());
 
   const zip = new JSZip();
 
-  // const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
   const ffDir = "images";
   const filenamePrefix = "Omidyar_Network";
 
   const { gl } = useThree();
 
-  // const frames = animationDuration.value * exportFps
   const format = exportSettings.format;
   const exportFps = 30;
 
-  // const frameCount = useRef(1)
-  // const videoDurationLimitSeconds = 10;
-  // const exportDuration = Number((Math.round(videoDuration * 2) / 2).toFixed(1));
-  // console.log(exportDuration);
-
-  // let frameCount = 1;
-  // if (format.typeRoot === "video" || format.sequence) {
-  //   if (videoDuration !== null && videoDuration > 0) {
-  //     frameCount = Math.min(
-  //       Math.floor(exportFps * videoDuration),
-  //       exportFps * videoDurationLimitSeconds
-  //     );
-  //   }
-  // }
-
-  // console.log(frameCount);
-  // // const frames = exportFps * 1
-
-  // // let layerCount = bubbleCount + 1 // include gradient background in layer export
-  // // if (image[mode.label]) layerCount += 1 // include image in layer export (if present)
-
   const log = ({ type, message }: { type: string; message: string }) => {
     console.log(type, message);
-
-    // const format = useStore.getState().export.format.value.split('/')[0]
 
     const frameCount = getDuration() * exportFps;
 
@@ -305,7 +199,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
       type: "image/png",
       ext: "png",
       filename: `${filenamePrefix}.png`,
-      // filename: filenamePrefix,
     },
   };
 
@@ -316,8 +209,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
   // https://ffmpegwasm.netlify.app/docs/getting-started/usage/#transcoding-video
   // used this version after vite demo didn't work - caused hang on chrome - maybe due to multithread ??
   const download = async () => {
-    // const setting = useStore.getState().export.format
-
     if (!format) return;
 
     if (!ff.current) return;
@@ -336,20 +227,10 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
       return;
     }
 
-    // calculateDuration();
-
-    // Check formats and input mode
-    // if inputmode === 0 or 3 and video or sequence return
-    // if inputmode === 2 and camerastatus !== 2 return
-    // Check video duration is not null and > 0
-
-    // if (!setting || useStore.getState().export.exporting) return
-
     setValue("exportSettings", { ...exportSettings, exporting: true });
 
     setValue("modal", modalExport);
 
-    // let fc = frameCount;
     const frameCount =
       format.typeRoot === "video" || format.sequence
         ? Math.floor(getDuration() * exportFps)
@@ -357,73 +238,31 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
 
     if (render) render.exportPrep = true;
 
-    // console.log("hello world");
-    // return;
-
-    // const layers = setting.layers || false
-    // const background = setting.background || false
-    // const image = setting.image || false
-    // const bubbles =
-    //   setting.bubbles !== undefined && typeof setting.bubbles === 'boolean'
-    //     ? setting.bubbles
-    //     : true
-    // const sequence = setting.sequence || false
-    // const code = setting.code || false
-
-    // mode === motion and format === image do not set frameCount to 0
-    // const bubbleMode = useStore.getState().bubbles.mode
-    // render.current.keepFrame =
-    //   bubbleMode.label === 'Motion' && format === 'image'
-
-    // document.body.classList.add("exporting");
-
-    // if (useStore.getState().export.cancelled) return
     if (useStore.getState().exportCancelled) return;
 
     scaleCanvas(layout, true, format.typeRoot);
 
     const ffmpeg = ff.current;
 
-    // if (render) render.reset = false
-
     // // If video input mode pause video before export
     if (inputMode.value === 1 && videoRef) {
-      // console.log(videoRef);
-      // videoRef.pause();
       setValue("videoPaused", true);
 
       // If video or sequence export reseek video to zero
       if (format.typeRoot === "video" || format.sequence) {
         videoRef.currentTime = 0;
       }
-      // return;
     }
 
     if (format.typeRoot === "video" || format.sequence) {
       setTime(0);
     }
 
-    // renderScene();
-
-    // render.current.reset = false
-    // render.current.exportPrep = true
-    // render.current.frameCount = 0
-    //
-    // setValue('app.modal', {
-    //   ...modalExport,
-    // })
-
-    // const tsst1 = await ffmpeg.listDir("/");
-    // console.log(tsst1);
-
     // Add timeout so canvas has time to resize before export begins
     await timeout(1000);
 
     if (render) render.exportPrep = false;
 
-    // render.current.exportPrep = false
-
-    // if (useStore.getState().export.cancelled) return
     if (useStore.getState().exportCancelled) return;
 
     setValue("modal", {
@@ -433,18 +272,12 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
 
     const zerotime = performance.now();
 
-    // if (useStore.getState().export.cancelled) return
     if (useStore.getState().exportCancelled) return;
 
     // Set listeners
     ffmpeg.on("log", log);
 
-    // console.log("hello world");
-
-    // if (useStore.getState().export.cancelled) return
     if (useStore.getState().exportCancelled) return;
-
-    // const tsst = await ffmpeg.listDir("images");
 
     await ffmpeg.createDir(ffDir);
 
@@ -457,7 +290,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
       patternRef &&
       backgroundRef
     ) {
-      // console.log(videoUpload);
       setValue("modal", {
         ...modalExport,
         status: "Converting video to frames (0%)",
@@ -473,73 +305,35 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
         "video/video.mp4",
         "-vf",
         `fps=${exportFps}`,
-        "video/frames/%0d.jpg",
+        "video/frames/%0d.png",
       ]);
       const vfs = await ffmpeg.listDir("video/frames");
       videoFrameCount = vfs.filter((vf) => !vf.isDir).length;
       console.log("Video frames:", videoFrameCount);
-      const data = await ffmpeg.readFile("video/frames/1.jpg");
+      const data = await ffmpeg.readFile("video/frames/1.png");
       if (typeof data !== "string") {
-        // const f = Float32Array.from(data)
-        // const blob = new Blob([data.buffer], { type: "image/jpeg" });
-        // const buffer = new Uint8Array(await blob.arrayBuffer());
-        // const test = new TextureLoader().parse( data )
         const url = URL.createObjectURL(
-          new Blob([data], { type: "image/jpeg" })
+          new Blob([data], { type: "image/png" })
         );
         texture.current = await new TextureLoader().loadAsync(url);
-        // console.log(url);
         texture.current.generateMipmaps = false;
-        // texture = new DataTexture(data, 512, 512);
-        // texture.needsUpdate = true;
-        // console.log(texture);
-        // patternRef.uniforms.uVideo.value = null;
         patternRef.uniforms.uExporting.value = 1;
         patternRef.uniforms.uExport.value = texture.current;
         if (inputBackground.value == 1) {
           backgroundRef.uniforms.uExporting.value = 1;
           backgroundRef.uniforms.uExport.value = texture.current;
         }
-        // patternRef.uniforms.uVideo.value.needsUpdate = true;
 
         console.log(
           "Texture size:",
           texture.current.image.width,
           texture.current.image.height
         );
-        // return;
-        // return;
       }
       stage.current = 0;
     }
 
     if (useStore.getState().exportCancelled) return;
-    // if (format === 'image') {
-    //   await saveImages(
-    //     1,
-    //     layers ? layerCount : 1,
-    //     { layers, background, image, bubbles },
-    //     layers ? 'Saving layer: ' : 'Saving image: ',
-    //     format
-    //   )
-    // } else if (format === 'video') {
-    //   await saveImages(
-    //     frames,
-    //     layers ? layerCount : 1,
-    //     { layers, background: !sequence, image },
-    //     layers ? 'Saving layer: ' : 'Saving frame: ',
-    //     format
-    //   )
-
-    //   // Convert images to video/gif
-    //   if (!sequence) {
-    //     setValue('app.modal', {
-    //       ...modalExport,
-    //       status: 'Creating MP4 (0%)',
-    //     })
-    //     await ffmpeg.exec(options[format].exec)
-    //   }
-    // }
 
     await saveImages(frameCount, texture.current, videoFrameCount);
 
@@ -551,20 +345,15 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
       });
       await ffmpeg
         .exec(options[format.typeRoot].exec)
-        // .exec(options[format.typeRoot].exec, undefined, { signal })
         .catch((err) => console.log(err.message));
       stage.current = 0;
     }
 
-    // setValue('export.exporting', false)
-
     setValue("exportSettings", { ...exportSettings, exporting: false });
 
     // Reset canvas size
-    // scaleCanvas()
     scaleCanvas(layout);
 
-    // if (useStore.getState().export.cancelled) return
     if (useStore.getState().exportCancelled) return;
 
     // Download files
@@ -583,13 +372,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
         downloadFile(data, filename);
       }
     }
-
-    // setValue('app.modal', {
-    //   ...modalExport,
-    //   progress: 1,
-    //   status: 'Export complete',
-    //   closeLabel: 'Close',
-    // })
 
     // Delete ffmpeg files and directory
     // Note: moved delete files/dir here from cancel/cleanup else will interfere with async writing operation and can throw error which will prevent cancel. Will have to rely on ffmpeg.terminate to cancel - to do: check if terminate also clears files/dir
@@ -622,174 +404,82 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
     frameCount = 1,
     texture: Texture | null,
     videoFrameCount: number = 0
-  ) =>
-    // frameCount = 1,
-    // layerCount = 1,
-    // canvasSettings = {
-    //   layers: false,
-    //   background: true,
-    //   image: false,
-    //   bubbles: true,
-    //   layerIndex: 0,
-    // },
-    // status = '',
-    // format = 'image'
-    {
-      // const ffmpeg = ff.current;
-      if (!ff.current) return;
+  ) => {
+    if (!ff.current) return;
 
-      // const layerSequence = format === 'video' && canvasSettings.layers
-      // const lsTotal = bubbleCount * frameCount + (layerCount - bubbleCount)
-      // let n = 1
+    const status =
+      format.typeRoot === "image" ? "Saving image: " : "Saving frame: ";
 
-      // await ffmpeg.createDir(ffDir);
-      // for (let i = 0; i < layerCount; i++) {
-      // if (canvasSettings.layers) await ffmpeg.createDir(`${ffDir}/layer_${i}`)
-      // if (format === 'video') render.current.frameCount = 0
-      // const dir = canvasSettings.layers ? `${ffDir}/layer_${i}` : `${ffDir}`
+    for (let j = 0; j < frameCount; j++) {
+      if (useStore.getState().exportCancelled) return;
 
-      // let fc = frameCount
-      // if (canvasSettings.layers && i >= bubbleCount) fc = 1
+      const exportStatus = `${status}${j + 1}/${frameCount}`;
 
-      const status =
-        format.typeRoot === "image" ? "Saving image: " : "Saving frame: ";
-
-      for (let j = 0; j < frameCount; j++) {
-        if (useStore.getState().exportCancelled) return;
-
-        const exportStatus = `${status}${j + 1}/${frameCount}`;
-        //   if (layerSequence) {
-        //     exportStatus = `Saving Layer: ${i + 1}/${layerCount}, Frame: ${
-        //       j + 1
-        //     }/${fc}`
-        //   } else if (canvasSettings.layers) {
-        //     exportStatus = `${status}${i + 1}/${layerCount}`
-        //   }
-
-        if (format.typeRoot === "video" || format.sequence) {
-          // const time = j / fc;
-          const time = j / exportFps;
-          setTime(time);
-        }
-
-        // If video input mode and video/sequence export send video frames as texture to scene
-        if (
-          (format.typeRoot === "video" || format.sequence) &&
-          inputMode.value === 1 &&
-          videoRef &&
-          patternRef &&
-          backgroundRef &&
-          texture &&
-          videoFrameCount > 0
-        ) {
-          //   // Update pattern input texture
-          // texture.set()
-          const frame = (j + 1) % videoFrameCount;
-          const data = await ff.current.readFile(`video/frames/${frame}.jpg`);
-          if (typeof data !== "string") {
-            const url = URL.createObjectURL(
-              new Blob([data], { type: "image/jpeg" })
-            );
-            texture.dispose();
-            texture = await new TextureLoader().loadAsync(url);
-            texture.generateMipmaps = false;
-            patternRef.uniforms.uExport.value = texture;
-            if (inputBackground.value == 1) {
-              backgroundRef.uniforms.uExport.value = texture;
-            }
-            // await new Promise((resolve) => setTimeout(resolve, 50));
-          }
-        }
-
-        // Render manually each frame rather than in useFrame game-loop
-        renderScene();
-
-        // await timeout(100);
-        //   //   const seeked = await new Promise((resolve)=>
-        //   //     videoRef.addEventListener("seeked", () => resolve())
-        //   // )
-
-        //   // videoRef.addEventListener("seeked", (event) => {
-        //   //   console.log(
-        //   //     "Video found the playback position it was looking for.",
-        //   //     videoRef.currentTime
-        //   //   );
-        //   // });
-
-        //   if (videoDuration !== null && videoDuration > 0) {
-        //     videoRef.currentTime = (j / fc) * videoDuration;
-        //     console.log("seeking", (j / fc) * videoDuration);
-        //     // console.log("seeking", );
-        //   }
-        // }
-
-        const progress = (j + 1) / frameCount;
-        //   if (layerSequence) progress = n / lsTotal
-        //   else if (canvasSettings.layers) progress = n / layerCount
-
-        setValue("modal", {
-          ...modalExport,
-          status: exportStatus,
-          progress,
-        });
-
-        //   const settings = canvasSettings.layers
-        //     ? { ...canvasSettings, layerIndex: i, layerSequence }
-        //     : canvasSettings
-
-        //   // Note: Firefox will block reading data from canvas if privacy.resistFingerprinting is enabled in browser config
-        //   // https://support.mozilla.org/en-US/questions/1398931
-        // const buffer = await saveCanvasImage();
-        const blob: Blob = await new Promise((resolve) =>
-          gl.domElement.toBlob((blob) => {
-            if (blob) return resolve(blob);
-            throw new Error("Error converting canvas to blob");
-          })
-        );
-        const buffer = new Uint8Array(await blob.arrayBuffer());
-        // return buffer;
-
-        // console.log(buffer);
-        // console.log("hello world");
-        // const outFile = `${j}.png`;
-        const outFile =
-          format.typeRoot === "video" || format.sequence
-            ? `${j}.png`
-            : ffOptions.filename;
-
-        console.log(`FFMPEG: ${exportStatus} ${ffDir}/${outFile}`);
-
-        await ff.current.writeFile(`${ffDir}/${outFile}`, buffer);
-
-        // if (format === 'video') render.current.frameCount++
-
-        // n++
-        // }
+      if (format.typeRoot === "video" || format.sequence) {
+        const time = j / exportFps;
+        setTime(time);
       }
-    };
 
-  // const saveCanvasImage = async () => {
-  //   // if (layers) {
-  //   //   renderLayers(layerIndex, layerSequence)
-  //   // } else {
-  //   //   renderExport(background, image, bubbles)
-  //   // }
-  //   // await new Promise((resolve) => setTimeout(resolve, 50))
+      // If video input mode and video/sequence export send video frames as texture to scene
+      if (
+        (format.typeRoot === "video" || format.sequence) &&
+        inputMode.value === 1 &&
+        videoRef &&
+        patternRef &&
+        backgroundRef &&
+        texture &&
+        videoFrameCount > 0
+      ) {
+        // Update pattern input texture
+        const frame = (j + 1) % videoFrameCount;
+        const data = await ff.current.readFile(`video/frames/${frame}.png`);
+        if (typeof data !== "string") {
+          const url = URL.createObjectURL(
+            new Blob([data], { type: "image/png" })
+          );
+          texture.dispose();
+          texture = await new TextureLoader().loadAsync(url);
+          texture.generateMipmaps = false;
+          patternRef.uniforms.uExport.value = texture;
+          if (inputBackground.value == 1) {
+            backgroundRef.uniforms.uExport.value = texture;
+          }
+          // await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+      }
 
-  //   // Note: Firefox will block reading data from canvas if privacy.resistFingerprinting is enabled in browser config
-  //   // https://support.mozilla.org/en-US/questions/1398931
-  //   const blob = await new Promise((resolve) => gl.domElement.toBlob(resolve));
-  //   const buffer = new Uint8Array(await blob.arrayBuffer());
-  //   return buffer;
-  //   // gl.domElement.toBlob((blob) => {
-  //   //   if (!blob) return;
-  //   //   blob.arrayBuffer().then((buffer) => {
-  //   //     console.log(buffer);
-  //   //   });
-  //   // });
-  // };
+      // Render manually each frame rather than in useFrame game-loop
+      renderScene();
 
-  // saveCanvasImage()
+      const progress = (j + 1) / frameCount;
+
+      setValue("modal", {
+        ...modalExport,
+        status: exportStatus,
+        progress,
+      });
+
+      //   // Note: Firefox will block reading data from canvas if privacy.resistFingerprinting is enabled in browser config
+      //   // https://support.mozilla.org/en-US/questions/1398931
+      // const buffer = await saveCanvasImage();
+      const blob: Blob = await new Promise((resolve) =>
+        gl.domElement.toBlob((blob) => {
+          if (blob) return resolve(blob);
+          throw new Error("Error converting canvas to blob");
+        })
+      );
+      const buffer = new Uint8Array(await blob.arrayBuffer());
+
+      const outFile =
+        format.typeRoot === "video" || format.sequence
+          ? `${j}.png`
+          : ffOptions.filename;
+
+      console.log(`FFMPEG: ${exportStatus} ${ffDir}/${outFile}`);
+
+      await ff.current.writeFile(`${ffDir}/${outFile}`, buffer);
+    }
+  };
 
   const createZip = async (fc: number = 1) => {
     if (!ff.current) return;
@@ -818,7 +508,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
   };
 
   const downloadFile = (data: Blob, filename: string) => {
-    // setValue('app.modal', { ...modalExport, status: 'Downloading files' })
     const url = URL.createObjectURL(data);
     const a = document.createElement("a");
     a.href = url;
@@ -830,18 +519,13 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
   const cancel = async () => {
     if (!useStore.getState().exportSettings.exporting || !ff.current) return;
 
-    // abort();
-
     // Run cleanup function
     await cleanup();
-
-    // console.log("TERMINATING FFMPEG");
 
     // No exit functionality with @ffmpeg/ffmpeg so terminating and reloading
     ff.current.terminate();
     ff.current = null;
     ff.current = new FFmpeg();
-    // console.log("FFMPEG = NEW", ff.current);
     setValue("ffmpegLoaded", false);
 
     // Re-load ffmpeg
@@ -858,7 +542,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
 
     // Delete ffmpeg files and directory
     const result = await ff.current.listDir(dir);
-    // console.log("RESULT", result);
     for (let i = 0; i < result.length; i++) {
       const item = result[i];
       if ([".", ".."].includes(item.name)) continue;
@@ -888,10 +571,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
   };
 
   const cleanup = async () => {
-    // if (render) {
-    //   render.reset = true
-    // }
-    // render.current.frameCount = 0
     await deleteFiles(ffDir);
 
     if (
@@ -922,30 +601,21 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
     }
 
     if (inputMode.value === 1 && videoRef) {
-      // videoRef.play();
       setValue("videoPaused", false);
     }
 
     setValue("exportSettings", { ...exportSettings, exporting: false });
     setValue("modal", null);
 
-    // setValue('app.modal', null)
-    // setValue('export.exporting', false)
-
     // Reset canvas size (note this needs to be done after exporting value has been set to false)
     scaleCanvas(layout, false);
-
-    // document.body.classList.remove("exporting");
   };
 
   // https://ffmpegwasm.netlify.app/docs/getting-started/usage/#transcoding-video
   // used this version after vite demo didn't work - caused hang on chrome - maybe due to multithread - this version doesn't include worker url in load
   const load = useCallback(async () => {
     const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.4/dist/esm";
-    // const ffmpeg = ff.current;
     if (!ff.current) return;
-
-    // console.log("LOAD", ff.current);
 
     try {
       // toBlobURL is used to bypass CORS issue, urls with the same
@@ -960,13 +630,9 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
           "application/wasm"
         ),
       });
-      // setExport()
-      // console.log("ffmpegloaded");
+
       setValue("ffmpegLoaded", true);
-      // setFfmpegLoaded(true);
       setValue("exportCancelled", false);
-      // setExportSettings({ ...exportSettings, ffmpegLoaded: true });
-      // setValue('export.cancelled', false)
     } catch (error) {
       console.log(error);
     }
@@ -979,7 +645,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
     return () => {
       if (ffmpeg) {
         ffmpeg.terminate();
-        // document.body.classList.remove("ffmpeg-loaded");
       }
     };
   }, [load]);
@@ -987,10 +652,6 @@ const useExport = ({ render, renderScene }: Props): ExportObject => {
   useEffect(() => {
     if (ffmpegLoaded) {
       console.log("Loaded FFPMEG");
-      // document.body.classList.add("ffmpeg-loaded");
-      // setValue("ffmpegLoaded", true);
-    } else {
-      // document.body.classList.remove("ffmpeg-loaded");
     }
   }, [ffmpegLoaded, setValue]);
 

@@ -1,7 +1,6 @@
 const getNodeIso = /* glsl */ `
 
 float getNodeIso(vec2 uv, float i, float j, vec2 id, vec2 scale, vec2 aspectFactor, float af, bool flip, float roundness, float threshold, float d, float b, vec2 grid, vec2 diff, vec4 logop, vec2 xy) {
-  // if (uGrid == 0.) return d;
   if (uConnectors.x == 0. && xy.x == 1.) return d;
   if (uConnectors.y == 0. && xy.y == 1.) return d;
 
@@ -14,8 +13,6 @@ float getNodeIso(vec2 uv, float i, float j, vec2 id, vec2 scale, vec2 aspectFact
   vec2 pA = (floor(uv * grid) + vec2(i, j) + offA + 0.5 + diff) / grid;
   vec2 pB = (floor(uv * grid) + vec2(i, j + dir) + offB + 0.5 + diff) / grid;
   vec2 pC = mix(pA, pB, .5);
-  // vec4 b = getBrightness(pC);
-  // if (i == 0. && j == 0.) color = b.rgb;
 
   float sf = 1.;
   if (uLogo > 0. && (pC.x >= logop.x && pC.y < logop.w)) sf = 0.;
@@ -38,12 +35,8 @@ float getNodeIso(vec2 uv, float i, float j, vec2 id, vec2 scale, vec2 aspectFact
 
   vec2 scl = scale;
 
-
   float a = uViewport.z;
-  // if (a < 1.) scl.x /= a;
-  // else scl.x *= a;
-
-  // scl.x *= af;
+  
   scl *= b * sf;
 
   return mix(d, min(d, sdRoundedBox(pD, scl, vec4(roundness) * b * sf)), step(threshold, b) * sf);

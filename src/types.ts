@@ -1,3 +1,5 @@
+import { BufferGeometry, Object3D, ShaderMaterial } from "three";
+
 export interface Layout {
   label: string;
   aspect: number;
@@ -61,16 +63,12 @@ export interface ExportFormat {
 }
 
 export interface ExportSettings {
-  // ffmpegLoaded: boolean;
   format: ExportFormat;
   exporting: boolean;
   enabled: boolean;
-  // duration: number;
 }
 
 export type TextAlign = "center" | "left" | "right" | "justify" | undefined;
-
-// type ModalType = "message" | "warning" | "error";
 
 export interface Modal {
   title: string;
@@ -92,3 +90,21 @@ export interface EffectSettings {
   };
   animating: boolean;
 }
+
+export interface BackgroundEffectSetting {
+  label: string;
+  value: number;
+}
+
+interface TText {
+  textRenderInfo: { visibleBounds: number[] };
+  geometry: BufferGeometry;
+  material: ShaderMaterial;
+  visible: boolean;
+  userData: {
+    id?: number;
+    pos?: { [key: number]: number[] };
+  };
+}
+
+export type TroikaText = TText & Object3D;

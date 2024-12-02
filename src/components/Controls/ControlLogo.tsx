@@ -31,13 +31,6 @@ const ControlLogo = () => {
 
   return (
     <ControlGroup title="Logo & Caption">
-      {/* <Control label="Logo">
-        <div className="flex gap-x-1">
-          <button onClick={() => handleLogoClick(0)}>Off</button>
-          <button onClick={() => handleLogoClick(1)}>Logo</button>
-          <button onClick={() => handleLogoClick(2)}>Emblem</button>
-        </div>
-      </Control> */}
       <Toggle<LogoOption> {...logoToggleProps} />
 
       <Control label="Caption">

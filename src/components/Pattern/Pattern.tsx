@@ -1,54 +1,20 @@
 import { useEffect, useMemo, useRef } from "react";
-import {
-  Color,
-  // DoubleSide,
-  // RGBAFormat,
-  // Scene,
-  ShaderMaterial,
-  Uniform,
-  Vector3,
-} from "three";
+import { Color, ShaderMaterial, Uniform, Vector2, Vector3 } from "three";
 import useStore from "../../store/store";
-// import { createPortal } from "@react-three/fiber";
-// import {
-//   // Instance,
-//   // Instances,
-//   // PerspectiveCamera,
-//   useFBO,
-// } from "@react-three/drei";
-// import PatternGL from "../PatternGL/PatternGL";
 import vertexShader from "./shaders/vertexShader";
 import fragmentShader from "./shaders/fragmentShader";
-// import TextLayer from "../Text/TextLayer";
-// import PatternSVG from "../PatternSVG/PatternSVG3b";
+import { useThree } from "@react-three/fiber";
 
 const Pattern = () => {
   const effect = useRef<ShaderMaterial>(null);
 
   const backgroundColor = useStore((state) => state.backgroundColor);
   const foregroundColor = useStore((state) => state.foregroundColor);
-  const {
-    // mode: effectMode,
-    // style,
-    animating,
-  } = useStore((state) => state.patternEffect);
+  const { animating } = useStore((state) => state.patternEffect);
   const { mode: textMode, color } = useStore((state) => state.text);
   const setValue = useStore((state) => state.setValue);
 
-  // const { size } = useThree();
-  // const scenePattern = useMemo(() => new Scene(), []);
-  // const sceneText = useMemo(() => new Scene(), []);
-  // const targetPattern = useFBO(size.width, size.height, {
-  //   depthBuffer: false,
-  //   format: RGBAFormat,
-  //   // samples: 2,
-  // });
-
-  // const targetText = useFBO(size.width, size.height, {
-  //   depthBuffer: false,
-  //   format: RGBAFormat,
-  //   // samples: 2,
-  // });
+  const { viewport, size } = useThree();
 
   useEffect(() => {
     if (effect.current) {
@@ -56,26 +22,21 @@ const Pattern = () => {
     }
   }, [effect, setValue]);
 
-  // useEffect(() => {
-  //   if (mode.value === 1) {
-  //     gl.setRenderTarget(target2);
-  //     gl.render(scene2, camera);
-  //   }
-  // }, [gl, camera, scene2, target2, mode]);
+  useEffect(() => {
+    if (effect.current) {
+      effect.current.uniforms.uViewport.value.set(
+        viewport.width,
+        viewport.height,
+        viewport.aspect
+      );
+    }
+  }, [viewport]);
 
-  // useFrame(({ gl, camera }, delta) => {
-  //   if (effect.current && effect.current.uniforms.uEffect.value.z === 1) {
-  //     effect.current.uniforms.uTime.value += delta;
-  //   }
-
-  //   gl.setRenderTarget(targetPattern);
-  //   gl.render(scenePattern, camera);
-  //   if (textMode.value > 0) {
-  //     gl.setRenderTarget(targetText);
-  //     gl.render(sceneText, camera);
-  //   }
-  //   gl.setRenderTarget(null);
-  // });
+  useEffect(() => {
+    if (effect.current) {
+      effect.current.uniforms.uResolution.value.set(size.width, size.height);
+    }
+  }, [size]);
 
   const effectUniforms = useMemo(() => {
     return {
@@ -90,6 +51,16 @@ const Pattern = () => {
       uEffect: new Uniform(new Vector3(0, 0, 1)),
       uTime: new Uniform(0),
       PI: new Uniform(Math.PI),
+      uMode: new Uniform(0),
+      uImage: new Uniform(null),
+      uVideo: new Uniform(null),
+      uExport: new Uniform(null),
+      uExporting: new Uniform(0),
+      uViewport: new Uniform(new Vector3(1, 1, 1)),
+      uResolution: new Uniform(new Vector2(1, 1)),
+      uInputAspect: new Uniform(new Vector3(1, 1, 1)),
+      uInputBackground: new Uniform(0),
+      uBackgroundEffect: new Uniform(0),
     };
   }, []);
 
@@ -123,59 +94,10 @@ const Pattern = () => {
     }
   }, [animating]);
 
-  // useEffect(() => {
-  //   if (effect.current) {
-  //     effect.current.uniforms.uEffect.value.y = style.value
-  //   }
-  // }, [style]);
-
-  // useEffect(() => {
-  //   if (effect.current) {
-  //     // effect.current.uniforms.uEffect.value.y = style.value
-  //     effectRef.uniforms.uEffect.value.y = match.value;
-  //     effectRef.uniforms.uEffect.value.z = 1;
-  //     effectRef.uniforms.uTime.value = 0;
-  //   }
-  // }, [effectMode]);
-
-  // useEffect(() => {
-  //   if (effect.current) {
-  //     effect.current.uniforms.uPattern.value = targetPattern.texture;
-  //   }
-  // }, [targetPattern]);
-
-  // useEffect(() => {
-  //   if (effect.current) {
-  //     effect.current.uniforms.uText.value = targetText.texture;
-  //   }
-  // }, [targetText]);
-
   return (
     <>
-      {/* <PerspectiveCamera
-        near={0.01}
-        far={5}
-        aspect={size.width / size.height}
-        manual
-        makeDefault
-        fov={50}
-        position={[0, 0, 1]}
-      /> */}
-      {/* 
-      {createPortal(<PatternGL />, scenePattern)}
-      {createPortal(<TextLayer />, sceneText)} */}
-      {/* {createPortal(<PatternSVG />, scene)} */}
-
-      {/* <Instances
-        range={5}
-      > */}
       <mesh>
         <planeGeometry args={[1, 1]} />
-        {/* <meshBasicMaterial
-          map={target.texture}
-          toneMapped={false}
-          transparent={true}
-        /> */}
         <shaderMaterial
           ref={effect}
           vertexShader={vertexShader}
@@ -183,19 +105,8 @@ const Pattern = () => {
           uniforms={effectUniforms}
           transparent={true}
           depthTest={false}
-          // opacity={0.4}
-          // depthWrite={false}
-          // side={DoubleSide}
         />
-        {/* <Instance />
-        <Instance />
-        <Instance />
-        <Instance />
-        <Instance />
-        <Instance />
-        <Instance /> */}
       </mesh>
-      {/* </Instances> */}
     </>
   );
 };

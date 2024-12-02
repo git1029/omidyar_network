@@ -26,17 +26,12 @@ const ControlExport = ({
   const patternEffect = useStore((state) => state.patternEffect);
 
   const exportFormatsFiltered = exportFormats.filter((f) => {
-    // return f.modes === undefined ? true : f.modes.includes(inputMode.value)
-
-    // If inputmode is image show mp4/image sequnce if textanimation or effectanimation on and animating
-    // if input mode is video show all
-    // if input mode is camera only allow export to image
-    // if input mode is text show mp4/img sequnece if textanimation or effectanimation on and animating
-
-    // if (inputMode.value === 0 || inputMode.value === 3) {
     if (inputMode.value !== 1) {
       if (f.label === "PNG") return true;
-      else if (text.mode.value === 2 || patternEffect.mode.value === 1)
+      else if (
+        (text.mode.value === 2 && text.animating) ||
+        (patternEffect.mode.value === 1 && patternEffect.animating)
+      )
         return true;
     } else {
       return true;
@@ -60,15 +55,6 @@ const ControlExport = ({
         format: exportFormatsFiltered[0],
       });
     }
-    // if active export format (exportsettings.format) is not present in filtered formats
-    // if (exportSettings.format.modes !== undefined) {
-    //   if (!exportSettings.format.modes.includes(inputMode.value)) {
-    //     setValue("exportSettings", {
-    //       ...exportSettings,
-    //       format: exportFormatsFiltered[0],
-    //     });
-    //   }
-    // }
   }, [exportFormatsFiltered, exportSettings, setValue, inputMode]);
 
   const exportToggle = {

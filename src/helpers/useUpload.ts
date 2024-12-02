@@ -1,6 +1,5 @@
 import { ChangeEvent } from "react";
 import useStore from "../store/store";
-// import { TextureLoader } from "three";
 
 const useUpload = () => {
   const inputMode = useStore((state) => state.inputMode);
@@ -37,29 +36,6 @@ const useUpload = () => {
       console.warn(`Invalid file format, only ${accepts.join(", ")} accepted.`);
     }
   };
-
-  // const handleMediaUpload = (
-  //   file: File,
-  //   loadedFile: string | ArrayBuffer | null
-  // ) => {
-  //   if (!file || typeof loadedFile !== "string") return;
-
-  //   new TextureLoader().load(loadedFile, (tex) => {
-  //     console.log(tex);
-  //   });
-
-  //   const media = {
-  //     name: file.name,
-  //     url: URL.createObjectURL(file),
-  //     type: file.type,
-  //     // tex: new TextureLoader().load(loadedFile),
-  //   };
-
-  //   console.log(media);
-
-  //   // if (inputMode.value === 0) setImageUpload(media);
-  //   // else if (inputMode.value === 1) setVideoUpload(media);
-  // };
 
   return {
     loadFile,

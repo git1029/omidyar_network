@@ -1,19 +1,5 @@
 import useStore from "../store/store";
 
-// export interface Modal {
-//   title: string;
-//   progress?: {
-//     value?: number;
-//     status?: string;
-//   };
-//   description?: string;
-//   type: ModalType;
-//   cancel?: {
-//    label?: string;
-//    onClick?: () => void
-//    }
-// }
-
 const Modal = () => {
   const modal = useStore((state) => state.modal);
   const backgroundColor = useStore((state) => state.backgroundColor);

@@ -1,14 +1,12 @@
 import { Text } from "@react-three/drei";
 import { useEffect, useRef } from "react";
-import { BufferGeometry, Group, ShaderMaterial } from "three";
-
+import { Group } from "three";
 import useStore from "../../store/store";
-import { TextAlign } from "../../types";
-
+import { TextAlign, TroikaText } from "../../types";
 import TextMaterial from "./TextMaterial";
-
 import FeijoaMedium from "/Feijoa-Medium.otf";
-// import CanvasLogo from "./CanvasLogo";
+
+type TText = Text & TroikaText;
 
 const TextLayer = () => {
   const { mode, title, layout, animationScale } = useStore(
@@ -24,17 +22,6 @@ const TextLayer = () => {
       setValue("textRef", textGroup.current);
     }
   }, [textGroup, setValue]);
-
-  type TText = Text & {
-    textRenderInfo: { visibleBounds: number[] };
-    geometry: BufferGeometry;
-    material: ShaderMaterial;
-    visible: boolean;
-    userData: {
-      id?: number;
-      pos?: { [key: number]: number[] };
-    };
-  };
 
   const textLayers = [...Array(12).keys()];
 
@@ -70,41 +57,6 @@ const TextLayer = () => {
       }
     }
   }, [mode, animationScale, textGroup]);
-
-  // const textLayers = [
-  //   { 0: [0, 3], 1: [0, 0], 2: [2, 0] },
-  //   { 0: [0, 0], 1: [1, 1], 2: [0, 0] },
-  //   { 0: [0, 0], 1: [0, 2], 2: [0, 0] },
-  //   { 0: [0, 0], 1: [2, 3], 2: [0, 0] },
-  //   { 0: [0, 0], 1: [0, 0], 2: [0, 0] },
-  //   { 0: [0, 0], 1: [0, 0], 2: [0, 0] },
-  //   { 0: [0, 0], 1: [0, 0], 2: [0, 0] },
-  //   { 0: [0, 0], 1: [0, 0], 2: [0, 0] },
-  // ];
-
-  // useEffect(() => {
-  //   if (textGroup.current) {
-  //     textGroup.current.children.forEach((text) => {
-  //       if (
-  //         (layout.value === 0 || layout.value === 2) &&
-  //         text.userData.id !== undefined &&
-  //         text.userData.id > 0
-  //       )
-  //         text.visible = false;
-  //       else if (
-  //         layout.value === 1 &&
-  //         text.userData.id !== undefined &&
-  //         text.userData.id > 3
-  //       )
-  //         text.visible = false;
-  //       else text.visible = true;
-
-  //       // text.material.uniforms.uId.value.set(
-  //       //   ...text.userData.pos[layout.value]
-  //       // );
-  //     });
-  //   }
-  // }, [layout]);
 
   const onSync = (text: TText) => {
     if (text.geometry.boundingBox && text.textRenderInfo) {
