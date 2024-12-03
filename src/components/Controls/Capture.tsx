@@ -24,7 +24,7 @@ const Capture = () => {
   }, []);
 
   const captureImage = async () => {
-    if (cameraRef && backgroundRef && patternRef && ctx) {
+    if (cameraRef && backgroundRef && patternRef && effectRef && ctx) {
       ctx.save();
       ctx.scale(-1, 1);
       ctx.drawImage(cameraRef, -offscreen.width, 0);
@@ -36,6 +36,9 @@ const Capture = () => {
       if (backgroundRef.uniforms.uImage.value) {
         backgroundRef.uniforms.uImage.value.dispose();
       }
+      if (effectRef.uniforms.uImage.value) {
+        effectRef.uniforms.uImage.value.dispose();
+      }
 
       const texture = new CanvasTexture(offscreen);
       texture.generateMipmaps = false;
@@ -43,6 +46,7 @@ const Capture = () => {
 
       patternRef.uniforms.uImage.value = texture;
       backgroundRef.uniforms.uImage.value = texture;
+      effectRef.uniforms.uImage.value = texture;
 
       const { width, height } = offscreen;
       const aspect = width > 0 && height > 0 ? width / height : 1;

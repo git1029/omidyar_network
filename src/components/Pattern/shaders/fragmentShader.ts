@@ -213,6 +213,8 @@ const fragmentShader = /*glsl*/ `
     float edge = 0.;
     float uCount = mix(1., 10., uEffect.x);
 
+    bool effect = uMode != 3. && uInputBackground == 1. && uBackgroundEffect > 0.;
+
     for (float i = 0.; i < uCount; i++) {
       float ld = 4.;
       float off = i/uCount * 1.;
@@ -359,14 +361,14 @@ const fragmentShader = /*glsl*/ `
           c.a = mix(c.a, smoothstep(.5, 1., c.a), t_ * .5 + .5);
         }
 
-        c.a *= mix(0.65, 1., (uInputBackground == 1. && uBackgroundEffect > 0.) ? 1. : 0.);
+        c.a *= mix(0.65, 1., (effect ? 1. : 0.));
         float alpha = (c.a + color.a * (1. - c.a));
         vec3 col = (uColor * c.a + uColor * color.a * (1. - c.a)) / alpha;
         color = vec4(col, alpha);
       }
     }
 
-    if (uMode != 3. && uInputBackground == 1. && uBackgroundEffect > 0.) {
+    if (effect) {
       float off = smoothstep(.1, .2, color.a) * length(vUv - .5) * .1;
       
       vec4 ic0 = getImage(vUv, true);
@@ -383,10 +385,12 @@ const fragmentShader = /*glsl*/ `
         float size = 8.0; // blur size
         vec2 radius = size/uResolution;
         
+        // if (uMode == 2.) off *= .5;
+
         vec4 cblur = getImage(vUv + off, true);		
         
         for (float j = 0.; j < PI; j += PI/dirs) {
-          for (float i = 1./qual; i <= 1.001; i += 1./qual)  {		
+          for (float i = 1./qual; i <= 1.001; i += 1./qual)  {
             cblur += getImage(vUv + i * vec2(cos(j), sin(j)) * radius + off, true);		
           }
         }
@@ -399,7 +403,7 @@ const fragmentShader = /*glsl*/ `
     if (uTextEnabled == 1.) {
       vec4 text = texture(uText, vUv);
       vec4 ic0 = getImage(vUv, true);
-      float texta = color.a * mix(uBlendText, 0., (uInputBackground == 1. && uBackgroundEffect > 0.) ? 1.: 0.);
+      float texta = color.a * mix(uBlendText, 0., effect ? 1.: 0.);
       vec3 textColor = mix(uColorText, mix(uColorText, uColor, .4), texta);
       color.rgb = mix(mix(color.rgb, ic0.rgb, 1.-color.a), textColor, text.a);
       color.a = max(color.a, text.a);

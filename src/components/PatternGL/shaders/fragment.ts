@@ -204,7 +204,7 @@ const fragmentShader = (mode: number) => /* glsl */ `
     vec2 diff = (grid - floor(grid)) * .5;
 
     float ascl = aspect < 1. ? 1./aspect : aspect;
-    float blur = uInputBackground == 1. && uBackgroundEffect == 2. ? 1. : 0.;
+    float blur = uMode != 3. && uInputBackground == 1. && uBackgroundEffect == 2. ? 1. : 0.;
 
     float sboxx = .5/f;
     ${mode === 1 ? "sboxx *= 1.43;" : ""}

@@ -54,6 +54,7 @@ const Pattern = () => {
       uMode: new Uniform(0),
       uImage: new Uniform(null),
       uVideo: new Uniform(null),
+      uCamera: new Uniform(null),
       uExport: new Uniform(null),
       uExporting: new Uniform(0),
       uViewport: new Uniform(new Vector3(1, 1, 1)),

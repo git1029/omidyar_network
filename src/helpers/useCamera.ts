@@ -89,10 +89,18 @@ const useCamera = () => {
           patternRef.uniforms.uCamera.value = null;
           patternRef.uniforms.uInputAspect.value.z = 1;
         }
+        if (backgroundRef) {
+          backgroundRef.uniforms.uCamera.value = null;
+          backgroundRef.uniforms.uInputAspect.value.z = 1;
+        }
+        if (effectRef) {
+          effectRef.uniforms.uCamera.value = null;
+          effectRef.uniforms.uInputAspect.value.z = 1;
+        }
         setValue("cameraStatus", 0);
       }
     }
-  }, [inputMode, texture]);
+  }, [inputMode, texture, backgroundRef, patternRef, effectRef, cameraRef]);
 
   return null;
 };
